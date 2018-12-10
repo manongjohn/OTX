@@ -107,9 +107,8 @@ qt5_add_resources(SOURCES src/color_widgets.qrc)
 add_library(${COLOR_WIDGETS_LIBRARY} ${SOURCES})
 target_link_libraries(${COLOR_WIDGETS_LIBRARY} Qt5::Widgets)
 
-add_subdirectory(gallery)
-
-find_package(Qt5Designer)
-if(Qt5Designer_FOUND)
-    add_subdirectory(color_widgets_designer_plugin)
-endif()
+# not really needed for OT
+# find_package(Qt5Designer)
+# if(Qt5Designer_FOUND)
+    # add_subdirectory(color_widgets_designer_plugin)
+# endif()
