@@ -33,6 +33,7 @@
 #include <QPainter>
 #include <QWidgetAction>
 #include <QSlider>
+#include <QToolTip>
 #include <QDebug>
 
 #include <memory>
@@ -115,6 +116,23 @@ public:
 	painter.drawLine(xx, 4, xx, side-4);
 	auto yy = side/2;
 	painter.drawLine(offset+4, yy, offset+side-4, yy);
+    }
+
+    bool event(QEvent* event) override {
+	if(event->type() == QEvent::ToolTip) {
+	    QHelpEvent* help_ev = static_cast<QHelpEvent*>(event);
+	    if ( indexAt(help_ev->pos()) == -1 ) {
+		QToolTip::showText(
+		    help_ev->globalPos(),
+		    tr("Left-click to add, right-click to delete, drag&drop to reorder"),
+		    this,
+		    QRect()
+		);
+		event->accept();
+		return true;
+	    }
+	}
+	return Swatch::event(event);
     }
 
 
