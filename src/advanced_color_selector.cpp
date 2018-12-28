@@ -109,10 +109,12 @@ public:
 	int offset = sz.width()*count;
 	QPainter painter(this);
 	painter.setPen(QPen(Qt::white, 2));
-	auto xx = offset + sz.width()/2;
-	painter.drawLine(xx, 1, xx, sz.height()-2);
-	auto yy = sz.height()/2;
-	painter.drawLine(offset+1, yy, offset+sz.width()-2, yy);
+	auto side = std::min(sz.width(), sz.height());
+	painter.drawEllipse(offset+4, 4, side-8, side-8);
+	auto xx = offset + side/2;
+	painter.drawLine(xx, 4, xx, side-4);
+	auto yy = side/2;
+	painter.drawLine(offset+4, yy, offset+side-4, yy);
     }
 
 
@@ -126,7 +128,7 @@ public:
 	QWidgetAction(nullptr)
     {
 	auto slider = new QSlider(Qt::Horizontal);
-	slider->setMinimum(12);
+	slider->setMinimum(16);
 	slider->setMaximum(32);
 	connect(slider, &QSlider::valueChanged, action);
 	setDefaultWidget(slider);
