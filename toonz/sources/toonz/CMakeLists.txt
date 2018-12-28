@@ -414,7 +414,7 @@ if(BUILD_TARGET_WIN)
     endif()
 endif()
 
-target_link_libraries(OpenToonz_${VERSION} ColorWidgets-qt5)
+target_link_libraries(OpenToonz ColorWidgets-qt5)
 
 if(BUILD_ENV_MSVC)
     target_link_libraries(OpenToonz
