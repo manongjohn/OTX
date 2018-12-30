@@ -26,9 +26,6 @@ set(CMAKE_AUTOUIC OFF)
 set(CMAKE_AUTORCC OFF)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-# Debug
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -pedantic -Wextra")
-
 # C++11
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -106,6 +103,8 @@ qt5_add_resources(SOURCES src/color_widgets.qrc)
 # Library
 add_library(${COLOR_WIDGETS_LIBRARY} ${SOURCES})
 target_link_libraries(${COLOR_WIDGETS_LIBRARY} Qt5::Widgets)
+
+add_definitions(-DQTCOLORWIDGETS_LIBRARY)
 
 # not really needed for OT
 # find_package(Qt5Designer)
