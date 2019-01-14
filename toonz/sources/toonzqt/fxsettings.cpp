@@ -1516,6 +1516,10 @@ void FxSettings::onPreferedSizeChanged(QSize pvBestSize) {
     popupBestSize += QSize(0, m_viewer->height() + m_toolBar->height());
   }
 
+  // Set minimum size, just in case
+  popupBestSize.setHeight(std::max(popupBestSize.height(), 50));
+  popupBestSize.setWidth(std::max(popupBestSize.width(), 380));
+
   QDialog *popup = dynamic_cast<QDialog *>(parentWidget());
   if (popup) {
     QRect geom = popup->geometry();
