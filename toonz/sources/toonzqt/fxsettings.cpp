@@ -1014,7 +1014,8 @@ void ParamViewer::setFx(const TFxP &currentFx, const TFxP &actualFx, int frame,
 
   getCurrentPageSet()->setScene(scene);
 
-  if (m_fx != currentFx) {
+  if (m_fx != actualFx) {
+    m_fx = actualFx;
     getCurrentPageSet()->setFx(currentFx, actualFx, frame);
     QSize pageViewerPreferedSize =
         getCurrentPageSet()->getPreferedSize() + QSize(2, 20);
