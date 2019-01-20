@@ -1516,7 +1516,8 @@ void FxSettings::onViewModeChanged(QAction *triggeredAct) {
 void FxSettings::onPreferedSizeChanged(QSize pvBestSize) {
   QSize popupBestSize = pvBestSize;
   if (m_toolBar->isVisible()) {
-    popupBestSize += QSize(0, m_viewer->height() + m_toolBar->height());
+    popupBestSize += QSize(0, m_viewer->height() + m_toolBar->height() + 34);
+    popupBestSize.setWidth(std::max(popupBestSize.width(), m_viewer->width()));
   }
 
   // Set minimum size, just in case
