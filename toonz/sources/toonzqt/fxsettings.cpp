@@ -1014,12 +1014,14 @@ void ParamViewer::setFx(const TFxP &currentFx, const TFxP &actualFx, int frame,
 
   getCurrentPageSet()->setScene(scene);
 
-  if (m_fx != actualFx) {
-    m_fx = actualFx;
+  if (m_fx != currentFx) {
     getCurrentPageSet()->setFx(currentFx, actualFx, frame);
-    QSize pageViewerPreferedSize =
-        getCurrentPageSet()->getPreferedSize() + QSize(2, 20);
-    emit preferedSizeChanged(pageViewerPreferedSize);
+    if (m_actualFx != actualFx) {
+      m_actualFx = actualFx;
+      QSize pageViewerPreferedSize =
+          getCurrentPageSet()->getPreferedSize() + QSize(2, 20);
+      emit preferedSizeChanged(pageViewerPreferedSize);
+    }
   }
 }
 

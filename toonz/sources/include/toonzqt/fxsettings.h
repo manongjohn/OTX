@@ -190,6 +190,7 @@ class DVAPI ParamViewer final : public QFrame {
   Q_OBJECT
 
   TFxP m_fx;
+  TFxP m_actualFx;
 
   QStackedWidget *m_tablePageSet;
   QMap<std::string, int> m_tableFxIndex;
