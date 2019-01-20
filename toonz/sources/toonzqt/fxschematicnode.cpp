@@ -2629,6 +2629,17 @@ void FxSchematicNormalFxNode::mouseDoubleClickEvent(
 
 //-----------------------------------------------------
 
+void FxSchematicNormalFxNode::mousePressEvent(QGraphicsSceneMouseEvent *me) {
+  FxSchematicNode::mousePressEvent(me);
+
+  QAction *fxEditorPopup =
+      CommandManager::instance()->getAction("MI_FxParamEditor");
+  // this signal cause the update the contents of the FxSettings
+  if (fxEditorPopup->isVisible()) emit fxNodeDoubleClicked();
+}
+
+//-----------------------------------------------------
+
 void FxSchematicNormalFxNode::resize(bool maximized) {}
 
 //*****************************************************
@@ -2861,6 +2872,17 @@ void FxSchematicZeraryNode::mouseDoubleClickEvent(
     // this signal cause the update the contents of the FxSettings
     emit fxNodeDoubleClicked();
   }
+}
+
+//-----------------------------------------------------
+
+void FxSchematicZeraryNode::mousePressEvent(QGraphicsSceneMouseEvent *me) {
+  FxSchematicNode::mousePressEvent(me);
+
+  QAction *fxEditorPopup =
+      CommandManager::instance()->getAction("MI_FxParamEditor");
+  // this signal cause the update the contents of the FxSettings
+  if (fxEditorPopup->isVisible()) emit fxNodeDoubleClicked();
 }
 
 //-----------------------------------------------------
@@ -3163,7 +3185,24 @@ void FxSchematicColumnNode::mouseDoubleClickEvent(
     m_nameItem->show();
     m_nameItem->setFocus();
     setFlag(QGraphicsItem::ItemIsSelectable, false);
+  } else {
+    QAction *fxEitorPopup =
+        CommandManager::instance()->getAction("MI_FxParamEditor");
+    fxEitorPopup->trigger();
+    // this signal cause the update the contents of the FxSettings
+    emit fxNodeDoubleClicked();
   }
+}
+
+//-----------------------------------------------------
+
+void FxSchematicColumnNode::mousePressEvent(QGraphicsSceneMouseEvent *me) {
+  FxSchematicNode::mousePressEvent(me);
+
+  QAction *fxEditorPopup =
+      CommandManager::instance()->getAction("MI_FxParamEditor");
+  // this signal cause the update the contents of the FxSettings
+  if (fxEditorPopup->isVisible()) emit fxNodeDoubleClicked();
 }
 
 //-----------------------------------------------------
@@ -3338,6 +3377,17 @@ void FxSchematicPaletteNode::mouseDoubleClickEvent(
         CommandManager::instance()->getAction("MI_FxParamEditor");
     fxEitorPopup->trigger();
   }
+}
+
+//-----------------------------------------------------
+
+void FxSchematicPaletteNode::mousePressEvent(QGraphicsSceneMouseEvent *me) {
+  FxSchematicNode::mousePressEvent(me);
+
+  QAction *fxEditorPopup =
+      CommandManager::instance()->getAction("MI_FxParamEditor");
+  // this signal cause the update the contents of the FxSettings
+  if (fxEditorPopup->isVisible()) emit fxNodeDoubleClicked();
 }
 
 //-----------------------------------------------------
