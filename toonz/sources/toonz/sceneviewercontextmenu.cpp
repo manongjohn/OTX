@@ -81,6 +81,16 @@ SceneViewerContextMenu::SceneViewerContextMenu(SceneViewer *parent)
           parent->connect(action, SIGNAL(triggered()), SLOT(swapCompared()));
   }
 
+  // flip horizontally
+  action = commandManager->createAction(V_FlipX, this);
+  addAction(action);
+  ret = ret && parent->connect(action, SIGNAL(triggered()), SLOT(flipX()));
+
+  // flip vertically
+  action = commandManager->createAction(V_FlipY, this);
+  addAction(action);
+  ret = ret && parent->connect(action, SIGNAL(triggered()), SLOT(flipY()));
+
   // reset
   action = commandManager->createAction(V_ViewReset, this);
   addAction(action);
