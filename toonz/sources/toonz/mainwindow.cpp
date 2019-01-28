@@ -2096,6 +2096,7 @@ void MainWindow::defineActions() {
   createViewerAction(V_ZoomOut, tr("Zoom Out"), "-");
   createViewerAction(V_ZoomReset, tr("Reset View"), "Alt+0");
   createViewerAction(V_ZoomFit, tr("Fit to Window"), "Alt+9");
+  createViewerAction(V_RotateReset, tr("Reset Rotation"), "");
   createViewerAction(V_ActualPixelSize, tr("Actual Pixel Size"), "N");
   createViewerAction(V_FlipX, tr("Flip Viewer Horizontally"), "");
   createViewerAction(V_FlipY, tr("Flip Viewer Vertically"), "");

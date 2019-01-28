@@ -511,8 +511,10 @@ SceneViewer::SceneViewer(ImageUtils::FullScreenWidget *parent)
   this->setTabletTracking(true);
 #endif
 
-  for (int i = 0; i < tArrayCount(m_viewAff); i++)
+  for (int i = 0; i < tArrayCount(m_viewAff); i++) {
     setViewMatrix(getNormalZoomScale(), i);
+    m_rotationAngle[i] = 0.0;
+  }
 
   m_3DSideR = rasterFromQPixmap(svgToPixmap(":Resources/3Dside_r.svg"));
   m_3DSideL = rasterFromQPixmap(svgToPixmap(":Resources/3Dside_l.svg"));
@@ -2017,7 +2019,8 @@ void SceneViewer::flipY() {
 void SceneViewer::rotate(const TPointD &center, double angle) {
   if (angle == 0) return;
   if (m_isFlippedX != m_isFlippedY) angle = -angle;
-  TPointD realCenter                      = m_viewAff[m_viewMode] * center;
+  m_rotationAngle[m_viewMode] += angle;
+  TPointD realCenter = m_viewAff[m_viewMode] * center;
   setViewMatrix(TRotation(realCenter, angle) * m_viewAff[m_viewMode],
                 m_viewMode);
   invalidateAll();
@@ -2109,8 +2112,10 @@ void SceneViewer::resetSceneViewer() {
   m_visualSettings.m_sceneProperties =
       TApp::instance()->getCurrentScene()->getScene()->getProperties();
 
-  for (int i = 0; i < tArrayCount(m_viewAff); i++)
+  for (int i = 0; i < tArrayCount(m_viewAff); i++) {
     setViewMatrix(getNormalZoomScale(), i);
+    m_rotationAngle[i] = 0.0;
+  }
 
   m_pos         = QPoint(0, 0);
   m_pan3D       = TPointD(0, 0);
@@ -2121,6 +2126,15 @@ void SceneViewer::resetSceneViewer() {
   m_isFlippedY  = false;
   emit onZoomChanged();
   invalidateAll();
+}
+
+//-----------------------------------------------------------------------------
+
+void SceneViewer::resetRotation() {
+  double reverseRotatation = (m_rotationAngle[m_viewMode] * -1);
+  if (m_isFlippedX) reverseRotatation *= -1;
+  if (m_isFlippedY) reverseRotatation *= -1;
+  rotate(m_viewAff[m_viewMode].inv() * TPointD(0, 0), reverseRotatation);
 }
 
 //-----------------------------------------------------------------------------

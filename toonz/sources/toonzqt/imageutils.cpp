@@ -803,7 +803,7 @@ namespace {
 
 void getViewerShortcuts(int &zoomIn, int &zoomOut, int &zoomReset, int &zoomFit,
                         int &showHideFullScreen, int &actualPixelSize,
-                        int &flipX, int &flipY) {
+                        int &flipX, int &flipY, int &rotateReset) {
   CommandManager *cManager = CommandManager::instance();
 
   zoomIn = cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_ZoomIn));
@@ -819,6 +819,8 @@ void getViewerShortcuts(int &zoomIn, int &zoomOut, int &zoomReset, int &zoomFit,
       cManager->getShortcutFromId(V_ActualPixelSize));
   flipX = cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_FlipX));
   flipY = cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_FlipY));
+  rotateReset =
+      cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_RotateReset));
 }
 
 }  // namespace
@@ -834,9 +836,10 @@ ShortcutZoomer::ShortcutZoomer(QWidget *zoomingWidget)
 
 bool ShortcutZoomer::exec(QKeyEvent *event) {
   int zoomInKey, zoomOutKey, zoomResetKey, zoomFitKey, showHideFullScreenKey,
-      actualPixelSize, flipX, flipY;
+      actualPixelSize, flipX, flipY, rotateReset;
   getViewerShortcuts(zoomInKey, zoomOutKey, zoomResetKey, zoomFitKey,
-                     showHideFullScreenKey, actualPixelSize, flipX, flipY);
+                     showHideFullScreenKey, actualPixelSize, flipX, flipY,
+                     rotateReset);
 
   int key = event->key();
   if (key == Qt::Key_Control || key == Qt::Key_Shift || key == Qt::Key_Alt)
@@ -860,8 +863,11 @@ bool ShortcutZoomer::exec(QKeyEvent *event) {
                                             key == zoomResetKey)
                                      : (key == flipX)
                                            ? setFlipX()
-                                           : (key == flipY) ? setFlipY()
-                                                            : false;
+                                           : (key == flipY)
+                                                 ? setFlipY()
+                                                 : (key == rotateReset)
+                                                       ? resetRotation()
+                                                       : false;
 }
 
 //*********************************************************************************************

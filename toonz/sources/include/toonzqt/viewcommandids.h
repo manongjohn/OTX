@@ -11,5 +11,6 @@
 #define V_ActualPixelSize "T_ActualPixelSize"
 #define V_FlipX "T_FlipX"
 #define V_FlipY "T_FlipY"
+#define V_RotateReset "T_RotateReset"
 
 #endif  // VIEWCOMMANDIDS_H

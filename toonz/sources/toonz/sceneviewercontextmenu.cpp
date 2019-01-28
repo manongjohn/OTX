@@ -95,6 +95,12 @@ SceneViewerContextMenu::SceneViewerContextMenu(SceneViewer *parent)
           parent->connect(action, SIGNAL(triggered()), SLOT(fitToCamera()));
   }
 
+  // reset rotation
+  action = commandManager->createAction(V_RotateReset, this);
+  addAction(action);
+  ret = ret &&
+        parent->connect(action, SIGNAL(triggered()), SLOT(resetRotation()));
+
   // actual pixel size
   action = commandManager->createAction(V_ActualPixelSize, this);
   addAction(action);
