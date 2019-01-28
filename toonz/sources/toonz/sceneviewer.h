@@ -396,6 +396,7 @@ protected:
 public slots:
 
   void resetSceneViewer();
+  void resetZoom();
   void resetRotation();
   void setActualPixelSize();
   void flipX();

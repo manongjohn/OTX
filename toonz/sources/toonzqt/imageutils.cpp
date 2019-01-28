@@ -801,15 +801,16 @@ double getQuantizedZoomFactor(double zf, bool forward) {
 
 namespace {
 
-void getViewerShortcuts(int &zoomIn, int &zoomOut, int &zoomReset, int &zoomFit,
+void getViewerShortcuts(int &zoomIn, int &zoomOut, int &viewReset, int &zoomFit,
                         int &showHideFullScreen, int &actualPixelSize,
-                        int &flipX, int &flipY, int &rotateReset) {
+                        int &flipX, int &flipY, int &zoomReset,
+                        int &rotateReset) {
   CommandManager *cManager = CommandManager::instance();
 
   zoomIn = cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_ZoomIn));
   zoomOut =
       cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_ZoomOut));
-  zoomReset =
+  viewReset =
       cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_ViewReset));
   zoomFit =
       cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_ZoomFit));
@@ -819,6 +820,8 @@ void getViewerShortcuts(int &zoomIn, int &zoomOut, int &zoomReset, int &zoomFit,
       cManager->getShortcutFromId(V_ActualPixelSize));
   flipX = cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_FlipX));
   flipY = cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_FlipY));
+  zoomReset =
+      cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_ZoomReset));
   rotateReset =
       cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_RotateReset));
 }
@@ -835,11 +838,11 @@ ShortcutZoomer::ShortcutZoomer(QWidget *zoomingWidget)
 //--------------------------------------------------------------------------
 
 bool ShortcutZoomer::exec(QKeyEvent *event) {
-  int zoomInKey, zoomOutKey, zoomResetKey, zoomFitKey, showHideFullScreenKey,
-      actualPixelSize, flipX, flipY, rotateReset;
-  getViewerShortcuts(zoomInKey, zoomOutKey, zoomResetKey, zoomFitKey,
+  int zoomInKey, zoomOutKey, viewResetKey, zoomFitKey, showHideFullScreenKey,
+      actualPixelSize, flipX, flipY, zoomReset, rotateReset;
+  getViewerShortcuts(zoomInKey, zoomOutKey, viewResetKey, zoomFitKey,
                      showHideFullScreenKey, actualPixelSize, flipX, flipY,
-                     rotateReset);
+                     zoomReset, rotateReset);
 
   int key = event->key();
   if (key == Qt::Key_Control || key == Qt::Key_Shift || key == Qt::Key_Alt)
@@ -858,16 +861,19 @@ bool ShortcutZoomer::exec(QKeyEvent *event) {
                          : (key == zoomFitKey)
                                ? fit()
                                : (key == zoomInKey || key == zoomOutKey ||
-                                  key == zoomResetKey)
+                                  key == viewResetKey)
                                      ? zoom(key == zoomInKey,
-                                            key == zoomResetKey)
+                                            key == viewResetKey)
                                      : (key == flipX)
                                            ? setFlipX()
                                            : (key == flipY)
                                                  ? setFlipY()
-                                                 : (key == rotateReset)
-                                                       ? resetRotation()
-                                                       : false;
+                                                 : (key == zoomReset)
+                                                       ? resetZoom()
+                                                       : (key == rotateReset)
+                                                             ? resetRotation()
+                                                             : false;
+  ;
 }
 
 //*********************************************************************************************

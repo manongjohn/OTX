@@ -234,6 +234,9 @@ protected:
   virtual bool setFlipY() {
     return false;
   }  //!< Handler for 'flip viewer horizontally' commands.
+  virtual bool resetZoom() {
+    return false;
+  }  //!< Handler for 'reset zoom' commands.
   virtual bool resetRotation() {
     return false;
   }  //!< Handler for 'reset rotation' commands.

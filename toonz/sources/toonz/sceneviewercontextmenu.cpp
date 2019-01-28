@@ -95,6 +95,11 @@ SceneViewerContextMenu::SceneViewerContextMenu(SceneViewer *parent)
           parent->connect(action, SIGNAL(triggered()), SLOT(fitToCamera()));
   }
 
+  // reset zoom
+  action = commandManager->createAction(V_ZoomReset, this);
+  addAction(action);
+  ret = ret && parent->connect(action, SIGNAL(triggered()), SLOT(resetZoom()));
+
   // reset rotation
   action = commandManager->createAction(V_RotateReset, this);
   addAction(action);

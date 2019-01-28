@@ -2130,8 +2130,23 @@ void SceneViewer::resetSceneViewer() {
 
 //-----------------------------------------------------------------------------
 
+void SceneViewer::resetZoom() {
+  TPointD realCenter(m_viewAff[m_viewMode].a13, m_viewAff[m_viewMode].a23);
+  TAffine aff =
+      getNormalZoomScale() * TRotation(realCenter, m_rotationAngle[m_viewMode]);
+  aff.a13               = realCenter.x;
+  aff.a23               = realCenter.y;
+  if (m_isFlippedX) aff = aff * TScale(-1, 1);
+  if (m_isFlippedY) aff = aff * TScale(1, -1);
+  setViewMatrix(aff, m_viewMode);
+  invalidateAll();
+  emit onZoomChanged();
+}
+
+//-----------------------------------------------------------------------------
+
 void SceneViewer::resetRotation() {
-  double reverseRotatation = (m_rotationAngle[m_viewMode] * -1);
+  double reverseRotatation = m_rotationAngle[m_viewMode] * -1;
   if (m_isFlippedX) reverseRotatation *= -1;
   if (m_isFlippedY) reverseRotatation *= -1;
   rotate(m_viewAff[m_viewMode].inv() * TPointD(0, 0), reverseRotatation);
