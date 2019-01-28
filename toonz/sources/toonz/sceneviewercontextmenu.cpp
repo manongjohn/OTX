@@ -82,7 +82,7 @@ SceneViewerContextMenu::SceneViewerContextMenu(SceneViewer *parent)
   }
 
   // reset
-  action = commandManager->createAction(V_ZoomReset, this);
+  action = commandManager->createAction(V_ViewReset, this);
   addAction(action);
   ret = ret &&
         parent->connect(action, SIGNAL(triggered()), SLOT(resetSceneViewer()));

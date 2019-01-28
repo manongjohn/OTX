@@ -3,6 +3,7 @@
 #ifndef VIEWCOMMANDIDS_H
 #define VIEWCOMMANDIDS_H
 
+#define V_ViewReset "T_ViewReset"
 #define V_ZoomIn "T_Zoomin"  // Can't change prefix due to retrocompatibility
 #define V_ZoomOut "T_Zoomout"
 #define V_ZoomReset "T_ZoomReset"

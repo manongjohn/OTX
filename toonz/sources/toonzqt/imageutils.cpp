@@ -810,7 +810,7 @@ void getViewerShortcuts(int &zoomIn, int &zoomOut, int &zoomReset, int &zoomFit,
   zoomOut =
       cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_ZoomOut));
   zoomReset =
-      cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_ZoomReset));
+      cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_ViewReset));
   zoomFit =
       cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_ZoomFit));
   showHideFullScreen = cManager->getKeyFromShortcut(

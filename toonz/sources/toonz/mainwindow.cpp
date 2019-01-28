@@ -2094,7 +2094,7 @@ void MainWindow::defineActions() {
 
   createViewerAction(V_ZoomIn, tr("Zoom In"), "+");
   createViewerAction(V_ZoomOut, tr("Zoom Out"), "-");
-  createViewerAction(V_ZoomReset, tr("Reset View"), "Alt+0");
+  createViewerAction(V_ViewReset, tr("Reset View"), "Alt+0");
   createViewerAction(V_ZoomFit, tr("Fit to Window"), "Alt+9");
   createViewerAction(V_RotateReset, tr("Reset Rotation"), "");
   createViewerAction(V_ActualPixelSize, tr("Actual Pixel Size"), "N");
