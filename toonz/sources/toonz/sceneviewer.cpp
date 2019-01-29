@@ -2200,7 +2200,14 @@ void SceneViewer::resetRotation() {
   double reverseRotatation = m_rotationAngle[m_viewMode] * -1;
   if (m_isFlippedX) reverseRotatation *= -1;
   if (m_isFlippedY) reverseRotatation *= -1;
-  rotate(m_viewAff[m_viewMode].inv() * TPointD(0, 0), reverseRotatation);
+  TTool *tool    = TApp::instance()->getCurrentTool()->getTool();
+  TPointD center = m_viewAff[m_viewMode].inv() * TPointD(0, 0);
+  if (tool->getName() == "T_Rotate" &&
+      tool->getProperties(0)
+              ->getProperty("Rotate On Camera Center")
+              ->getValueAsString() == "1")
+    center = TPointD(0, 0);
+  rotate(center, reverseRotatation);
 }
 
 //-----------------------------------------------------------------------------
