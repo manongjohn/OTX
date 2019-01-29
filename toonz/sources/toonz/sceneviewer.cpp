@@ -24,6 +24,7 @@
 #include "toonzqt/gutil.h"
 #include "toonzqt/imageutils.h"
 #include "toonzqt/lutcalibrator.h"
+#include "toonzqt/viewcommandids.h"
 
 // TnzLib includes
 #include "toonz/tscenehandle.h"
@@ -450,6 +451,56 @@ public:
     if (tool) tool->reset();
   }
 } resetShiftTraceCommand;
+
+class TViewResetCommand final : public MenuItemHandler {
+public:
+  TViewResetCommand() : MenuItemHandler(V_ViewReset) {}
+  void execute() override {
+    TApp::instance()->getActiveViewer()->resetSceneViewer();
+  }
+} viewResetCommand;
+
+class TZoomResetCommand final : public MenuItemHandler {
+public:
+  TZoomResetCommand() : MenuItemHandler(V_ZoomReset) {}
+  void execute() override { TApp::instance()->getActiveViewer()->resetZoom(); }
+} zoomResetCommand;
+
+class TZoomFitCommand final : public MenuItemHandler {
+public:
+  TZoomFitCommand() : MenuItemHandler(V_ZoomFit) {}
+  void execute() override {
+    TApp::instance()->getActiveViewer()->fitToCamera();
+  }
+} zoomFitCommand;
+
+class TActualPixelSizeCommand final : public MenuItemHandler {
+public:
+  TActualPixelSizeCommand() : MenuItemHandler(V_ActualPixelSize) {}
+  void execute() override {
+    TApp::instance()->getActiveViewer()->setActualPixelSize();
+  }
+} aActualPixelSizeCommand;
+
+class TFlipViewerXCommand final : public MenuItemHandler {
+public:
+  TFlipViewerXCommand() : MenuItemHandler(V_FlipX) {}
+  void execute() override { TApp::instance()->getActiveViewer()->flipX(); }
+} flipViewerXCommand;
+
+class TFlipViewerYCommand final : public MenuItemHandler {
+public:
+  TFlipViewerYCommand() : MenuItemHandler(V_FlipY) {}
+  void execute() override { TApp::instance()->getActiveViewer()->flipY(); }
+} flipViewerYCommand;
+
+class TRotateResetCommand final : public MenuItemHandler {
+public:
+  TRotateResetCommand() : MenuItemHandler(V_RotateReset) {}
+  void execute() override {
+    TApp::instance()->getActiveViewer()->resetRotation();
+  }
+} rotateResetCommand;
 
 //=============================================================================
 // SceneViewer
