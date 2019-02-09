@@ -116,6 +116,12 @@ SceneViewerContextMenu::SceneViewerContextMenu(SceneViewer *parent)
   ret = ret &&
         parent->connect(action, SIGNAL(triggered()), SLOT(resetRotation()));
 
+  // reset position
+  action = commandManager->createAction(V_PositionReset, this);
+  addAction(action);
+  ret = ret &&
+        parent->connect(action, SIGNAL(triggered()), SLOT(resetPosition()));
+
   // actual pixel size
   action = commandManager->createAction(V_ActualPixelSize, this);
   addAction(action);

@@ -398,6 +398,7 @@ public slots:
   void resetSceneViewer();
   void resetZoom();
   void resetRotation();
+  void resetPosition();
   void setActualPixelSize();
   void flipX();
   void flipY();

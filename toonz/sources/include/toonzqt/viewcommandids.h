@@ -13,5 +13,6 @@
 #define V_FlipX "T_FlipX"
 #define V_FlipY "T_FlipY"
 #define V_RotateReset "T_RotateReset"
+#define V_PositionReset "T_PositionReset"
 
 #endif  // VIEWCOMMANDIDS_H

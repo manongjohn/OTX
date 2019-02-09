@@ -502,6 +502,14 @@ public:
   }
 } rotateResetCommand;
 
+class TPositionResetCommand final : public MenuItemHandler {
+public:
+  TPositionResetCommand() : MenuItemHandler(V_PositionReset) {}
+  void execute() override {
+    TApp::instance()->getActiveViewer()->resetPosition();
+  }
+} positionResetCommand;
+
 //=============================================================================
 // SceneViewer
 //-----------------------------------------------------------------------------
@@ -2208,6 +2216,14 @@ void SceneViewer::resetRotation() {
               ->getValueAsString() == "1")
     center = TPointD(0, 0);
   rotate(center, reverseRotatation);
+}
+
+//-----------------------------------------------------------------------------
+
+void SceneViewer::resetPosition() {
+  m_viewAff[m_viewMode].a13 = 0.0;
+  m_viewAff[m_viewMode].a23 = 0.0;
+  invalidateAll();
 }
 
 //-----------------------------------------------------------------------------

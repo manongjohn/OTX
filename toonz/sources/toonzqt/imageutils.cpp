@@ -804,7 +804,7 @@ namespace {
 void getViewerShortcuts(int &zoomIn, int &zoomOut, int &viewReset, int &zoomFit,
                         int &showHideFullScreen, int &actualPixelSize,
                         int &flipX, int &flipY, int &zoomReset,
-                        int &rotateReset) {
+                        int &rotateReset, int &positionReset) {
   CommandManager *cManager = CommandManager::instance();
 
   zoomIn = cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_ZoomIn));
@@ -824,6 +824,8 @@ void getViewerShortcuts(int &zoomIn, int &zoomOut, int &viewReset, int &zoomFit,
       cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_ZoomReset));
   rotateReset =
       cManager->getKeyFromShortcut(cManager->getShortcutFromId(V_RotateReset));
+  positionReset = cManager->getKeyFromShortcut(
+      cManager->getShortcutFromId(V_PositionReset));
 }
 
 }  // namespace
@@ -839,10 +841,10 @@ ShortcutZoomer::ShortcutZoomer(QWidget *zoomingWidget)
 
 bool ShortcutZoomer::exec(QKeyEvent *event) {
   int zoomInKey, zoomOutKey, viewResetKey, zoomFitKey, showHideFullScreenKey,
-      actualPixelSize, flipX, flipY, zoomReset, rotateReset;
+      actualPixelSize, flipX, flipY, zoomReset, rotateReset, positionReset;
   getViewerShortcuts(zoomInKey, zoomOutKey, viewResetKey, zoomFitKey,
                      showHideFullScreenKey, actualPixelSize, flipX, flipY,
-                     zoomReset, rotateReset);
+                     zoomReset, rotateReset, positionReset);
 
   int key = event->key();
   if (key == Qt::Key_Control || key == Qt::Key_Shift || key == Qt::Key_Alt)
@@ -872,7 +874,10 @@ bool ShortcutZoomer::exec(QKeyEvent *event) {
                                                        ? resetZoom()
                                                        : (key == rotateReset)
                                                              ? resetRotation()
-                                                             : false;
+                                                             : (key ==
+                                                                positionReset)
+                                                                   ? resetPosition()
+                                                                   : false;
   ;
 }
 
