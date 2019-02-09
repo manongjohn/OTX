@@ -700,6 +700,51 @@ protected slots:
   void updateColors();
 };
 
+//=============================================================================
+//
+// ZoomToolOptionsBox
+//
+//=============================================================================
+
+class ZoomToolOptionsBox final : public ToolOptionsBox {
+  Q_OBJECT
+
+public:
+  ZoomToolOptionsBox(QWidget *parent, TTool *tool, TPaletteHandle *pltHandle,
+                     ToolHandle *toolHandle);
+  void updateStatus();
+};
+
+//=============================================================================
+//
+// RotateToolOptionsBox
+//
+//=============================================================================
+
+class RotateToolOptionsBox final : public ToolOptionsBox {
+  Q_OBJECT
+
+public:
+  RotateToolOptionsBox(QWidget *parent, TTool *tool, TPaletteHandle *pltHandle,
+                       ToolHandle *toolHandle);
+  void updateStatus();
+};
+
+//=============================================================================
+//
+// HandToolOptionsBox
+//
+//=============================================================================
+
+class HandToolOptionsBox final : public ToolOptionsBox {
+  Q_OBJECT
+
+public:
+  HandToolOptionsBox(QWidget *parent, TTool *tool, TPaletteHandle *pltHandle,
+                     ToolHandle *toolHandle);
+  void updateStatus();
+};
+
 //-----------------------------------------------------------------------------
 
 class DVAPI ToolOptions final : public QFrame {
