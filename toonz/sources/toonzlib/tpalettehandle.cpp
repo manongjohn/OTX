@@ -130,6 +130,13 @@ bool TPaletteHandle::disconnectBroadcasts(const QObject *receiver) {
 //-----------------------------------------------------------------------------
 
 void TPaletteHandle::setPalette(TPalette *palette, int styleIndex) {
+  if (palette) {
+    if (styleIndex < 0)
+      styleIndex = palette->getCurrentStyleId();
+    else
+      palette->setCurrentStyleId(styleIndex);
+  }
+
   if (m_palette == palette)
     setStyleIndex(styleIndex);
   else {
@@ -145,6 +152,7 @@ void TPaletteHandle::setPalette(TPalette *palette, int styleIndex) {
 
 void TPaletteHandle::setStyleIndex(int index) {
   if (m_styleIndex != index || m_styleParamIndex != 0) {
+    if (m_palette) m_palette->setCurrentStyleId(index);
     m_styleIndex      = index;
     m_styleParamIndex = 0;
     emit broadcastColorStyleSwitched();

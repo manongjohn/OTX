@@ -973,6 +973,17 @@ void PaletteViewer::onPaletteChanged() {
 void PaletteViewer::onPaletteSwitched() {
   updateView();
 
+  int pageIndex = 0;
+  if (m_paletteHandle) {
+    TPalette *palette = m_paletteHandle->getPalette();
+    if (palette) {
+      int currentStyleId   = palette->getCurrentStyleId();
+      TPalette::Page *page = palette->getStylePage(currentStyleId);
+      if (page) pageIndex  = page->getIndex();
+    }
+  }
+  m_pagesBar->setCurrentIndex(pageIndex);
+
   // update GUI according to the "lock" property
   if (getPalette() && m_viewType != CLEANUP_PALETTE &&
       (m_lockPaletteAction || m_lockPaletteToolButton)) {
