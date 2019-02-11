@@ -737,8 +737,11 @@ void PaletteViewer::dropEvent(QDropEvent *event) {
           if (ret == 0) return;
         }
         StudioPaletteCmd::loadIntoCurrentPalette(m_paletteHandle, path);
-      } else
+      } else {
+        int nextPageIndex = m_paletteHandle->getPalette()->getPageCount();
         StudioPaletteCmd::mergeIntoCurrentPalette(m_paletteHandle, path);
+        if (!i) onSwitchToPage(nextPageIndex);
+      }
 
       if (loadPalette) {
         TFilePath refImagePath =
@@ -772,8 +775,11 @@ void PaletteViewer::dropEvent(QDropEvent *event) {
         if (ret == 0) return;
       }
       StudioPaletteCmd::loadIntoCurrentPalette(m_paletteHandle, palette);
-    } else
+    } else {
+      int nextPageIndex = m_paletteHandle->getPalette()->getPageCount();
       StudioPaletteCmd::mergeIntoCurrentPalette(m_paletteHandle, palette);
+      onSwitchToPage(nextPageIndex);
+    }
   }
 }
 
