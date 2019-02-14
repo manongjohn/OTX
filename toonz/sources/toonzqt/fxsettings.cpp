@@ -45,6 +45,8 @@
 #include <QDesktopServices>
 #include <QUrl>
 
+class FxSettingsPanel;
+
 using namespace DVGui;
 
 namespace {
