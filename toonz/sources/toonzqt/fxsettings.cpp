@@ -29,6 +29,8 @@
 #include "toonz/preferences.h"
 #include "tw/stringtable.h"
 
+#include "../toonz/tpanels.h"
+
 #include <QVBoxLayout>
 #include <QToolBar>
 #include <QIcon>
@@ -38,7 +40,6 @@
 #include <QMap>
 #include <QPainter>
 #include <QCheckBox>
-#include <QDialog>
 #include <QPushButton>
 
 #include <QDesktopServices>
@@ -1019,7 +1020,7 @@ void ParamViewer::setFx(const TFxP &currentFx, const TFxP &actualFx, int frame,
     if (m_actualFx != actualFx) {
       m_actualFx = actualFx;
       QSize pageViewerPreferedSize =
-          getCurrentPageSet()->getPreferedSize() + QSize(2, 20);
+          getCurrentPageSet()->getPreferedSize() + QSize(2, 50);
       emit preferedSizeChanged(pageViewerPreferedSize);
     }
   }
@@ -1309,7 +1310,7 @@ void FxSettings::setCurrentFrame() {
 //-----------------------------------------------------------------------------
 
 void FxSettings::changeTitleBar(TFx *fx) {
-  QDialog *popup = dynamic_cast<QDialog *>(parentWidget());
+  FxSettingsPanel *popup = dynamic_cast<FxSettingsPanel *>(parentWidget());
   if (!popup) return;
 
   QString titleText(tr("Fx Settings"));
@@ -1515,17 +1516,19 @@ void FxSettings::onViewModeChanged(QAction *triggeredAct) {
 
 void FxSettings::onPreferedSizeChanged(QSize pvBestSize) {
   QSize popupBestSize = pvBestSize;
-  if (m_toolBar->isVisible()) {
-    popupBestSize += QSize(0, m_viewer->height() + m_toolBar->height() + 34);
-    popupBestSize.setWidth(std::max(popupBestSize.width(), m_viewer->width()));
-  }
 
   // Set minimum size, just in case
-  popupBestSize.setHeight(std::max(popupBestSize.height(), 50));
-  popupBestSize.setWidth(std::max(popupBestSize.width(), 380));
+  popupBestSize.setHeight(std::max(popupBestSize.height(), 85));
+  popupBestSize.setWidth(std::max(popupBestSize.width(), 390));
 
-  QDialog *popup = dynamic_cast<QDialog *>(parentWidget());
-  if (popup) {
+  if (m_toolBar->isVisible()) {
+    popupBestSize += QSize(0, m_viewer->height() + m_toolBar->height() + 4);
+    popupBestSize.setWidth(
+        std::max(popupBestSize.width(), m_viewer->width() + 13));
+  }
+
+  FxSettingsPanel *popup = dynamic_cast<FxSettingsPanel *>(parentWidget());
+  if (popup && popup->isFloating()) {
     QRect geom = popup->geometry();
     geom.setSize(popupBestSize);
     popup->setGeometry(geom);
@@ -1538,19 +1541,24 @@ void FxSettings::onPreferedSizeChanged(QSize pvBestSize) {
 void FxSettings::onShowSwatchButtonToggled(bool on) {
   QWidget *bottomContainer = widget(1);
 
-  if (!on)
+  if (!on) {
     m_container_height =
         bottomContainer->height() + handleWidth() /* ハンドル幅 */;
-
+    m_container_width = m_viewer->width() + 13;
+  }
   bottomContainer->setVisible(on);
 
-  QDialog *popup = dynamic_cast<QDialog *>(parentWidget());
-  if (popup) {
+  FxSettingsPanel *popup = dynamic_cast<FxSettingsPanel *>(parentWidget());
+  if (popup && popup->isFloating()) {
     QRect geom = popup->geometry();
 
     int height_change = (on) ? m_container_height : -m_container_height;
+    int width_change  = 0;
 
-    geom.setSize(geom.size() + QSize(0, height_change));
+    if (on && m_container_width > geom.width())
+      width_change = m_container_width - geom.width();
+
+    geom.setSize(geom.size() + QSize(width_change, height_change));
     popup->setGeometry(geom);
     popup->update();
   }

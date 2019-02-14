@@ -254,6 +254,7 @@ class DVAPI FxSettings final : public QSplitter {
   bool m_isCameraModeView;
 
   int m_container_height;
+  int m_container_width;
 
 public:
   FxSettings(QWidget *parent, const TPixel32 &checkCol1,
