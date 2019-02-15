@@ -16,6 +16,7 @@
 #include "pluginhost.h"
 #include "tenv.h"
 #include "tsystem.h"
+#include "docklayout.h"
 
 #include "toonz/tcamera.h"
 #include "toonz/toonzfolders.h"
@@ -28,8 +29,6 @@
 #include "toonz/sceneproperties.h"
 #include "toonz/preferences.h"
 #include "tw/stringtable.h"
-
-#include "../toonz/tpanels.h"
 
 #include <QVBoxLayout>
 #include <QToolBar>
@@ -44,8 +43,6 @@
 
 #include <QDesktopServices>
 #include <QUrl>
-
-class FxSettingsPanel;
 
 using namespace DVGui;
 
@@ -1312,7 +1309,7 @@ void FxSettings::setCurrentFrame() {
 //-----------------------------------------------------------------------------
 
 void FxSettings::changeTitleBar(TFx *fx) {
-  FxSettingsPanel *popup = dynamic_cast<FxSettingsPanel *>(parentWidget());
+  DockWidget *popup = dynamic_cast<DockWidget *>(parentWidget());
   if (!popup) return;
 
   QString titleText(tr("Fx Settings"));
@@ -1529,7 +1526,7 @@ void FxSettings::onPreferedSizeChanged(QSize pvBestSize) {
         std::max(popupBestSize.width(), m_viewer->width() + 13));
   }
 
-  FxSettingsPanel *popup = dynamic_cast<FxSettingsPanel *>(parentWidget());
+  DockWidget *popup = dynamic_cast<DockWidget *>(parentWidget());
   if (popup && popup->isFloating()) {
     QRect geom = popup->geometry();
     geom.setSize(popupBestSize);
@@ -1550,7 +1547,7 @@ void FxSettings::onShowSwatchButtonToggled(bool on) {
   }
   bottomContainer->setVisible(on);
 
-  FxSettingsPanel *popup = dynamic_cast<FxSettingsPanel *>(parentWidget());
+  DockWidget *popup = dynamic_cast<DockWidget *>(parentWidget());
   if (popup && popup->isFloating()) {
     QRect geom = popup->geometry();
 
