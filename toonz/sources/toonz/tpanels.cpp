@@ -1393,6 +1393,7 @@ public:
 
   TPanel *createPanel(QWidget *parent) override {
     FxSettingsPanel *panel = new FxSettingsPanel(parent);
+    panel->move(qApp->desktop()->screenGeometry(panel).center());
     panel->setObjectName(getPanelType());
     panel->setWindowTitle(QObject::tr("Fx Settings"));
     panel->setMinimumSize(390, 85);
