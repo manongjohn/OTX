@@ -1089,7 +1089,8 @@ FxSettings::FxSettings(QWidget *parent, const TPixel32 &checkCol1,
     , m_checkCol1(checkCol1)
     , m_checkCol2(checkCol2)
     , m_isCameraModeView(false)
-    , m_container_height(177) {
+    , m_container_height(184)
+    , m_container_width(390) {
   // param viewer
   m_paramViewer = new ParamViewer(this);
   // swatch
