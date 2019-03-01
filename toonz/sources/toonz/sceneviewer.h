@@ -431,6 +431,8 @@ public slots:
 signals:
 
   void onZoomChanged();
+  void onFlipHChanged();
+  void onFlipVChanged();
   void freezeStateChanged(bool);
   void previewStatusChanged();
   // when pan/zoom on the viewer, notify to level strip in order to update the

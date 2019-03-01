@@ -33,6 +33,7 @@
 #include "toonzqt/dvdialog.h"
 #include "toonzqt/gutil.h"
 #include "toonzqt/imageutils.h"
+#include "toonzqt/viewcommandids.h"
 
 // TnzTools includes
 #include "tools/toolhandle.h"
@@ -329,7 +330,7 @@ void SceneViewerPanel::initializeTitleBar(TPanelTitleBar *titleBar) {
 
   TPanelTitleBarButtonSet *viewModeButtonSet;
   m_referenceModeBs = viewModeButtonSet = new TPanelTitleBarButtonSet();
-  int x                                 = -232;
+  int x                                 = -274;
   int iconWidth                         = 20;
   TPanelTitleBarButton *button;
 
@@ -403,6 +404,32 @@ void SceneViewerPanel::initializeTitleBar(TPanelTitleBar *titleBar) {
   titleBar->add(QPoint(x, 0), button);
   ret = ret && connect(button, SIGNAL(toggled(bool)), m_sceneViewer,
                        SLOT(freeze(bool)));
+
+  // flip viewer horizontally button
+  m_flipHButton = new TPanelTitleBarButton(
+      titleBar, ":Resources/pane_fliph_off.svg",
+      ":Resources/pane_fliph_over.svg", ":Resources/pane_fliph_on.svg");
+  x += 21;  // width of pane_cam_off.svg = 20px
+
+  m_flipHButton->setToolTip(tr("Flip Viewer Horizontally"));
+  titleBar->add(QPoint(x, 0), m_flipHButton);
+  ret = ret && connect(m_flipHButton, SIGNAL(toggled(bool)),
+                       SLOT(onFlipHPressed(bool)));
+  ret = ret && connect(m_sceneViewer, SIGNAL(onFlipHChanged()),
+                       SLOT(onFlipHTriggered()));
+
+  // flip viewer vertically button
+  m_flipVButton = new TPanelTitleBarButton(
+      titleBar, ":Resources/pane_flipv_off.svg",
+      ":Resources/pane_flipv_over.svg", ":Resources/pane_flipv_on.svg");
+  x += 21;  // width of pane_cam_off.svg = 20px
+
+  m_flipVButton->setToolTip(tr("Flip Viewer Vertically"));
+  titleBar->add(QPoint(x, 0), m_flipVButton);
+  ret = ret && connect(m_flipVButton, SIGNAL(toggled(bool)),
+                       SLOT(onFlipVPressed(bool)));
+  ret = ret && connect(m_sceneViewer, SIGNAL(onFlipVChanged()),
+                       SLOT(onFlipVTriggered()));
 
   // preview toggles
   m_previewButton = new TPanelTitleBarButton(
@@ -742,4 +769,18 @@ void SceneViewerPanel::onButtonPressed(FlipConsole::EGadget button) {
   if (button == FlipConsole::eSound) {
     m_playSound = !m_playSound;
   }
+}
+
+void SceneViewerPanel::onFlipHPressed(bool enabled) { m_sceneViewer->flipX(); }
+
+void SceneViewerPanel::onFlipVPressed(bool enabled) { m_sceneViewer->flipY(); }
+
+void SceneViewerPanel::onFlipHTriggered() {
+  if (TApp::instance()->getActiveViewer() != m_sceneViewer) return;
+  m_flipHButton->setPressed(m_sceneViewer->getIsFlippedX());
+}
+
+void SceneViewerPanel::onFlipVTriggered() {
+  if (TApp::instance()->getActiveViewer() != m_sceneViewer) return;
+  m_flipVButton->setPressed(m_sceneViewer->getIsFlippedY());
 }

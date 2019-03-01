@@ -2000,6 +2000,7 @@ void SceneViewer::flipX() {
   m_isFlippedX = !m_isFlippedX;
   invalidateAll();
   emit onZoomChanged();
+  emit onFlipHChanged();
 }
 
 //-----------------------------------------------------------------------------
@@ -2010,6 +2011,7 @@ void SceneViewer::flipY() {
   m_isFlippedY = !m_isFlippedY;
   invalidateAll();
   emit onZoomChanged();
+  emit onFlipVChanged();
 }
 
 //-----------------------------------------------------------------------------
@@ -2120,6 +2122,8 @@ void SceneViewer::resetSceneViewer() {
   m_isFlippedX  = false;
   m_isFlippedY  = false;
   emit onZoomChanged();
+  emit onFlipHChanged();
+  emit onFlipVChanged();
   invalidateAll();
 }
 

@@ -70,6 +70,9 @@ class ComboViewerPanel final : public QFrame,
   TPanelTitleBarButton *m_previewButton;
   TPanelTitleBarButton *m_subcameraPreviewButton;
 
+  TPanelTitleBarButton *m_flipHButton;
+  TPanelTitleBarButton *m_flipVButton;
+
 public:
 #if QT_VERSION >= 0x050500
   ComboViewerPanel(QWidget *parent = 0, Qt::WindowFlags flags = 0);
@@ -132,6 +135,11 @@ protected slots:
   void onSceneSwitched();
   void enableFullPreview(bool enabled);
   void enableSubCameraPreview(bool enabled);
+
+  void onFlipHPressed(bool enabled);
+  void onFlipVPressed(bool enabled);
+  void onFlipHTriggered();
+  void onFlipVTriggered();
 };
 
 #endif
