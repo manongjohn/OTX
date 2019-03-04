@@ -1418,6 +1418,7 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   addMenuItem(windowsMenu, MI_OpenTMessage);
   addMenuItem(windowsMenu, MI_OpenHistoryPanel);
   addMenuItem(windowsMenu, MI_AudioRecording);
+  addMenuItem(windowsMenu, MI_StartupPopup);
 #ifdef LINETEST
   windowsMenu->addSeparator();
   addMenuItem(windowsMenu, MI_OpenExport);
@@ -1431,8 +1432,6 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   // Menu' HELP
   QMenu *helpMenu = addMenu(tr("Help"), fullMenuBar);
   addMenuItem(helpMenu, MI_OpenOnlineManual);
-  helpMenu->addSeparator();
-  addMenuItem(helpMenu, MI_StartupPopup);
   helpMenu->addSeparator();
   addMenuItem(helpMenu, MI_About);
 
