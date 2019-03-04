@@ -309,10 +309,12 @@
         <command>MI_FullScreenWindow</command>
     </menu>
     <menu title="Help">
-        <command>MI_About</command>
+        <command>MI_OpenOnlineManual</command>
         <separator/>
         <command>MI_StartupPopup</command>
         <separator/>
         <command>MI_TouchGestureControl</command>
+        <separator/>
+        <command>MI_About</command>
     </menu>
 </menubar>

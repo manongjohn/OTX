@@ -449,6 +449,7 @@ centralWidget->setLayout(centralWidgetLayout);*/
   setCommandHandler(MI_PickStyleLines, this, &MainWindow::togglePickStyleLines);
 
   setCommandHandler(MI_About, this, &MainWindow::onAbout);
+  setCommandHandler(MI_OpenOnlineManual, this, &MainWindow::onOpenOnlineManual);
   setCommandHandler(MI_MaximizePanel, this, &MainWindow::maximizePanel);
   setCommandHandler(MI_FullScreenWindow, this, &MainWindow::fullScreenWindow);
   setCommandHandler("MI_NewVectorLevel", this,
@@ -979,6 +980,12 @@ void MainWindow::onAbout() {
   connect(button, SIGNAL(clicked()), dialog, SLOT(accept()));
 
   dialog->exec();
+}
+
+//-----------------------------------------------------------------------------
+
+void MainWindow::onOpenOnlineManual() {
+  QDesktopServices::openUrl(QUrl(QString("http://opentoonz.readthedocs.io")));
 }
 
 //-----------------------------------------------------------------------------
@@ -1946,6 +1953,8 @@ void MainWindow::defineActions() {
                           "Ctrl+`");
   createMenuWindowsAction(MI_About, tr("&About OpenToonz..."), "");
   createMenuWindowsAction(MI_StartupPopup, tr("&Startup Popup..."), "Alt+S");
+  createMenuWindowsAction(MI_OpenOnlineManual, tr("&Open Online Manual..."),
+                          "");
 
   createRightClickMenuAction(MI_BlendColors, tr("&Blend colors"), "");
 

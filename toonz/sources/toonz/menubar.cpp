@@ -1430,11 +1430,13 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
 
   // Menu' HELP
   QMenu *helpMenu = addMenu(tr("Help"), fullMenuBar);
-  addMenuItem(helpMenu, MI_About);
+  addMenuItem(helpMenu, MI_OpenOnlineManual);
   helpMenu->addSeparator();
   addMenuItem(helpMenu, MI_StartupPopup);
   helpMenu->addSeparator();
   addMenuItem(helpMenu, MI_TouchGestureControl);
+  helpMenu->addSeparator();
+  addMenuItem(helpMenu, MI_About);
 
 // addMenuItem(fileMenu, MI_TestAnimation);
 // fileMenu->addSeparator();
