@@ -1624,7 +1624,7 @@ void MainWindow::defineActions() {
   createMenuEditAction(MI_RemoveEndpoints, tr("&Remove Vector Overflow"), "");
   QAction *touchToggle =
       createToggle(MI_TouchGestureControl, tr("&Touch Gesture Control"), "",
-                   TouchGestureControl ? 1 : 0, MenuEditCommandType);
+                   TouchGestureControl ? 1 : 0, MiscCommandType);
   touchToggle->setEnabled(true);
   touchToggle->setIcon(QIcon(":Resources/touch.svg"));
 

@@ -313,8 +313,6 @@
         <separator/>
         <command>MI_StartupPopup</command>
         <separator/>
-        <command>MI_TouchGestureControl</command>
-        <separator/>
         <command>MI_About</command>
     </menu>
 </menubar>
