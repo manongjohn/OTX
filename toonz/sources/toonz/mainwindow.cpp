@@ -1953,8 +1953,7 @@ void MainWindow::defineActions() {
                           "Ctrl+`");
   createMenuWindowsAction(MI_About, tr("&About OpenToonz..."), "");
   createMenuWindowsAction(MI_StartupPopup, tr("&Startup Popup..."), "Alt+S");
-  createMenuWindowsAction(MI_OpenOnlineManual, tr("&Open Online Manual..."),
-                          "");
+  createMenuWindowsAction(MI_OpenOnlineManual, tr("&Online Manual..."), "F1");
 
   createRightClickMenuAction(MI_BlendColors, tr("&Blend colors"), "");
 
