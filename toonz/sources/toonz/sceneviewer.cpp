@@ -2000,7 +2000,7 @@ void SceneViewer::flipX() {
   m_isFlippedX = !m_isFlippedX;
   invalidateAll();
   emit onZoomChanged();
-  emit onFlipHChanged();
+  emit onFlipHChanged(m_isFlippedX);
 }
 
 //-----------------------------------------------------------------------------
@@ -2011,7 +2011,23 @@ void SceneViewer::flipY() {
   m_isFlippedY = !m_isFlippedY;
   invalidateAll();
   emit onZoomChanged();
-  emit onFlipVChanged();
+  emit onFlipVChanged(m_isFlippedY);
+}
+
+//-----------------------------------------------------------------------------
+
+void SceneViewer::zoomIn() {
+  QRect viewRect = rect();
+  QPoint c       = viewRect.center();
+  zoom(TPointD(c.x(), c.y()), exp(0.1));
+}
+
+//-----------------------------------------------------------------------------
+
+void SceneViewer::zoomOut() {
+  QRect viewRect = rect();
+  QPoint c       = viewRect.center();
+  zoom(TPointD(c.x(), c.y()), exp(-0.1));
 }
 
 //-----------------------------------------------------------------------------
@@ -2065,6 +2081,9 @@ void SceneViewer::fitToCamera() {
   bool tempIsFlippedY = m_isFlippedY;
   resetSceneViewer();
 
+  m_isFlippedX = tempIsFlippedX;
+  m_isFlippedY = tempIsFlippedY;
+
   TXsheet *xsh            = TApp::instance()->getCurrentXsheet()->getXsheet();
   int frame               = TApp::instance()->getCurrentFrame()->getFrame();
   TStageObjectId cameraId = xsh->getStageObjectTree()->getCurrentCameraId();
@@ -2103,6 +2122,8 @@ void SceneViewer::fitToCamera() {
   // Scale and center on the center of \a rect.
   QPoint c = viewRect.center();
   zoom(TPointD(c.x(), c.y()), ratio);
+  emit onFlipHChanged(m_isFlippedX);
+  emit onFlipVChanged(m_isFlippedY);
 }
 
 //-----------------------------------------------------------------------------
@@ -2122,8 +2143,8 @@ void SceneViewer::resetSceneViewer() {
   m_isFlippedX  = false;
   m_isFlippedY  = false;
   emit onZoomChanged();
-  emit onFlipHChanged();
-  emit onFlipVChanged();
+  emit onFlipHChanged(m_isFlippedX);
+  emit onFlipVChanged(m_isFlippedY);
   invalidateAll();
 }
 

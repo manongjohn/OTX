@@ -423,9 +423,59 @@ void ComboViewerPanel::initializeTitleBar(TPanelTitleBar *titleBar) {
 
   TPanelTitleBarButtonSet *viewModeButtonSet;
   m_referenceModeBs = viewModeButtonSet = new TPanelTitleBarButtonSet();
-  int x                                 = -274;
+  int x                                 = -347;
   int iconWidth                         = 20;
   TPanelTitleBarButton *button;
+
+  // zoom in
+  button = new TPanelTitleBarButton(titleBar, ":Resources/pane_zoomin.svg",
+                                    ":Resources/pane_zoomin_over.svg");
+  button->setToolTip(tr("Zoom In"));
+  titleBar->add(QPoint(x, 0), button);
+  ret = ret &&
+        connect(button, SIGNAL(triggered()), m_sceneViewer, SLOT(zoomIn()));
+
+  // zoom out
+  button = new TPanelTitleBarButton(titleBar, ":Resources/pane_zoomout.svg",
+                                    ":Resources/pane_zoomout_over.svg");
+  button->setToolTip(tr("Zoom Out"));
+  x += 21;
+  titleBar->add(QPoint(x, 0), button);
+  ret = ret &&
+        connect(button, SIGNAL(triggered()), m_sceneViewer, SLOT(zoomOut()));
+
+  // flip viewer horizontally button
+  m_flipHButton = new TPanelTitleBarButton(
+      titleBar, ":Resources/pane_fliph_off.svg",
+      ":Resources/pane_fliph_over.svg", ":Resources/pane_fliph_on.svg");
+  x += 21;  // width of pane_cam_off.svg = 20px
+  m_flipHButton->setToolTip(tr("Flip Viewer Horizontally"));
+  titleBar->add(QPoint(x, 0), m_flipHButton);
+  ret = ret && connect(m_flipHButton, SIGNAL(toggled(bool)), m_sceneViewer,
+                       SLOT(flipX()));
+  ret = ret && connect(m_sceneViewer, SIGNAL(onFlipHChanged(bool)),
+                       m_flipHButton, SLOT(setPressed(bool)));
+
+  // flip viewer vertically button
+  m_flipVButton = new TPanelTitleBarButton(
+      titleBar, ":Resources/pane_flipv_off.svg",
+      ":Resources/pane_flipv_over.svg", ":Resources/pane_flipv_on.svg");
+  x += 21;  // width of pane_cam_off.svg = 20px
+  m_flipVButton->setToolTip(tr("Flip Viewer Vertically"));
+  titleBar->add(QPoint(x, 0), m_flipVButton);
+  ret = ret && connect(m_flipVButton, SIGNAL(toggled(bool)), m_sceneViewer,
+                       SLOT(flipY()));
+  ret = ret && connect(m_sceneViewer, SIGNAL(onFlipVChanged(bool)),
+                       m_flipVButton, SLOT(setPressed(bool)));
+
+  // reset button
+  button = new TPanelTitleBarButton(titleBar, ":Resources/pane_reset.svg",
+                                    ":Resources/pane_reset_over.svg");
+  button->setToolTip(tr("Reset Viewer"));
+  x += 21;
+  titleBar->add(QPoint(x, 0), button);
+  ret = ret && connect(button, SIGNAL(triggered()), m_sceneViewer,
+                       SLOT(resetSceneViewer()));
 
   // buttons for show / hide toggle for the field guide and the safe area
   TPanelTitleBarButtonForSafeArea *safeAreaButton =
@@ -433,6 +483,7 @@ void ComboViewerPanel::initializeTitleBar(TPanelTitleBar *titleBar) {
           titleBar, ":Resources/pane_safe_off.svg",
           ":Resources/pane_safe_over.svg", ":Resources/pane_safe_on.svg");
   safeAreaButton->setToolTip(tr("Safe Area (Right Click to Select)"));
+  x += 10 + iconWidth;
   titleBar->add(QPoint(x, 0), safeAreaButton);
   ret = ret && connect(safeAreaButton, SIGNAL(toggled(bool)),
                        CommandManager::instance()->getAction(MI_SafeArea),
@@ -497,31 +548,6 @@ void ComboViewerPanel::initializeTitleBar(TPanelTitleBar *titleBar) {
   titleBar->add(QPoint(x, 0), button);
   ret = ret && connect(button, SIGNAL(toggled(bool)), m_sceneViewer,
                        SLOT(freeze(bool)));
-  // flip viewer horizontally button
-  m_flipHButton = new TPanelTitleBarButton(
-      titleBar, ":Resources/pane_fliph_off.svg",
-      ":Resources/pane_fliph_over.svg", ":Resources/pane_fliph_on.svg");
-  x += 21;  // width of pane_cam_off.svg = 20px
-
-  m_flipHButton->setToolTip(tr("Flip Viewer Horizontally"));
-  titleBar->add(QPoint(x, 0), m_flipHButton);
-  ret = ret && connect(m_flipHButton, SIGNAL(toggled(bool)),
-                       SLOT(onFlipHPressed(bool)));
-  ret = ret && connect(m_sceneViewer, SIGNAL(onFlipHChanged()),
-                       SLOT(onFlipHTriggered()));
-
-  // flip viewer vertically button
-  m_flipVButton = new TPanelTitleBarButton(
-      titleBar, ":Resources/pane_flipv_off.svg",
-      ":Resources/pane_flipv_over.svg", ":Resources/pane_flipv_on.svg");
-  x += 21;  // width of pane_cam_off.svg = 20px
-
-  m_flipVButton->setToolTip(tr("Flip Viewer Vertically"));
-  titleBar->add(QPoint(x, 0), m_flipVButton);
-  ret = ret && connect(m_flipVButton, SIGNAL(toggled(bool)),
-                       SLOT(onFlipVPressed(bool)));
-  ret = ret && connect(m_sceneViewer, SIGNAL(onFlipVChanged()),
-                       SLOT(onFlipVTriggered()));
 
   // preview toggles
   m_previewButton = new TPanelTitleBarButton(
@@ -904,18 +930,4 @@ void ComboViewerPanel::save(QSettings &settings) const {
 void ComboViewerPanel::load(QSettings &settings) {
   m_visiblePartsFlag = settings.value("visibleParts", CVPARTS_ALL).toUInt();
   updateShowHide();
-}
-
-void ComboViewerPanel::onFlipHPressed(bool enabled) { m_sceneViewer->flipX(); }
-
-void ComboViewerPanel::onFlipVPressed(bool enabled) { m_sceneViewer->flipY(); }
-
-void ComboViewerPanel::onFlipHTriggered() {
-  if (TApp::instance()->getActiveViewer() != m_sceneViewer) return;
-  m_flipHButton->setPressed(m_sceneViewer->getIsFlippedX());
-}
-
-void ComboViewerPanel::onFlipVTriggered() {
-  if (TApp::instance()->getActiveViewer() != m_sceneViewer) return;
-  m_flipVButton->setPressed(m_sceneViewer->getIsFlippedY());
 }

@@ -31,6 +31,12 @@ public:
                        const QPixmap &rolloverPixmap,
                        const QPixmap &pressedPixmap);
 
+  TPanelTitleBarButton(QWidget *parent, const QString &standardPixmapName,
+                       const QString &rolloverPixmapName);
+
+  TPanelTitleBarButton(QWidget *parent, const QPixmap &standardPixmap,
+                       const QPixmap &rolloverPixmap);
+
   //! call this method to make a radio button. id is the button identifier
   void setButtonSet(TPanelTitleBarButtonSet *buttonSet, int id);
   int getId() const { return m_id; }
@@ -50,6 +56,7 @@ signals:
   //! emitted when the user press the button
   //! n.b. the signal is not emitted if the button is part of a buttonset
   void toggled(bool pressed);
+  void triggered();
 };
 
 //-----------------------------------------------------------------------------

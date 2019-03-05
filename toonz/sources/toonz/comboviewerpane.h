@@ -135,11 +135,6 @@ protected slots:
   void onSceneSwitched();
   void enableFullPreview(bool enabled);
   void enableSubCameraPreview(bool enabled);
-
-  void onFlipHPressed(bool enabled);
-  void onFlipVPressed(bool enabled);
-  void onFlipHTriggered();
-  void onFlipVTriggered();
 };
 
 #endif

@@ -101,10 +101,6 @@ protected slots:
   void enableFullPreview(bool enabled);
   void enableSubCameraPreview(bool enabled);
   void onPreferenceChanged(const QString &prefName) override;
-  void onFlipHPressed(bool enabled);
-  void onFlipVPressed(bool enabled);
-  void onFlipHTriggered();
-  void onFlipVTriggered();
 };
 
 #endif
