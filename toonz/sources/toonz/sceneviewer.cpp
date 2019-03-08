@@ -2017,17 +2017,15 @@ void SceneViewer::flipY() {
 //-----------------------------------------------------------------------------
 
 void SceneViewer::zoomIn() {
-  QRect viewRect = rect();
-  QPoint c       = viewRect.center();
-  zoom(TPointD(c.x(), c.y()), exp(0.1));
+  m_lastMousePos = rect().center();
+  zoomQt(true, false);
 }
 
 //-----------------------------------------------------------------------------
 
 void SceneViewer::zoomOut() {
-  QRect viewRect = rect();
-  QPoint c       = viewRect.center();
-  zoom(TPointD(c.x(), c.y()), exp(-0.1));
+  m_lastMousePos = rect().center();
+  zoomQt(false, false);
 }
 
 //-----------------------------------------------------------------------------
