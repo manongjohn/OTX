@@ -1102,10 +1102,7 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   QMenu *importMenu = fileMenu->addMenu(tr("Import"));
   { addMenuItem(importMenu, MI_ImportMagpieFile); }
   QMenu *exportMenu = fileMenu->addMenu(tr("Export"));
-  {
-    addMenuItem(exportMenu, MI_FastRender);
-    addMenuItem(exportMenu, MI_SoundTrack);
-  }
+  { addMenuItem(exportMenu, MI_SoundTrack); }
   fileMenu->addSeparator();
   addMenuItem(fileMenu, MI_PrintXsheet);
   addMenuItem(fileMenu, MI_Print);
@@ -1204,14 +1201,14 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   addMenuItem(levelMenu, MI_RevertToLastSaved);
   addMenuItem(levelMenu, MI_Tracking);
   levelMenu->addSeparator();
-  QMenu *tonalCorrectionMenu = levelMenu->addMenu(tr("Tonal Correction"));
+  QMenu *adjustMenu = levelMenu->addMenu(tr("Adjust"));
   {
-    addMenuItem(tonalCorrectionMenu, MI_BrightnessAndContrast);
-    addMenuItem(tonalCorrectionMenu, MI_AdjustLevels);
-    addMenuItem(tonalCorrectionMenu, MI_AdjustThickness);
-    addMenuItem(tonalCorrectionMenu, MI_Antialias);
-    addMenuItem(tonalCorrectionMenu, MI_Binarize);
-    addMenuItem(tonalCorrectionMenu, MI_LinesFade);
+    addMenuItem(adjustMenu, MI_BrightnessAndContrast);
+    addMenuItem(adjustMenu, MI_AdjustLevels);
+    addMenuItem(adjustMenu, MI_AdjustThickness);
+    addMenuItem(adjustMenu, MI_Antialias);
+    addMenuItem(adjustMenu, MI_Binarize);
+    addMenuItem(adjustMenu, MI_LinesFade);
   }
   QMenu *optimizeMenu = levelMenu->addMenu(tr("Optimize"));
   {
@@ -1337,6 +1334,8 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   playMenu->addSeparator();
   addMenuItem(playMenu, MI_NextDrawing);
   addMenuItem(playMenu, MI_PrevDrawing);
+  playMenu->addSeparator();
+  addMenuItem(playMenu, MI_Link);
 
   // Menu' RENDER
   QMenu *renderMenu = addMenu(tr("Render"), fullMenuBar);
@@ -1348,7 +1347,7 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   addMenuItem(renderMenu, MI_OutputSettings);
   addMenuItem(renderMenu, MI_Render);
   renderMenu->addSeparator();
-  addMenuItem(renderMenu, MI_Link);
+  addMenuItem(renderMenu, MI_FastRender);
 
   // Menu' VIEW
   QMenu *viewMenu = addMenu(tr("View"), fullMenuBar);

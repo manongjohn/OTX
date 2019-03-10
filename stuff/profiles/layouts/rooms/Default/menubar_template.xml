@@ -26,7 +26,6 @@
             <command>MI_ImportMagpieFile</command>
         </menu>
         <menu title="Export">
-            <command>MI_FastRender</command>
             <command>MI_SoundTrack</command>
         </menu>
         <separator/>
@@ -112,7 +111,7 @@
         <command>MI_RevertToLastSaved</command>
         <command>MI_Tracking</command>
         <separator/>
-        <menu title="Tonal Correction">
+        <menu title="Adjust">
             <command>MI_BrightnessAndContrast</command>
             <command>MI_AdjustLevels</command>
             <command>MI_AdjustThickness</command>
@@ -231,6 +230,8 @@
         <separator/>
         <command>MI_PrevDrawing</command>
         <command>MI_NextDrawing</command>
+        <separator/>
+        <command>MI_Link</command>
     </menu>
     <menu title="Render">
         <command>MI_PreviewSettings</command>
@@ -240,7 +241,7 @@
         <command>MI_OutputSettings</command>
         <command>MI_Render</command>
         <separator/>
-        <command>MI_Link</command>
+        <command>MI_FastRender</command>
     </menu>
     <menu title="View">
         <command>MI_ViewTable</command>
