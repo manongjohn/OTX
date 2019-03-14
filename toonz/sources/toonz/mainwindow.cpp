@@ -985,7 +985,7 @@ void MainWindow::onAbout() {
 //-----------------------------------------------------------------------------
 
 void MainWindow::onOpenOnlineManual() {
-  QDesktopServices::openUrl(QUrl(QString("http://opentoonz.readthedocs.io")));
+  QDesktopServices::openUrl(QUrl(tr("http://opentoonz.readthedocs.io")));
 }
 
 //-----------------------------------------------------------------------------
