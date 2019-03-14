@@ -182,6 +182,7 @@
             <command>MI_Reframe2</command>
             <command>MI_Reframe3</command>
             <command>MI_Reframe4</command>
+            <command>MI_ReframeWithEmptyInbetweens</command>
         </menu>
         <menu title="Step">
             <command>MI_IncreaseStep</command>
@@ -213,7 +214,6 @@
         <command>MI_MergeFrames</command>
         <command>MI_CloneLevel</command>
         <separator/>
-        <command>MI_ReframeWithEmptyInbetweens</command>
         <command>MI_FillEmptyCell</command>
     </menu>
     <menu title="Play">

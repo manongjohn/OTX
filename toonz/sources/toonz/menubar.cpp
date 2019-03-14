@@ -1282,6 +1282,7 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
     addMenuItem(reframeMenu, MI_Reframe2);
     addMenuItem(reframeMenu, MI_Reframe3);
     addMenuItem(reframeMenu, MI_Reframe4);
+    addMenuItem(reframeMenu, MI_ReframeWithEmptyInbetweens);
   }
   QMenu *stepMenu = cellsMenu->addMenu(tr("Step"));
   {
@@ -1316,7 +1317,6 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   addMenuItem(cellsMenu, MI_MergeFrames);
   addMenuItem(cellsMenu, MI_CloneLevel);
   cellsMenu->addSeparator();
-  addMenuItem(cellsMenu, MI_ReframeWithEmptyInbetweens);
   addMenuItem(cellsMenu, MI_FillEmptyCell);
 
   // Menu' PLAY
