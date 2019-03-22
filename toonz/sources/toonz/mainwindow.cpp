@@ -2152,6 +2152,8 @@ void MainWindow::defineActions() {
   createToolOptionsAction("A_ToolOption_JoinVectors", tr("Join Vectors"), "");
   createToolOptionsAction("A_ToolOption_ShowOnlyActiveSkeleton",
                           tr("Show Only Active Skeleton"), "");
+  createToolOptionsAction("A_ToolOption_RasterEraser",
+                          tr("Brush Tool - Eraser (Raster option)"), "");
 
   // Option Menu
   createToolOptionsAction("A_ToolOption_BrushPreset", tr("Brush Preset"), "");
