@@ -144,6 +144,7 @@ FullColorBrushTool::FullColorBrushTool(std::string name)
 
   m_preset.setId("BrushPreset");
   m_modifierEraser.setId("RasterEraser");
+  m_modifierLockAlpha.setId("LockAlpha");
 
   m_brushTimer.start();
 }

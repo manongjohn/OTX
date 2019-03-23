@@ -2154,6 +2154,8 @@ void MainWindow::defineActions() {
                           tr("Show Only Active Skeleton"), "");
   createToolOptionsAction("A_ToolOption_RasterEraser",
                           tr("Brush Tool - Eraser (Raster option)"), "");
+  createToolOptionsAction("A_ToolOption_LockAlpha",
+                          tr("Brush Tool - Lock Alpha"), "");
 
   // Option Menu
   createToolOptionsAction("A_ToolOption_BrushPreset", tr("Brush Preset"), "");
