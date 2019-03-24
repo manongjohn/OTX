@@ -741,7 +741,8 @@ public:
           frameCount++;
           nextCell = xsh->getCell((r + frameCount), c);
         }
-        m_frameRanges.insert_or_assign(frameBaseKey, frameCount);
+        m_frameRanges.insert(std::make_pair(frameBaseKey, 0));
+        m_frameRanges[frameBaseKey] = frameCount;
         r = r + (frameCount - 1);  // Skip frames in range we've processed
       }
     }
