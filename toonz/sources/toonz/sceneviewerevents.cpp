@@ -1516,10 +1516,14 @@ void SceneViewer::dragEnterEvent(QDragEnterEvent *event) {
 
   const QMimeData *mimeData = event->mimeData();
 
-  if (acceptResourceOrFolderDrop(mimeData->urls()))
-    event->acceptProposedAction();
-  else
-    event->ignore();
+  if (acceptResourceOrFolderDrop(mimeData->urls())) {
+	  // Force CopyAction
+	  event->setDropAction(Qt::CopyAction);
+	  event->accept();
+  }
+  else {
+	  event->ignore();
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1531,7 +1535,7 @@ void SceneViewer::dropEvent(QDropEvent *e) {
   if (mimeData->hasUrls()) {
     IoCmd::LoadResourceArguments args;
 
-    foreach (const QUrl &url, mimeData->urls()) {
+    for (const QUrl &url : mimeData->urls()) {
       TFilePath fp(url.toLocalFile().toStdWString());
       args.resourceDatas.push_back(fp);
     }

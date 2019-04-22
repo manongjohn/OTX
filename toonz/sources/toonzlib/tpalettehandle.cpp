@@ -149,9 +149,11 @@ void TPaletteHandle::setPalette(TPalette *palette, int styleIndex) {
 }
 
 //-----------------------------------------------------------------------------
+// forceEmit flag is used in PageViewer.
+// See the function PageViewer::setCurrentStyleIndex() in paletteviewergui.cpp
 
-void TPaletteHandle::setStyleIndex(int index) {
-  if (m_styleIndex != index || m_styleParamIndex != 0) {
+void TPaletteHandle::setStyleIndex(int index, bool forceEmit) {
+  if (m_styleIndex != index || m_styleParamIndex != 0 || forceEmit) {
     if (m_palette) m_palette->setCurrentStyleId(index);
     m_styleIndex      = index;
     m_styleParamIndex = 0;
