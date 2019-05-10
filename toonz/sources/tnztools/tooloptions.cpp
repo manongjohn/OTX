@@ -2658,22 +2658,8 @@ ZoomToolOptionsBox::ZoomToolOptionsBox(QWidget *parent, TTool *tool,
   button->addAction(resetZoomAction);
   connect(button, SIGNAL(clicked()), resetZoomAction, SLOT(trigger()));
 
-  TPropertyGroup *props = tool->getProperties(0);
-  assert(props->getPropertyCount() > 0);
-
-  ToolOptionControlBuilder builder(this, tool, pltHandle, toolHandle);
-  if (tool && tool->getProperties(0)) tool->getProperties(0)->accept(builder);
-
   m_layout->addStretch(1);
   m_layout->addWidget(button, 0);
-}
-
-//-----------------------------------------------------------------------------
-
-void ZoomToolOptionsBox::updateStatus() {
-  QMap<std::string, ToolOptionControl *>::iterator it;
-  for (it = m_controls.begin(); it != m_controls.end(); it++)
-    it.value()->updateStatus();
 }
 
 //=============================================================================
@@ -2695,22 +2681,8 @@ RotateToolOptionsBox::RotateToolOptionsBox(QWidget *parent, TTool *tool,
   button->addAction(resetRotationAction);
   connect(button, SIGNAL(clicked()), resetRotationAction, SLOT(trigger()));
 
-  TPropertyGroup *props = tool->getProperties(0);
-  assert(props->getPropertyCount() > 0);
-
-  ToolOptionControlBuilder builder(this, tool, pltHandle, toolHandle);
-  if (tool && tool->getProperties(0)) tool->getProperties(0)->accept(builder);
-
   m_layout->addStretch(1);
   m_layout->addWidget(button, 0);
-}
-
-//-----------------------------------------------------------------------------
-
-void RotateToolOptionsBox::updateStatus() {
-  QMap<std::string, ToolOptionControl *>::iterator it;
-  for (it = m_controls.begin(); it != m_controls.end(); it++)
-    it.value()->updateStatus();
 }
 
 //=============================================================================
@@ -2732,22 +2704,8 @@ HandToolOptionsBox::HandToolOptionsBox(QWidget *parent, TTool *tool,
   button->addAction(resetPositionAction);
   connect(button, SIGNAL(clicked()), resetPositionAction, SLOT(trigger()));
 
-  TPropertyGroup *props = tool->getProperties(0);
-  assert(props->getPropertyCount() > 0);
-
-  ToolOptionControlBuilder builder(this, tool, pltHandle, toolHandle);
-  if (tool && tool->getProperties(0)) tool->getProperties(0)->accept(builder);
-
   m_layout->addStretch(1);
   m_layout->addWidget(button, 0);
-}
-
-//-----------------------------------------------------------------------------
-
-void HandToolOptionsBox::updateStatus() {
-  QMap<std::string, ToolOptionControl *>::iterator it;
-  for (it = m_controls.begin(); it != m_controls.end(); it++)
-    it.value()->updateStatus();
 }
 
 //=============================================================================
