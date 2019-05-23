@@ -474,6 +474,9 @@ public:
     currentColumnColor = m_currentColumnColor;
   }
 
+  void enableXsheetCameraColumn(bool on);
+  bool isXsheetCameraColumnEnabled() const { return m_showXsheetCameraColumn; }
+
   // Animation  tab
 
   void setKeyframeType(int s);
@@ -731,6 +734,7 @@ private:
 
   int m_levelBasedToolsDisplay;
   int m_backupKeepCount;
+  bool m_showXsheetCameraColumn = true;
 
 private:
   Preferences();

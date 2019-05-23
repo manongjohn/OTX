@@ -84,7 +84,7 @@ private:
       *m_newLevelToCameraSizeCB, *m_ignoreImageDpiCB,
       *m_syncLevelRenumberWithXsheet, *m_downArrowInLevelStripCreatesNewFrame,
       *m_enableAutoStretch, *m_enableWinInk, *m_enableTouchGestures,
-      *m_useOnionColorsForShiftAndTraceCB;
+      *m_useOnionColorsForShiftAndTraceCB, *m_showXsheetCameraColCB;
 
   DVGui::FileField *m_customProjectRootFileField;
 
@@ -227,6 +227,7 @@ private slots:
   void onRasterBackgroundColorChanged(const TPixel32 &, bool isDragging);
   void onLevelBasedToolsDisplayChanged(int);
   void onBackupKeepCountChanged();
+  void onShowXsheetCameraColumnChanged(int index);
 };
 
 //**********************************************************************************

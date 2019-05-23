@@ -1278,6 +1278,11 @@ void PreferencesPopup::onLevelBasedToolsDisplayChanged(int index) {
   m_pref->setLevelBasedToolsDisplay(index);
   TApp::instance()->getCurrentScene()->notifyPreferenceChanged(
       "ToolbarDisplay");
+//---------------------------------------------------------------------------------------
+
+void PreferencesPopup::onShowXsheetCameraColumnChanged(int index) {
+  m_pref->enableXsheetCameraColumn(index == Qt::Checked);
+  TApp::instance()->getCurrentScene()->notifyPreferenceChanged("XsheetCamera");
 }
 
 //**********************************************************************************
@@ -1568,6 +1573,8 @@ PreferencesPopup::PreferencesPopup()
   TPixel32 currectColumnColor;
   m_pref->getCurrentColumnData(currectColumnColor);
   m_currentColumnColor = new ColorField(this, false, currectColumnColor);
+
+  CheckBox *showXsheetCameraCB = new CheckBox(tr("Show Camera Column"), this);
 
   //--- Animation ------------------------------
   categoryList->addItem(tr("Animation"));
@@ -1944,6 +1951,7 @@ PreferencesPopup::PreferencesPopup()
       m_pref->isSyncLevelRenumberWithXsheetEnabled());
   showCurrentTimelineCB->setChecked(
       m_pref->isCurrentTimelineIndicatorEnabled());
+  showXsheetCameraCB->setChecked(m_pref->isXsheetCameraColumnEnabled());
 
   //--- Animation ------------------------------
   QStringList list;
@@ -2590,6 +2598,7 @@ PreferencesPopup::PreferencesPopup()
         xsheetFrameLay->addWidget(new QLabel(tr("Current Column Color:")), 15,
                                   0, Qt::AlignRight | Qt::AlignVCenter);
         xsheetFrameLay->addWidget(m_currentColumnColor, 15, 1);
+        xsheetFrameLay->addWidget(showXsheetCameraCB, 16, 0, 1, 2);
       }
       xsheetFrameLay->setColumnStretch(0, 0);
       xsheetFrameLay->setColumnStretch(1, 0);
@@ -3064,6 +3073,9 @@ PreferencesPopup::PreferencesPopup()
       ret && connect(m_currentColumnColor,
                      SIGNAL(colorChanged(const TPixel32 &, bool)),
                      SLOT(onCurrentColumnDataChanged(const TPixel32 &, bool)));
+
+  ret = ret && connect(showXsheetCameraCB, SIGNAL(stateChanged(int)), this,
+                       SLOT(onShowXsheetCameraColumnChanged(int)));
 
   //--- Animation ----------------------
   ret = ret && connect(m_keyframeType, SIGNAL(currentIndexChanged(int)),
