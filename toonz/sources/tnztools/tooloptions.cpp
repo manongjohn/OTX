@@ -219,6 +219,17 @@ void ToolOptionControlBuilder::visit(TDoubleProperty *p) {
     control->addAction(a);
     QObject::connect(a, SIGNAL(triggered()), control, SLOT(decrease()));
   }
+  if (p->getName() == "ModifierSize") {
+    QAction *a;
+    a = cm->getAction("A_IncreaseMaxBrushThickness");
+    control->addAction(a);
+    QObject::connect(a, SIGNAL(triggered()), control,
+                     SLOT(increaseFractional()));
+    a = cm->getAction("A_DecreaseMaxBrushThickness");
+    control->addAction(a);
+    QObject::connect(a, SIGNAL(triggered()), control,
+                     SLOT(decreaseFractional()));
+  }
   if (p->getName() == "Hardness:") {
     QAction *a;
     a = cm->getAction("A_IncreaseBrushHardness");
