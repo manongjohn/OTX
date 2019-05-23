@@ -31,7 +31,7 @@ before_deploy:
   - git config --local user.email "dancel@ptd.net"
   - export TRAVIS_TAG="OTX-nightly-"$(date +'%Y-%m-%d')
   - git tag -f $TRAVIS_TAG
-  - ../../../ci-scripts/$TRAVIS_OS_NAME/travis-buildpkg.sh
+  - ci-scripts/$TRAVIS_OS_NAME/travis-buildpkg.sh
 deploy:
   provider: releases
   api_key:
