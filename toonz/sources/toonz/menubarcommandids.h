@@ -117,6 +117,7 @@
 #define MI_OpenColorModel "MI_OpenColorModel"
 #define MI_OpenStudioPalette "MI_OpenStudioPalette"
 #define MI_OpenSchematic "MI_OpenSchematic"
+#define MI_OpenAdvancedColorSelector "MI_OpenAdvancedColorSelector"
 
 #define MI_Export "MI_Export"
 #define MI_TestAnimation "MI_TestAnimation"
@@ -306,6 +307,7 @@
 #define MI_ToggleColumnLocks "MI_ToggleColumnLocks"
 #define MI_ToggleXSheetToolbar "MI_ToggleXSheetToolbar"
 #define MI_FoldColumns "MI_FoldColumns"
+#define MI_ToggleXsheetCameraColumn "MI_ToggleXsheetCameraColumn"
 #define MI_ToggleCurrentTimeIndicator "MI_ToggleCurrentTimeIndicator"
 
 #define MI_LoadIntoCurrentPalette "MI_LoadIntoCurrentPalette"
@@ -343,5 +345,7 @@
 #define MI_AutoInputCellNumber "MI_AutoInputCellNumber"
 #define MI_TouchGestureControl "MI_TouchGestureControl"
 #define MI_SeparateColors "MI_SeparateColors"
+
+#define MI_OpenOnlineManual "MI_OpenOnlineManual"
 
 #endif

@@ -324,7 +324,7 @@ bool beforeCellsInsert(TXsheet *xsh, int row, int &col, int rowCount,
   }
   int type = column ? column->getColumnType() : newLevelColumnType;
   // If some used cells in range or column type mismatch must insert a column.
-  if (i < rowCount || newLevelColumnType != type) {
+  if (col < 0 || i < rowCount || newLevelColumnType != type) {
     col += 1;
     TApp::instance()->getCurrentColumn()->setColumnIndex(col);
     shiftColumn = true;
@@ -1440,8 +1440,13 @@ bool IoCmd::saveScene(const TFilePath &path, int flags) {
   app->getCurrentScene()->setDirtyFlag(false);
 
   History::instance()->addItem(scenePath);
-  RecentFiles::instance()->addFilePath(toQString(scenePath),
-                                       RecentFiles::Scene);
+  RecentFiles::instance()->addFilePath(
+      toQString(scenePath), RecentFiles::Scene,
+      QString::fromStdString(app->getCurrentScene()
+                                 ->getScene()
+                                 ->getProject()
+                                 ->getName()
+                                 .getName()));
 
   QApplication::restoreOverrideCursor();
 
@@ -1722,7 +1727,7 @@ bool IoCmd::loadScene(ToonzScene &scene, const TFilePath &scenePath,
 //---------------------------------------------------------------------------
 
 bool IoCmd::loadScene(const TFilePath &path, bool updateRecentFile,
-                      bool checkSaveOldScene) {
+                      bool checkSaveOldScene, bool forceImport) {
   RenderingSuspender suspender;
 
   if (checkSaveOldScene)
@@ -1769,7 +1774,7 @@ bool IoCmd::loadScene(const TFilePath &path, bool updateRecentFile,
               .arg(QString::fromStdWString(scenePath.getWideString()));
     DVGui::warning(msg);
   }
-  if (sceneProject && !sceneProject->isCurrent()) {
+  if (!forceImport && sceneProject && !sceneProject->isCurrent()) {
     QString currentProjectName = QString::fromStdWString(
         pm->getCurrentProject()->getName().getWideString());
     QString sceneProjectName =
@@ -1884,8 +1889,9 @@ bool IoCmd::loadScene(const TFilePath &path, bool updateRecentFile,
   TApp::instance()->getCurrentScene()->setDirtyFlag(false);
   History::instance()->addItem(scenePath);
   if (updateRecentFile)
-    RecentFiles::instance()->addFilePath(toQString(scenePath),
-                                         RecentFiles::Scene);
+    RecentFiles::instance()->addFilePath(
+        toQString(scenePath), RecentFiles::Scene,
+        QString::fromStdString(scene->getProject()->getName().getName()));
   QApplication::restoreOverrideCursor();
 
   int forbiddenLevelCount = 0;

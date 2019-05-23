@@ -472,5 +472,17 @@
       <file>Resources/down.svg</file>
       <file>Resources/splash_OTX.svg</file>
       <file>Resources/startup_OTX.png</file>
+      <file>Resources/pane_zoomin.svg</file>
+      <file>Resources/pane_zoomin_over.svg</file>
+      <file>Resources/pane_zoomout.svg</file>
+      <file>Resources/pane_zoomout_over.svg</file>
+      <file>Resources/pane_fliph_off.svg</file>
+      <file>Resources/pane_fliph_on.svg</file>
+      <file>Resources/pane_fliph_over.svg</file>
+      <file>Resources/pane_flipv_off.svg</file>
+      <file>Resources/pane_flipv_on.svg</file>
+      <file>Resources/pane_flipv_over.svg</file>
+      <file>Resources/pane_reset.svg</file>
+      <file>Resources/pane_reset_over.svg</file>
     </qresource>
 </RCC>
