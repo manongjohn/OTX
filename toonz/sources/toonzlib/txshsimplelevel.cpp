@@ -1449,8 +1449,11 @@ void TXshSimpleLevel::save(const TFilePath &fp, const TFilePath &oldFp,
       sl->setPalette(getPalette());
       sl->setPath(getScene()->codeFilePath(app));
       sl->setType(getType());
+      sl->setDirtyFlag(getDirtyFlag());
+      sl->addRef();  // Needed so levelUpdater doesn't destroy it right away
+                     // when its done writing
 
-      std::set<TFrameId>::iterator eft, efEnd;
+      std::set<TFrameId>::iterator eft, efEnd = m_editableRange.end();
       for (eft = m_editableRange.begin(); eft != efEnd; ++eft) {
         const TFrameId &fid = *eft;
         sl->setFrame(fid, getFrame(fid, false));
@@ -1467,6 +1470,8 @@ void TXshSimpleLevel::save(const TFilePath &fp, const TFilePath &oldFp,
         if (m_editableRange.find(fid) == m_editableRange.end())
           hookSet->eraseFrame(fid);
       }
+
+      sl->setRenumberTable();
 
       // Copy mesh level
       sl->save(app);
@@ -2265,4 +2270,25 @@ TRectD TXshSimpleLevel::getBBox(const TFrameId &fid) const {
 
   // Get the frame's dpi and traduce the bbox to inch coordinates
   return TScale(1.0 / dpiX, 1.0 / dpiY) * bbox;
+}
+
+bool TXshSimpleLevel::isFrameReadOnly(TFrameId fid) {
+  // For Raster and mesh files, check to see if files are marked as read-only at
+  // the OS level
+  if (getType() == OVL_XSHLEVEL || getType() == TZI_XSHLEVEL ||
+      getType() == MESH_XSHLEVEL) {
+    TFilePath fullPath = getScene()->decodeFilePath(m_path);
+    TFilePath path =
+        fullPath.getDots() == ".." ? fullPath.withFrame(fid) : fullPath;
+    if (!TSystem::doesExistFileOrLevel(path)) return false;
+    TFileStatus fs(path);
+    return !fs.isWritable();
+  }
+
+  // If Level is marked read only, check for editable frames
+  if (m_isReadOnly && !m_editableRange.empty() &&
+      m_editableRange.count(fid) != 0)
+    return false;
+
+  return m_isReadOnly;
 }
