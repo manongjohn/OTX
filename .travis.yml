@@ -29,7 +29,7 @@ before_deploy:
   # Set up git user name and tag this commit
   - git config --local user.name "manongjohn"
   - git config --local user.email "dancel@ptd.net"
-  - export TRAVIS_TAG="OTX-nightly"
+  - export TRAVIS_TAG="OTX-nightly-"$(date +'%Y-%m-%d')
   - git tag -f $TRAVIS_TAG
   - ../../../ci-scripts/$TRAVIS_OS_NAME/travis-buildpkg.sh
 deploy:
@@ -38,6 +38,5 @@ deploy:
      secure: "GOt2Xsn6HZSyHEjDukwigAUYggRob+UmdsyZiImg46wYYg8lz2Tqv6WVI7+uM5ag04rXxTr+HwwHwE1r1sZQXU74sjRkcp6Bywgh40k1XBbvIjg6n2RA7aZfgmKC6gBManHETbUWL7HJTX2euHxSBB3izyGuK4f6s+4QaFQF3+FhfgqmgmlT4Dlqd7XJ9cFuReXarQlz5lr/fMicpVR2FuOvqGsh75VYL24h62luGLM4J2xx1N7vNpRsLaq1vlWopS60cJG4Z5KdKU/JCtd0hY0Cp1XPibIwF0gsuJEPfFy8DVlvjxXpkbkMS+8y5YHQAnhspbTMpsD4GuxF39LRnorWetwKl3u18aU0A+uaMom/UcWkNfYpLvYqxq4lVZwdPFv0JIrNAxXulpPDN7mI+i6qwEXbyBTH8cSEXE0dL17RrLKg/tao1YYEfZKlHPjvIrvuh1LzoW7y16aBZARcddP7KqIgom3SRBpNLl/v5jCfe6z4zrExWc5y7Wg3SMSMf8S3uSyaKQhzRb4ujkkG1N1EkzLVlWLuoApCPhXv/rWLrl46TfwPFgeeMHszo2g+QMSX2ZjKUp3SCb8ahzfXQOPfQ0Od5oxmzaM6peeKuAv6bpdEMyyNlHcaS+OHECaOC8lY2Lc8JCZhfKmrybRvuRJmESMNtOiE1dzpve9QLSs="
   file_glob: true
   file: toonz/OpenToonz-OTX-$TRAVIS_OS_NAME.*
-  name: "OTX Nightly Build "$(date +'%Y-%m-%d')
   skip_cleanup: true
   overwrite: true
