@@ -130,6 +130,13 @@ bool TPaletteHandle::disconnectBroadcasts(const QObject *receiver) {
 //-----------------------------------------------------------------------------
 
 void TPaletteHandle::setPalette(TPalette *palette, int styleIndex) {
+  if (palette) {
+    if (styleIndex < 0)
+      styleIndex = palette->getCurrentStyleId();
+    else
+      palette->setCurrentStyleId(styleIndex);
+  }
+
   if (m_palette == palette)
     setStyleIndex(styleIndex);
   else {
@@ -142,11 +149,13 @@ void TPaletteHandle::setPalette(TPalette *palette, int styleIndex) {
 }
 
 //-----------------------------------------------------------------------------
-// forceEmit flag is used in PageViewer.
+// forceEmit flag is used in PageViewer and StylePicker tool.
 // See the function PageViewer::setCurrentStyleIndex() in paletteviewergui.cpp
+// Also see the function StylePickerTool::pick() in stylepickertool.cpp
 
 void TPaletteHandle::setStyleIndex(int index, bool forceEmit) {
   if (m_styleIndex != index || m_styleParamIndex != 0 || forceEmit) {
+    if (m_palette) m_palette->setCurrentStyleId(index);
     m_styleIndex      = index;
     m_styleParamIndex = 0;
     emit broadcastColorStyleSwitched();

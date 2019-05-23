@@ -25,6 +25,7 @@
 #include "toonzqt/gutil.h"
 #include "toonzqt/dvscrollwidget.h"
 #include "toonzqt/lutcalibrator.h"
+#include "toonzqt/viewcommandids.h"
 
 // TnzLib includes
 #include "toonz/tobjecthandle.h"
@@ -124,7 +125,8 @@ ToolOptionsBox::ToolOptionsBox(QWidget *parent, bool isScrollable)
 ToolOptionsBox::~ToolOptionsBox() {
   std::for_each(m_controls.begin(), m_controls.end(),
                 std::default_delete<ToolOptionControl>());
-  std::for_each(m_labels.begin(), m_labels.end(), std::default_delete<QLabel>());
+  std::for_each(m_labels.begin(), m_labels.end(),
+                std::default_delete<QLabel>());
 }
 
 //-----------------------------------------------------------------------------
@@ -216,6 +218,17 @@ void ToolOptionControlBuilder::visit(TDoubleProperty *p) {
     a = cm->getAction("A_DecreaseMaxBrushThickness");
     control->addAction(a);
     QObject::connect(a, SIGNAL(triggered()), control, SLOT(decrease()));
+  }
+  if (p->getName() == "ModifierSize") {
+    QAction *a;
+    a = cm->getAction("A_IncreaseMaxBrushThickness");
+    control->addAction(a);
+    QObject::connect(a, SIGNAL(triggered()), control,
+                     SLOT(increaseFractional()));
+    a = cm->getAction("A_DecreaseMaxBrushThickness");
+    control->addAction(a);
+    QObject::connect(a, SIGNAL(triggered()), control,
+                     SLOT(decreaseFractional()));
   }
   if (p->getName() == "Hardness:") {
     QAction *a;
@@ -1117,6 +1130,11 @@ void ArrowToolOptionsBox::onCurrentStageObjectComboActivated(int index) {
   }
   // switch the current object
   m_objHandle->setObjectId(id);
+  if (id.isCamera()) {
+    TXsheet *xsh = m_xshHandle->getXsheet();
+    if (xsh->getCameraColumnIndex() != id.getIndex())
+      m_xshHandle->changeXsheetCamera(id.getIndex());
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -2637,6 +2655,74 @@ void ShiftTraceToolOptionBox::onAfterRadioBtnClicked() {
 }
 
 //=============================================================================
+// ZoomToolOptionBox
+//-----------------------------------------------------------------------------
+
+ZoomToolOptionsBox::ZoomToolOptionsBox(QWidget *parent, TTool *tool,
+                                       TPaletteHandle *pltHandle,
+                                       ToolHandle *toolHandle)
+    : ToolOptionsBox(parent) {
+  setFrameStyle(QFrame::StyledPanel);
+  setFixedHeight(26);
+
+  QAction *resetZoomAction = CommandManager::instance()->getAction(V_ZoomReset);
+
+  QPushButton *button = new QPushButton(tr("Reset Zoom"));
+  button->setFixedHeight(20);
+  button->addAction(resetZoomAction);
+  connect(button, SIGNAL(clicked()), resetZoomAction, SLOT(trigger()));
+
+  m_layout->addStretch(1);
+  m_layout->addWidget(button, 0);
+}
+
+//=============================================================================
+// RotateToolOptionBox
+//-----------------------------------------------------------------------------
+
+RotateToolOptionsBox::RotateToolOptionsBox(QWidget *parent, TTool *tool,
+                                           TPaletteHandle *pltHandle,
+                                           ToolHandle *toolHandle)
+    : ToolOptionsBox(parent) {
+  setFrameStyle(QFrame::StyledPanel);
+  setFixedHeight(26);
+
+  QAction *resetRotationAction =
+      CommandManager::instance()->getAction(V_RotateReset);
+
+  QPushButton *button = new QPushButton(tr("Reset Rotation"));
+  button->setFixedHeight(20);
+  button->addAction(resetRotationAction);
+  connect(button, SIGNAL(clicked()), resetRotationAction, SLOT(trigger()));
+
+  m_layout->addStretch(1);
+  m_layout->addWidget(button, 0);
+}
+
+//=============================================================================
+// HandToolOptionBox
+//-----------------------------------------------------------------------------
+
+HandToolOptionsBox::HandToolOptionsBox(QWidget *parent, TTool *tool,
+                                       TPaletteHandle *pltHandle,
+                                       ToolHandle *toolHandle)
+    : ToolOptionsBox(parent) {
+  setFrameStyle(QFrame::StyledPanel);
+  setFixedHeight(26);
+
+  QAction *resetPositionAction =
+      CommandManager::instance()->getAction(V_PositionReset);
+
+  QPushButton *button = new QPushButton(tr("Reset Position"));
+  button->setFixedHeight(20);
+  button->addAction(resetPositionAction);
+  connect(button, SIGNAL(clicked()), resetPositionAction, SLOT(trigger()));
+
+  m_layout->addStretch(1);
+  m_layout->addWidget(button, 0);
+}
+
+//=============================================================================
 // ToolOptions
 //-----------------------------------------------------------------------------
 
@@ -2746,6 +2832,12 @@ void ToolOptions::onToolSwitched() {
                                               app->getPaletteController());
       else if (tool->getName() == "T_ShiftTrace")
         panel = new ShiftTraceToolOptionBox(this, tool);
+      else if (tool->getName() == T_Zoom)
+        panel = new ZoomToolOptionsBox(0, tool, currPalette, currTool);
+      else if (tool->getName() == T_Rotate)
+        panel = new RotateToolOptionsBox(0, tool, currPalette, currTool);
+      else if (tool->getName() == T_Hand)
+        panel = new HandToolOptionsBox(0, tool, currPalette, currTool);
       else
         panel = tool->createOptionsBox();  // Only this line should remain out
                                            // of that if/else monstrosity

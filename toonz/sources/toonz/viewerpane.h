@@ -47,6 +47,9 @@ class SceneViewerPanel final : public StyleShortcutSwitchablePanel,
   bool m_first         = true;
   TSoundTrack *m_sound = NULL;
 
+  TPanelTitleBarButton *m_flipHButton;
+  TPanelTitleBarButton *m_flipVButton;
+
 public:
 #if QT_VERSION >= 0x050500
   SceneViewerPanel(QWidget *parent = 0, Qt::WindowFlags flags = 0);

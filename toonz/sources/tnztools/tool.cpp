@@ -773,6 +773,13 @@ bool TTool::isColumnLocked(int columnIndex) const {
 //-----------------------------------------------------------------------------
 
 QString TTool::updateEnabled() {
+  int rowIndex    = m_application->getCurrentFrame()->getFrame();
+  int columnIndex = m_application->getCurrentColumn()->getColumnIndex();
+
+  return updateEnabled(rowIndex, columnIndex);
+}
+
+QString TTool::updateEnabled(int rowIndex, int columnIndex) {
   // Disable every tool during playback
   if (m_application->getCurrentFrame()->isPlaying())
     return (enable(false), QString());
@@ -786,13 +793,21 @@ QString TTool::updateEnabled() {
   // Retrieve vars and view modes
   TXsheet *xsh = m_application->getCurrentXsheet()->getXsheet();
 
-  int rowIndex       = m_application->getCurrentFrame()->getFrame();
-  int columnIndex    = m_application->getCurrentColumn()->getColumnIndex();
   TXshColumn *column = (columnIndex >= 0) ? xsh->getColumn(columnIndex) : 0;
 
   TXshLevel *xl       = m_application->getCurrentLevel()->getLevel();
   TXshSimpleLevel *sl = xl ? xl->getSimpleLevel() : 0;
   int levelType       = sl ? sl->getType() : NO_XSHLEVEL;
+
+  // If not in Level editor, let's use our current cell from the xsheet to
+  // find the nearest level before it
+  if (levelType == NO_XSHLEVEL &&
+      !m_application->getCurrentFrame()->isEditingLevel()) {
+    TXshCell cell = xsh->getCell(rowIndex, columnIndex);
+    xl            = cell.isEmpty() ? 0 : (TXshLevel *)(&cell.m_level);
+    sl            = cell.isEmpty() ? 0 : cell.getSimpleLevel();
+    levelType     = cell.isEmpty() ? NO_XSHLEVEL : cell.m_level->getType();
+  }
 
   if (Preferences::instance()->isAutoCreateEnabled() &&
       Preferences::instance()->isAnimationSheetEnabled()) {
@@ -841,6 +856,11 @@ QString TTool::updateEnabled() {
   if (m_name == T_StylePicker &&
       Preferences::instance()->isMultiLayerStylePickerEnabled())
     return (enable(true), QString());
+
+  // Check against camera column
+  if (columnIndex < 0 && (targetType & TTool::EmptyTarget) &&
+      (m_name == T_Type || m_name == T_Geometric || m_name == T_Brush))
+    return (enable(false), QString());
 
   // Check against unplaced columns (not in filmstrip mode)
   if (column && !filmstrip) {
@@ -948,16 +968,10 @@ QString TTool::updateEnabled() {
     // Check TTool::ImageType tools
     if (toolType == TTool::LevelWriteTool) {
       // Check level against read-only status
-      if (sl->isReadOnly()) {
-        const std::set<TFrameId> &editableFrames = sl->getEditableRange();
-        TFrameId currentFid                      = getCurrentFid();
-
-        if (editableFrames.find(currentFid) == editableFrames.end())
-          return (
-              enable(false),
-              QObject::tr(
-                  "The current frame is locked: any editing is forbidden."));
-      }
+      if (sl->isFrameReadOnly(getCurrentFid()))
+        return (enable(false),
+                QObject::tr(
+                    "The current frame is locked: any editing is forbidden."));
 
       // Check level type write support
       if (sl->getPath().getType() ==
