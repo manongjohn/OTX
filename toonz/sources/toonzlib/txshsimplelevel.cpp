@@ -1375,8 +1375,26 @@ void TXshSimpleLevel::save() {
 //-----------------------------------------------------------------------------
 
 static void saveBackup(TFilePath path) {
+  int totalBackups = Preferences::instance()->getBackupKeepCount();
+  totalBackups -= 1;
+  TFilePath backup = path.withType(path.getType() + ".bak");
+  TFilePath prevBackup =
+      path.withType(path.getType() + ".bak" + std::to_string(totalBackups));
+  while (--totalBackups >= 0) {
+    std::string bakExt =
+        ".bak" + (totalBackups > 0 ? std::to_string(totalBackups) : "");
+    backup = path.withType(path.getType() + bakExt);
+    if (!TSystem::doesExistFileOrLevel(backup)) continue;
+    try {
+      if (TSystem::doesExistFileOrLevel(prevBackup))
+        TSystem::removeFileOrLevel_throw(prevBackup);
+      TSystem::copyFileOrLevel_throw(prevBackup, backup);
+    } catch (...) {
+    }
+    prevBackup = backup;
+  }
+
   try {
-    TFilePath backup = path.withName(path.getName() + "_backup");
     if (TSystem::doesExistFileOrLevel(backup))
       TSystem::removeFileOrLevel_throw(backup);
     TSystem::copyFileOrLevel_throw(backup, path);
@@ -1398,8 +1416,8 @@ void TXshSimpleLevel::save(const TFilePath &fp, const TFilePath &oldFp,
         "The level cannot be saved: failed to access the target folder.");
 
   // backup
-  if (Preferences::instance()->isLevelsBackupEnabled() &&
-      dOldPath == dDstPath && TSystem::doesExistFileOrLevel(dDstPath))
+  if (Preferences::instance()->isBackupEnabled() && dOldPath == dDstPath &&
+      TSystem::doesExistFileOrLevel(dDstPath))
     saveBackup(dDstPath);
 
   if (isAreadOnlyLevel(dDstPath)) {
@@ -1639,7 +1657,7 @@ void TXshSimpleLevel::saveSimpleLevel(const TFilePath &decodedFp,
         lw = TLevelWriterP();  // TLevelWriterP's destructor saves the palette
       } else if (isPaletteModified && overwritePalette) {
         TFilePath palettePath = decodedFp.withNoFrame().withType("tpl");
-        if (Preferences::instance()->isLevelsBackupEnabled() &&
+        if (Preferences::instance()->isBackupEnabled() &&
             TSystem::doesExistFileOrLevel(palettePath))
           saveBackup(palettePath);
         TOStream os(palettePath);
@@ -2200,9 +2218,8 @@ TFilePath TXshSimpleLevel::getExistingHookFile(
   }
 
   assert(h >= 0);
-  return (h < 0) ? TFilePath()
-                 : decodedLevelPath.getParentDir() +
-                       TFilePath(hookFiles[h].toStdWString());
+  return (h < 0) ? TFilePath() : decodedLevelPath.getParentDir() +
+                                     TFilePath(hookFiles[h].toStdWString());
 }
 
 //-----------------------------------------------------------------------------
