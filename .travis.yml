@@ -1,5 +1,9 @@
 language: cpp
 
+branches:
+  only:
+  - OTX
+
 git:
   depth: 1
   
@@ -20,3 +24,19 @@ matrix:
           compiler: clang
         - os: osx
           osx_image: xcode8.3
+
+before_deploy:
+  # Set up git user name and tag this commit
+  - git config --local user.name "manongjohn"
+  - git config --local user.email "dancel@ptd.net"
+  - export TRAVIS_TAG="OTX Nightly Build "$(date +'%Y-%m-%d')
+  - git tag $TRAVIS_TAG
+  - ../../../ci-scripts/$TRAVIS_OS_NAME/travis-buildpkg.sh
+deploy:
+  provider: releases
+  api_key:
+     secure: rUjvjZ2phsw5yqg/MkIcEOQO51KsiiHEDAyxYUYJ+cYQ+THG1LyYeo8atauSP1bt
+  file_glob: true
+  file: toonz/OpenToonz-OTX-$TRAVIS_OS_NAME.*
+  skip_cleanup: true
+  overwrite: true
