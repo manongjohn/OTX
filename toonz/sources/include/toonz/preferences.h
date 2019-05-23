@@ -401,6 +401,9 @@ public:
   void enableCursorOutline(bool on);
   bool isCursorOutlineEnabled() const { return m_cursorOutlineEnabled; }
 
+  void setLevelBasedToolsDisplay(int displayType);
+  int getLevelBasedToolsDisplay() const { return m_levelBasedToolsDisplay; }
+
   // Xsheet  tab
   void setXsheetStep(int step);  //!< Sets the step used for the <I>next/prev
                                  //! step</I> commands.
@@ -723,6 +726,8 @@ private:
 
   bool m_enableWinInk                         = false;
   bool m_useOnionColorsForShiftAndTraceGhosts = false;
+
+  int m_levelBasedToolsDisplay;
 
 private:
   Preferences();

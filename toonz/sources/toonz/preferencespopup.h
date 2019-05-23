@@ -57,7 +57,8 @@ private:
       *m_columnIconOm, *m_unitOm, *m_cameraUnitOm, *m_importPolicy,
       *m_vectorSnappingTargetCB, *m_dropdownShortcutsCycleOptionsCB,
       *m_guidedDrawingStyle, *m_functionEditorToggle, *m_cursorBrushType,
-      *m_cursorBrushStyle, *m_xsheetLayout, *m_interfaceFontStyle;
+      *m_cursorBrushStyle, *m_xsheetLayout, *m_interfaceFontStyle,
+      *m_levelBasedToolsDisplayCB;
 
   QFontComboBox *m_interfaceFont;
 
@@ -221,6 +222,7 @@ private slots:
   void onCurrentColumnDataChanged(const TPixel32 &, bool isDragging);
   void onEnableWinInkChanged(int index);
   void onRasterBackgroundColorChanged(const TPixel32 &, bool isDragging);
+  void onLevelBasedToolsDisplayChanged(int);
 };
 
 //**********************************************************************************
