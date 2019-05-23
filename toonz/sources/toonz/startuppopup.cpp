@@ -84,10 +84,10 @@ QString removeZeros(QString srcStr) {
 
 //=============================================================================
 /*! \class StartupPopup
-                \brief The StartupPopup class provides a modal dialog to
-   bring up recent files or create a new scene.
+\brief The StartupPopup class provides a modal dialog to
+bring up recent files or create a new scene.
 
-                Inherits \b Dialog.
+Inherits \b Dialog.
 */
 //-----------------------------------------------------------------------------
 
@@ -95,9 +95,9 @@ StartupPopup::StartupPopup()
     : Dialog(TApp::instance()->getMainWindow(), true, true, "StartupPopup") {
   setWindowTitle(tr("OpenToonz Startup"));
 
-  m_projectBox = new QGroupBox(tr("Choose Project"), this);
+  m_projectBox = new QGroupBox(tr("Current Project"), this);
   m_sceneBox   = new QGroupBox(tr("Create a New Scene"), this);
-  m_recentBox  = new QGroupBox(tr("Open Scene [Project]"), this);
+  m_recentBox  = new QGroupBox(tr("Recent Scenes [Project]"), this);
   m_projectBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   m_nameFld                 = new LineEdit(this);
   m_pathFld                 = new FileField(this);
@@ -130,6 +130,8 @@ StartupPopup::StartupPopup()
   QStringList type;
   type << tr("pixel") << tr("cm") << tr("mm") << tr("inch") << tr("field");
   m_unitsCB->addItems(type);
+  m_useCurrentProjectCB =
+      new QCheckBox(tr("Import into Current Project"), this);
 
   // Exclude all character which cannot fit in a filepath (Win).
   // Dots are also prohibited since they are internally managed by Toonz.
@@ -168,6 +170,7 @@ StartupPopup::StartupPopup()
   m_sceneBox->setMinimumWidth(480);
   m_projectBox->setMinimumWidth(480);
   m_buttonFrame->setFixedHeight(34);
+  m_useCurrentProjectCB->setStyleSheet("QCheckBox{ background-color: none; }");
   //--- layout
   m_topLayout->setMargin(0);
   m_topLayout->setSpacing(0);
@@ -189,7 +192,7 @@ StartupPopup::StartupPopup()
       projectLay->addWidget(newProjectButton, 0);
     }
     m_projectBox->setLayout(projectLay);
-    guiLay->addWidget(m_projectBox, 1, 0, 1, 1, Qt::AlignCenter);
+    guiLay->addWidget(m_projectBox, 1, 0, 1, 1, Qt::AlignTop | Qt::AlignHCenter);
 
     newSceneLay->setMargin(8);
     newSceneLay->setVerticalSpacing(8);
@@ -240,15 +243,16 @@ StartupPopup::StartupPopup()
       newSceneLay->addWidget(createButton, 7, 1, 1, 3, Qt::AlignLeft);
     }
     m_sceneBox->setLayout(newSceneLay);
-    guiLay->addWidget(m_sceneBox, 2, 0, 4, 1, Qt::AlignLeft);
+	guiLay->addWidget(m_sceneBox, 2, 0, 5, 1, Qt::AlignTop | Qt::AlignHCenter);
 
     m_recentSceneLay->setMargin(5);
     m_recentSceneLay->setSpacing(2);
     {
       // Recent Scene List
       m_recentBox->setLayout(m_recentSceneLay);
-      guiLay->addWidget(m_recentBox, 1, 1, 4, 1, Qt::AlignTop);
-      guiLay->addWidget(loadOtherSceneButton, 5, 1, 1, 1, Qt::AlignRight);
+      guiLay->addWidget(m_recentBox, 1, 1, 4, 1, Qt::AlignTop | Qt::AlignHCenter);
+      guiLay->addWidget(m_useCurrentProjectCB, 5, 1, 1, 1, Qt::AlignHCenter);
+      guiLay->addWidget(loadOtherSceneButton, 6, 1, 1, 1, Qt::AlignRight);
     }
     m_topLayout->addLayout(guiLay, 0);
   }
@@ -859,7 +863,21 @@ void StartupPopup::onRecentSceneClicked(int index) {
     DVGui::warning(msg);
     refreshRecentScenes();
   } else {
-    IoCmd::loadScene(TFilePath(path.toStdWString()), false);
+    bool forceImport = m_useCurrentProjectCB->isChecked();
+    if (!forceImport && RecentFiles::instance()->getFileProject(index) != "-") {
+      QString projectName = RecentFiles::instance()->getFileProject(index);
+      int projectIndex    = m_projectsCB->findText(projectName);
+      if (projectIndex >= 0) {
+        TFilePath projectFp = m_projectPaths[projectIndex];
+        TProjectManager::instance()->setCurrentProjectPath(projectFp);
+      } else {
+        QString msg = tr("The selected scene project '%1' is not in the "
+                         "Current Project list and may not open automatically.")
+                          .arg(projectName);
+        DVGui::warning(msg);
+      }
+    }
+    IoCmd::loadScene(TFilePath(path.toStdWString()), false, true, forceImport);
     if (RecentFiles::instance()->getFileProject(index) == "-") {
       QString fileName =
           RecentFiles::instance()->getFilePath(index, RecentFiles::Scene);
@@ -904,7 +922,7 @@ void StartupPopup::onCameraUnitChanged(int index) {
     m_widthFld->setValue(width);
     m_heightFld->setValue(height);
   } else {
-    pref->setPixelsOnly(true);
+	  pref->setPixelsOnly(true);
     pref->setUnits("pixel");
     pref->setCameraUnits("pixel");
     m_widthFld->setDecimals(0);
