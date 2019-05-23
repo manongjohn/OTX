@@ -25,34 +25,32 @@
 #include <QObject>
 #include <QDesignerCustomWidgetInterface>
 
-class ColorLineEdit_Plugin : public QObject, public QDesignerCustomWidgetInterface
-{
-    Q_OBJECT
-    Q_INTERFACES(QDesignerCustomWidgetInterface)
+class ColorLineEdit_Plugin : public QObject,
+                             public QDesignerCustomWidgetInterface {
+  Q_OBJECT
+  Q_INTERFACES(QDesignerCustomWidgetInterface)
 
 public:
-    explicit ColorLineEdit_Plugin(QObject *parent = nullptr);
+  explicit ColorLineEdit_Plugin(QObject *parent = nullptr);
 
-    void initialize(QDesignerFormEditorInterface *core) Q_DECL_OVERRIDE;
-    bool isInitialized() const Q_DECL_OVERRIDE;
+  void initialize(QDesignerFormEditorInterface *core) Q_DECL_OVERRIDE;
+  bool isInitialized() const Q_DECL_OVERRIDE;
 
-    QWidget *createWidget(QWidget *parent) Q_DECL_OVERRIDE;
+  QWidget *createWidget(QWidget *parent) Q_DECL_OVERRIDE;
 
-    QString name() const Q_DECL_OVERRIDE;
-    QString group() const Q_DECL_OVERRIDE;
-    QIcon icon() const Q_DECL_OVERRIDE;
-    QString toolTip() const Q_DECL_OVERRIDE;
-    QString whatsThis() const Q_DECL_OVERRIDE;
-    bool isContainer() const Q_DECL_OVERRIDE;
+  QString name() const Q_DECL_OVERRIDE;
+  QString group() const Q_DECL_OVERRIDE;
+  QIcon icon() const Q_DECL_OVERRIDE;
+  QString toolTip() const Q_DECL_OVERRIDE;
+  QString whatsThis() const Q_DECL_OVERRIDE;
+  bool isContainer() const Q_DECL_OVERRIDE;
 
-    QString domXml() const Q_DECL_OVERRIDE;
+  QString domXml() const Q_DECL_OVERRIDE;
 
-    QString includeFile() const Q_DECL_OVERRIDE;
+  QString includeFile() const Q_DECL_OVERRIDE;
 
 private:
-    bool initialized;
+  bool initialized;
 };
 
-
-#endif // COLOR_WIDGETS_COLOR_LINE_EDIT_PLUGIN_HPP
-
+#endif  // COLOR_WIDGETS_COLOR_LINE_EDIT_PLUGIN_HPP

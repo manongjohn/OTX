@@ -29,24 +29,24 @@
 namespace color_widgets {
 
 class QCP_EXPORT AlphaSlider : public GradientSlider {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit AlphaSlider(QWidget* parent = nullptr);
-    virtual ~AlphaSlider();
+  explicit AlphaSlider(QWidget* parent = nullptr);
+  virtual ~AlphaSlider();
 
-    QColor color() const;
+  QColor color() const;
 
 public Q_SLOTS:
-    void setColor(QColor c);
+  void setColor(QColor c);
 
 Q_SIGNALS:
-    void colorChanged(QColor c);
+  void colorChanged(QColor c);
 
 private:
-    QColor m_color;
+  QColor m_color;
 };
 
-} // namespace color_widgets
+}  // namespace color_widgets
 
 #endif

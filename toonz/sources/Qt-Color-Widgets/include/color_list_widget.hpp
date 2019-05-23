@@ -27,44 +27,45 @@
 
 namespace color_widgets {
 
-class QCP_EXPORT ColorListWidget : public AbstractWidgetList
-{
-    Q_OBJECT
+class QCP_EXPORT ColorListWidget : public AbstractWidgetList {
+  Q_OBJECT
 
-    Q_PROPERTY(QList<QColor> colors READ colors WRITE setColors NOTIFY colorsChanged )
-    Q_PROPERTY(ColorWheel::DisplayFlags wheelFlags READ wheelFlags WRITE setWheelFlags NOTIFY wheelFlagsChanged)
+  Q_PROPERTY(
+      QList<QColor> colors READ colors WRITE setColors NOTIFY colorsChanged)
+  Q_PROPERTY(ColorWheel::DisplayFlags wheelFlags READ wheelFlags WRITE
+                 setWheelFlags NOTIFY wheelFlagsChanged)
 
 public:
-    explicit ColorListWidget(QWidget *parent = 0);
-    ~ColorListWidget();
+  explicit ColorListWidget(QWidget* parent = 0);
+  ~ColorListWidget();
 
-    QList<QColor> colors() const;
-    void setColors(const QList<QColor>& colors);
+  QList<QColor> colors() const;
+  void setColors(const QList<QColor>& colors);
 
-    void swap(int a, int b);
+  void swap(int a, int b);
 
-    void append();
+  void append();
 
-    ColorWheel::DisplayFlags wheelFlags() const;
+  ColorWheel::DisplayFlags wheelFlags() const;
 
 Q_SIGNALS:
-    void colorsChanged(const QList<QColor>&);
-    void wheelFlagsChanged(ColorWheel::DisplayFlags flags);
+  void colorsChanged(const QList<QColor>&);
+  void wheelFlagsChanged(ColorWheel::DisplayFlags flags);
 
 public Q_SLOTS:
-    void setWheelFlags(ColorWheel::DisplayFlags flags);
+  void setWheelFlags(ColorWheel::DisplayFlags flags);
 
 private Q_SLOTS:
-    void emit_changed();
-    void handle_removed(int);
-    void color_changed(int row);
+  void emit_changed();
+  void handle_removed(int);
+  void color_changed(int row);
 
 private:
-    class Private;
-    Private * const p;
-    void  append_widget(int col);
+  class Private;
+  Private* const p;
+  void append_widget(int col);
 };
 
-} // namespace color_widgets
+}  // namespace color_widgets
 
-#endif // COLOR_LIST_WIDGET_HPP
+#endif  // COLOR_LIST_WIDGET_HPP

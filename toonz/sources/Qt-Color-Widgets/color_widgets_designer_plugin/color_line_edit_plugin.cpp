@@ -22,67 +22,47 @@
 #include "color_line_edit_plugin.hpp"
 #include "color_line_edit.hpp"
 
-QWidget* ColorLineEdit_Plugin::createWidget(QWidget *parent)
-{
-    color_widgets::ColorLineEdit *widget = new color_widgets::ColorLineEdit(parent);
-    return widget;
+QWidget *ColorLineEdit_Plugin::createWidget(QWidget *parent) {
+  color_widgets::ColorLineEdit *widget =
+      new color_widgets::ColorLineEdit(parent);
+  return widget;
 }
 
-QIcon ColorLineEdit_Plugin::icon() const
-{
-    return QIcon::fromTheme("edit-rename");
+QIcon ColorLineEdit_Plugin::icon() const {
+  return QIcon::fromTheme("edit-rename");
 }
 
-QString ColorLineEdit_Plugin::domXml() const
-{
-    return "<ui language=\"c++\">\n"
-           " <widget class=\"color_widgets::ColorLineEdit\" name=\"color_line_edit\">\n"
-           " </widget>\n"
-           "</ui>\n";
+QString ColorLineEdit_Plugin::domXml() const {
+  return "<ui language=\"c++\">\n"
+         " <widget class=\"color_widgets::ColorLineEdit\" "
+         "name=\"color_line_edit\">\n"
+         " </widget>\n"
+         "</ui>\n";
 }
 
-bool ColorLineEdit_Plugin::isContainer() const
-{
-    return false;
+bool ColorLineEdit_Plugin::isContainer() const { return false; }
+
+ColorLineEdit_Plugin::ColorLineEdit_Plugin(QObject *parent)
+    : QObject(parent), initialized(false) {}
+
+void ColorLineEdit_Plugin::initialize(QDesignerFormEditorInterface *) {
+  initialized = true;
 }
 
-ColorLineEdit_Plugin::ColorLineEdit_Plugin(QObject *parent) :
-    QObject(parent), initialized(false)
-{
+bool ColorLineEdit_Plugin::isInitialized() const { return initialized; }
+
+QString ColorLineEdit_Plugin::name() const {
+  return "color_widgets::ColorLineEdit";
 }
 
-void ColorLineEdit_Plugin::initialize(QDesignerFormEditorInterface *)
-{
-    initialized = true;
+QString ColorLineEdit_Plugin::group() const { return "Color Widgets"; }
+
+QString ColorLineEdit_Plugin::toolTip() const {
+  return "A widget to manipulate a string representing a color";
 }
 
-bool ColorLineEdit_Plugin::isInitialized() const
-{
-    return initialized;
-}
+QString ColorLineEdit_Plugin::whatsThis() const { return toolTip(); }
 
-QString ColorLineEdit_Plugin::name() const
-{
-    return "color_widgets::ColorLineEdit";
+QString ColorLineEdit_Plugin::includeFile() const {
+  return "color_line_edit.hpp";
 }
-
-QString ColorLineEdit_Plugin::group() const
-{
-    return "Color Widgets";
-}
-
-QString ColorLineEdit_Plugin::toolTip() const
-{
-    return "A widget to manipulate a string representing a color";
-}
-
-QString ColorLineEdit_Plugin::whatsThis() const
-{
-    return toolTip();
-}
-
-QString ColorLineEdit_Plugin::includeFile() const
-{
-    return "color_line_edit.hpp";
-}
-

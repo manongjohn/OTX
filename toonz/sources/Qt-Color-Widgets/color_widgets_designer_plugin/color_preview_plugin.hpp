@@ -24,32 +24,32 @@
 
 #include <QDesignerCustomWidgetInterface>
 
-class ColorPreview_Plugin : public QObject, public QDesignerCustomWidgetInterface
-{
-    Q_OBJECT
-    Q_INTERFACES(QDesignerCustomWidgetInterface)
+class ColorPreview_Plugin : public QObject,
+                            public QDesignerCustomWidgetInterface {
+  Q_OBJECT
+  Q_INTERFACES(QDesignerCustomWidgetInterface)
 
 public:
-    ColorPreview_Plugin(QObject *parent = 0);
+  ColorPreview_Plugin(QObject *parent = 0);
 
-    void initialize(QDesignerFormEditorInterface *core);
-    bool isInitialized() const;
+  void initialize(QDesignerFormEditorInterface *core);
+  bool isInitialized() const;
 
-    QWidget *createWidget(QWidget *parent);
+  QWidget *createWidget(QWidget *parent);
 
-    QString name() const;
-    QString group() const;
-    QIcon icon() const;
-    QString toolTip() const;
-    QString whatsThis() const;
-    bool isContainer() const;
+  QString name() const;
+  QString group() const;
+  QIcon icon() const;
+  QString toolTip() const;
+  QString whatsThis() const;
+  bool isContainer() const;
 
-    QString domXml() const;
+  QString domXml() const;
 
-    QString includeFile() const;
+  QString includeFile() const;
 
 private:
-    bool initialized;
+  bool initialized;
 };
 
-#endif // COLOR_PREVIEW_PLUGIN_HPP
+#endif  // COLOR_PREVIEW_PLUGIN_HPP

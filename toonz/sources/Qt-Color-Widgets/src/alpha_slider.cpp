@@ -27,26 +27,21 @@ namespace color_widgets {
 
 const int MAX_VALUE = 1000;
 
-AlphaSlider::AlphaSlider(QWidget* parent) :
-    GradientSlider(parent)
-{
-    setRange(0, MAX_VALUE);
-    connect(this, &QSlider::valueChanged, [this](int value) {
-        m_color.setAlphaF(value*1.0/MAX_VALUE);
-        Q_EMIT colorChanged(m_color);
-    });
+AlphaSlider::AlphaSlider(QWidget* parent) : GradientSlider(parent) {
+  setRange(0, MAX_VALUE);
+  connect(this, &QSlider::valueChanged, [this](int value) {
+    m_color.setAlphaF(value * 1.0 / MAX_VALUE);
+    Q_EMIT colorChanged(m_color);
+  });
 }
 
-AlphaSlider::~AlphaSlider()
-{}
+AlphaSlider::~AlphaSlider() {}
 
-QColor AlphaSlider::color() const {
-    return m_color;
-}
+QColor AlphaSlider::color() const { return m_color; }
 
 void AlphaSlider::setColor(QColor c) {
-    m_color = c;
-    setValue(c.alphaF()*MAX_VALUE);
+  m_color = c;
+  setValue(c.alphaF() * MAX_VALUE);
 }
 
-} // namespace color_widgets
+}  // namespace color_widgets

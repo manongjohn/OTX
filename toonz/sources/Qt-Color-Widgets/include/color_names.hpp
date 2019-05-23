@@ -51,5 +51,5 @@ QColor colorFromString(const QString& string, bool alpha = true);
  */
 QString stringFromColor(const QColor& color, bool alpha = true);
 
-} // namespace color_widgets
-#endif // COLOR_WIDGETS_COLOR_NAMES_HPP
+}  // namespace color_widgets
+#endif  // COLOR_WIDGETS_COLOR_NAMES_HPP

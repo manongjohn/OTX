@@ -41,37 +41,38 @@ class ComponentContainer;
  * Color selector consisting of few slider/input components
  */
 class ComponentColorSelector : public QWidget {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit ComponentColorSelector(std::unique_ptr<ComponentContainer> container, QWidget* parent = nullptr);
-    virtual ~ComponentColorSelector();
+  explicit ComponentColorSelector(std::unique_ptr<ComponentContainer> container,
+                                  QWidget* parent = nullptr);
+  virtual ~ComponentColorSelector();
 
 public:
-    QColor color() const;
+  QColor color() const;
 
 public Q_SLOTS:
-    void setColor(QColor c);
+  void setColor(QColor c);
 
 Q_SIGNALS:
-    void colorChanged(QColor c);
+  void colorChanged(QColor c);
 
 private:
-    std::unique_ptr<ComponentContainer> const p;
+  std::unique_ptr<ComponentContainer> const p;
 };
 
 class QCP_EXPORT RgbColorSelector : public ComponentColorSelector {
 public:
-    explicit RgbColorSelector(QWidget* parent = nullptr);
-    virtual ~RgbColorSelector();
+  explicit RgbColorSelector(QWidget* parent = nullptr);
+  virtual ~RgbColorSelector();
 };
 
 class QCP_EXPORT HsvColorSelector : public ComponentColorSelector {
 public:
-    explicit HsvColorSelector(QWidget* parent = nullptr);
-    virtual ~HsvColorSelector();
+  explicit HsvColorSelector(QWidget* parent = nullptr);
+  virtual ~HsvColorSelector();
 };
 
-} // namespace color_widgets
+}  // namespace color_widgets
 
 #endif

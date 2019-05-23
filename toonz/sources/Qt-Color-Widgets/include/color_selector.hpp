@@ -30,59 +30,59 @@ namespace color_widgets {
 /**
  * Color preview that opens a color dialog
  */
-class QCP_EXPORT ColorSelector : public ColorPreview
-{
-    Q_OBJECT
-    Q_ENUMS(UpdateMode)
-    Q_PROPERTY(UpdateMode updateMode READ updateMode WRITE setUpdateMode )
-    Q_PROPERTY(Qt::WindowModality dialogModality READ dialogModality WRITE setDialogModality )
-    Q_PROPERTY(ColorWheel::DisplayFlags wheelFlags READ wheelFlags WRITE setWheelFlags NOTIFY wheelFlagsChanged)
+class QCP_EXPORT ColorSelector : public ColorPreview {
+  Q_OBJECT
+  Q_ENUMS(UpdateMode)
+  Q_PROPERTY(UpdateMode updateMode READ updateMode WRITE setUpdateMode)
+  Q_PROPERTY(Qt::WindowModality dialogModality READ dialogModality WRITE
+                 setDialogModality)
+  Q_PROPERTY(ColorWheel::DisplayFlags wheelFlags READ wheelFlags WRITE
+                 setWheelFlags NOTIFY wheelFlagsChanged)
 
 public:
-    enum UpdateMode {
-        Confirm, ///< Update color only after the dialog has been accepted
-        Continuous ///< Update color as it's being modified in the dialog
-    };
+  enum UpdateMode {
+    Confirm,    ///< Update color only after the dialog has been accepted
+    Continuous  ///< Update color as it's being modified in the dialog
+  };
 
-    explicit ColorSelector(QWidget *parent = 0);
-    ~ColorSelector();
+  explicit ColorSelector(QWidget *parent = 0);
+  ~ColorSelector();
 
-    void setUpdateMode(UpdateMode m);
-    UpdateMode updateMode() const;
+  void setUpdateMode(UpdateMode m);
+  UpdateMode updateMode() const;
 
-    Qt::WindowModality dialogModality() const;
-    void setDialogModality(Qt::WindowModality m);
+  Qt::WindowModality dialogModality() const;
+  void setDialogModality(Qt::WindowModality m);
 
-    ColorWheel::DisplayFlags wheelFlags() const;
+  ColorWheel::DisplayFlags wheelFlags() const;
 
 Q_SIGNALS:
-    void wheelFlagsChanged(ColorWheel::DisplayFlags flags);
+  void wheelFlagsChanged(ColorWheel::DisplayFlags flags);
 
 public Q_SLOTS:
-    void showDialog();
-    void setWheelFlags(ColorWheel::DisplayFlags flags);
+  void showDialog();
+  void setWheelFlags(ColorWheel::DisplayFlags flags);
 
 private Q_SLOTS:
-    void accept_dialog();
-    void reject_dialog();
-    void update_old_color(const QColor &c);
+  void accept_dialog();
+  void reject_dialog();
+  void update_old_color(const QColor &c);
 
 protected:
-    void dragEnterEvent(QDragEnterEvent *event);
-    void dropEvent(QDropEvent * event);
+  void dragEnterEvent(QDragEnterEvent *event);
+  void dropEvent(QDropEvent *event);
 
 private:
-    /// Connect/Disconnect colorChanged based on UpdateMode
-    void connect_dialog();
+  /// Connect/Disconnect colorChanged based on UpdateMode
+  void connect_dialog();
 
-    /// Disconnect from dialog update
-    void disconnect_dialog();
+  /// Disconnect from dialog update
+  void disconnect_dialog();
 
-    class Private;
-    Private * const p;
-    
+  class Private;
+  Private *const p;
 };
 
-} // namespace color_widgets
+}  // namespace color_widgets
 
-#endif // COLOR_SELECTOR_HPP
+#endif  // COLOR_SELECTOR_HPP

@@ -32,121 +32,121 @@ class QAbstractButton;
 
 namespace color_widgets {
 
-class QCP_EXPORT ColorDialog : public QDialog
-{
-    Q_OBJECT
-    Q_ENUMS(ButtonMode)
-    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged DESIGNABLE true)
-    Q_PROPERTY(ColorWheel::DisplayFlags wheelFlags READ wheelFlags WRITE setWheelFlags NOTIFY wheelFlagsChanged)
-    /**
-     * \brief whether the color alpha channel can be edited.
-     *
-     * If alpha is disabled, the selected color's alpha will always be 255.
-     */
-    Q_PROPERTY(bool alphaEnabled READ alphaEnabled WRITE setAlphaEnabled NOTIFY alphaEnabledChanged)
+class QCP_EXPORT ColorDialog : public QDialog {
+  Q_OBJECT
+  Q_ENUMS(ButtonMode)
+  Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged
+                 DESIGNABLE true)
+  Q_PROPERTY(ColorWheel::DisplayFlags wheelFlags READ wheelFlags WRITE
+                 setWheelFlags NOTIFY wheelFlagsChanged)
+  /**
+   * \brief whether the color alpha channel can be edited.
+   *
+   * If alpha is disabled, the selected color's alpha will always be 255.
+   */
+  Q_PROPERTY(bool alphaEnabled READ alphaEnabled WRITE setAlphaEnabled NOTIFY
+                 alphaEnabledChanged)
 
 public:
-    enum ButtonMode {
-        OkCancel,
-        OkApplyCancel,
-        Close
-    };
+  enum ButtonMode { OkCancel, OkApplyCancel, Close };
 
-    explicit ColorDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+  explicit ColorDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
 
-    /**
-     * Get currently selected color
-     */
-    QColor color() const;
+  /**
+   * Get currently selected color
+   */
+  QColor color() const;
 
-    /**
-     * Set the display mode for the color preview
-     */
-    void setPreviewDisplayMode(ColorPreview::DisplayMode mode);
+  /**
+   * Set the display mode for the color preview
+   */
+  void setPreviewDisplayMode(ColorPreview::DisplayMode mode);
 
-    /**
-     * Get the color preview diplay mode
-     */
-    ColorPreview::DisplayMode previewDisplayMode() const;
+  /**
+   * Get the color preview diplay mode
+   */
+  ColorPreview::DisplayMode previewDisplayMode() const;
 
-    bool alphaEnabled() const;
+  bool alphaEnabled() const;
 
-    /**
-     * Select which dialog buttons to show
-     *
-     * There are three predefined modes:
-     * OkCancel - this is useful when the dialog is modal and we just want to return a color
-     * OkCancelApply - this is for non-modal dialogs
-     * Close - for non-modal dialogs with direct color updates via colorChanged signal
-     */
-    void setButtonMode(ButtonMode mode);
-    ButtonMode buttonMode() const;
+  /**
+   * Select which dialog buttons to show
+   *
+   * There are three predefined modes:
+   * OkCancel - this is useful when the dialog is modal and we just want to
+   * return a color
+   * OkCancelApply - this is for non-modal dialogs
+   * Close - for non-modal dialogs with direct color updates via colorChanged
+   * signal
+   */
+  void setButtonMode(ButtonMode mode);
+  ButtonMode buttonMode() const;
 
-    QSize sizeHint() const;
+  QSize sizeHint() const;
 
-    ColorWheel::DisplayFlags wheelFlags() const;
+  ColorWheel::DisplayFlags wheelFlags() const;
 
 public Q_SLOTS:
 
-    /**
-     * Change color
-     */
-    void setColor(const QColor &c);
+  /**
+   * Change color
+   */
+  void setColor(const QColor &c);
 
-	/**
-     * Set the current color and show the dialog
-     */
-    void showColor(const QColor &oldcolor);
+  /**
+*Set the current color and show the dialog
+*/
+  void showColor(const QColor &oldcolor);
 
-    void setWheelFlags(ColorWheel::DisplayFlags flags);
+  void setWheelFlags(ColorWheel::DisplayFlags flags);
 
-    /**
-     * Set whether the color alpha channel can be edited.
-     * If alpha is disabled, the selected color's alpha will always be 255.
-     */
-    void setAlphaEnabled(bool a);
+  /**
+   * Set whether the color alpha channel can be edited.
+   * If alpha is disabled, the selected color's alpha will always be 255.
+   */
+  void setAlphaEnabled(bool a);
 
 Q_SIGNALS:
-    /**
-     * The current color was changed
-     */
-    void colorChanged(QColor);
+  /**
+   * The current color was changed
+   */
+  void colorChanged(QColor);
 
-    /**
-     * The user selected the new color by pressing Ok/Apply
-     */
-    void colorSelected(QColor);
+  /**
+   * The user selected the new color by pressing Ok/Apply
+   */
+  void colorSelected(QColor);
 
-    void wheelFlagsChanged(ColorWheel::DisplayFlags flags);
-    void alphaEnabledChanged(bool alphaEnabled);
+  void wheelFlagsChanged(ColorWheel::DisplayFlags flags);
+  void alphaEnabledChanged(bool alphaEnabled);
 
 private Q_SLOTS:
-    /// Update all the Ui elements to match the selected color
-    void update_widgets();
-    /// Update from HSV sliders
-    void set_hsv();
-    /// Update from RGB sliders
-    void set_rgb();
+  /// Update all the Ui elements to match the selected color
+  void update_widgets();
+  /// Update from HSV sliders
+  void set_hsv();
+  /// Update from RGB sliders
+  void set_rgb();
 
-    void on_edit_hex_colorChanged(const QColor& color);
-    void on_edit_hex_colorEditingFinished(const QColor& color);
+  void on_edit_hex_colorChanged(const QColor &color);
+  void on_edit_hex_colorEditingFinished(const QColor &color);
 
-    void on_buttonBox_clicked(QAbstractButton*);
+  void on_buttonBox_clicked(QAbstractButton *);
 
 private:
-    void setColorInternal(const QColor &color);
+  void setColorInternal(const QColor &color);
 
 protected:
-    void dragEnterEvent(QDragEnterEvent *event);
-    void dropEvent(QDropEvent * event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
+  void dragEnterEvent(QDragEnterEvent *event);
+  void dropEvent(QDropEvent *event);
+  void mouseReleaseEvent(QMouseEvent *event);
+  void mouseMoveEvent(QMouseEvent *event);
 
 private:
-    class Private;
-    Private * const p;
+  class Private;
+  Private *const p;
 };
 
-} // namespace color_widgets
+}  // namespace color_widgets
 
-#endif // COLOR_DIALOG_HPP
+#endif  // COLOR_DIALOG_HPP

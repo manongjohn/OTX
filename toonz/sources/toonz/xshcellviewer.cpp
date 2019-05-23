@@ -3154,9 +3154,9 @@ const bool CellArea::isControlPressed() { return isCtrlPressed; }
 void CellArea::createCellMenu(QMenu &menu, bool isCellSelected, TXshCell cell) {
   CommandManager *cmdManager = CommandManager::instance();
 
-  bool soundCellsSelected  = m_viewer->areSoundCellsSelected();
-  bool cameraCellsSelected = m_viewer->areCameraCellsSelected();
-
+  bool soundCellsSelected     = m_viewer->areSoundCellsSelected();
+  bool cameraCellsSelected    = m_viewer->areCameraCellsSelected();
+  bool soundTextCellsSelected = m_viewer->areSoundTextCellsSelected();
   if (m_viewer->areSoundTextCellsSelected()) return;  // Magpies stop here
 
   menu.addSeparator();

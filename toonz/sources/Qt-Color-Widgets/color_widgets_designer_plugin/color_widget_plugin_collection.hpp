@@ -24,20 +24,20 @@
 
 #include <QDesignerCustomWidgetCollectionInterface>
 
-class ColorWidgets_PluginCollection : public QObject, public QDesignerCustomWidgetCollectionInterface
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "mattia.basaglia.ColorWidgetsPlugin")
-    Q_INTERFACES(QDesignerCustomWidgetCollectionInterface)
+class ColorWidgets_PluginCollection
+    : public QObject,
+      public QDesignerCustomWidgetCollectionInterface {
+  Q_OBJECT
+  Q_PLUGIN_METADATA(IID "mattia.basaglia.ColorWidgetsPlugin")
+  Q_INTERFACES(QDesignerCustomWidgetCollectionInterface)
 
 public:
-    explicit ColorWidgets_PluginCollection(QObject *parent = 0);
+  explicit ColorWidgets_PluginCollection(QObject *parent = 0);
 
-    QList<QDesignerCustomWidgetInterface*> customWidgets() const;
+  QList<QDesignerCustomWidgetInterface *> customWidgets() const;
 
-   private:
-       QList<QDesignerCustomWidgetInterface*> widgets;
-    
+private:
+  QList<QDesignerCustomWidgetInterface *> widgets;
 };
 
-#endif // COLOR_WIDGET_PLUGIN_COLLECTION_HPP
+#endif  // COLOR_WIDGET_PLUGIN_COLLECTION_HPP

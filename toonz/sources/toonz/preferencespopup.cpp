@@ -1278,6 +1278,8 @@ void PreferencesPopup::onLevelBasedToolsDisplayChanged(int index) {
   m_pref->setLevelBasedToolsDisplay(index);
   TApp::instance()->getCurrentScene()->notifyPreferenceChanged(
       "ToolbarDisplay");
+}
+
 //---------------------------------------------------------------------------------------
 
 void PreferencesPopup::onShowXsheetCameraColumnChanged(int index) {

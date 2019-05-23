@@ -192,7 +192,8 @@ StartupPopup::StartupPopup()
       projectLay->addWidget(newProjectButton, 0);
     }
     m_projectBox->setLayout(projectLay);
-    guiLay->addWidget(m_projectBox, 1, 0, 1, 1, Qt::AlignTop | Qt::AlignHCenter);
+    guiLay->addWidget(m_projectBox, 1, 0, 1, 1,
+                      Qt::AlignTop | Qt::AlignHCenter);
 
     newSceneLay->setMargin(8);
     newSceneLay->setVerticalSpacing(8);
@@ -243,14 +244,15 @@ StartupPopup::StartupPopup()
       newSceneLay->addWidget(createButton, 7, 1, 1, 3, Qt::AlignLeft);
     }
     m_sceneBox->setLayout(newSceneLay);
-	guiLay->addWidget(m_sceneBox, 2, 0, 5, 1, Qt::AlignTop | Qt::AlignHCenter);
+    guiLay->addWidget(m_sceneBox, 2, 0, 5, 1, Qt::AlignTop | Qt::AlignHCenter);
 
     m_recentSceneLay->setMargin(5);
     m_recentSceneLay->setSpacing(2);
     {
       // Recent Scene List
       m_recentBox->setLayout(m_recentSceneLay);
-      guiLay->addWidget(m_recentBox, 1, 1, 4, 1, Qt::AlignTop | Qt::AlignHCenter);
+      guiLay->addWidget(m_recentBox, 1, 1, 4, 1,
+                        Qt::AlignTop | Qt::AlignHCenter);
       guiLay->addWidget(m_useCurrentProjectCB, 5, 1, 1, 1, Qt::AlignHCenter);
       guiLay->addWidget(loadOtherSceneButton, 6, 1, 1, 1, Qt::AlignRight);
     }
@@ -922,7 +924,7 @@ void StartupPopup::onCameraUnitChanged(int index) {
     m_widthFld->setValue(width);
     m_heightFld->setValue(height);
   } else {
-	  pref->setPixelsOnly(true);
+    pref->setPixelsOnly(true);
     pref->setUnits("pixel");
     pref->setCameraUnits("pixel");
     m_widthFld->setDecimals(0);

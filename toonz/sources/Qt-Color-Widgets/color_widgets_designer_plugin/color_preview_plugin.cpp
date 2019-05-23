@@ -24,74 +24,42 @@
 #include <QtPlugin>
 
 ColorPreview_Plugin::ColorPreview_Plugin(QObject *parent)
-    : QObject(parent), initialized(false)
-{
+    : QObject(parent), initialized(false) {}
+
+void ColorPreview_Plugin::initialize(QDesignerFormEditorInterface *) {
+  if (initialized) return;
+
+  initialized = true;
 }
 
+bool ColorPreview_Plugin::isInitialized() const { return initialized; }
 
-void ColorPreview_Plugin::initialize(QDesignerFormEditorInterface *)
-{
-    if (initialized)
-        return;
-
-    initialized = true;
+QWidget *ColorPreview_Plugin::createWidget(QWidget *parent) {
+  return new color_widgets::ColorPreview(parent);
 }
 
-bool ColorPreview_Plugin::isInitialized() const
-{
-    return initialized;
+QString ColorPreview_Plugin::name() const {
+  return "color_widgets::ColorPreview";
 }
 
-QWidget *ColorPreview_Plugin::createWidget(QWidget *parent)
-{
-    return new color_widgets::ColorPreview(parent);
+QString ColorPreview_Plugin::group() const { return "Color Widgets"; }
+
+QIcon ColorPreview_Plugin::icon() const { return QIcon(); }
+
+QString ColorPreview_Plugin::toolTip() const { return "Display a color"; }
+
+QString ColorPreview_Plugin::whatsThis() const { return toolTip(); }
+
+bool ColorPreview_Plugin::isContainer() const { return false; }
+
+QString ColorPreview_Plugin::domXml() const {
+  return "<ui language=\"c++\">\n"
+         " <widget class=\"color_widgets::ColorPreview\" "
+         "name=\"colorPreview\">\n"
+         " </widget>\n"
+         "</ui>\n";
 }
 
-QString ColorPreview_Plugin::name() const
-{
-    return "color_widgets::ColorPreview";
-}
+QString ColorPreview_Plugin::includeFile() const { return "color_preview.hpp"; }
 
-QString ColorPreview_Plugin::group() const
-{
-    return "Color Widgets";
-}
-
-QIcon ColorPreview_Plugin::icon() const
-{
-    return QIcon();
-}
-
-QString ColorPreview_Plugin::toolTip() const
-{
-    return "Display a color";
-}
-
-QString ColorPreview_Plugin::whatsThis() const
-{
-    return toolTip();
-}
-
-bool ColorPreview_Plugin::isContainer() const
-{
-    return false;
-}
-
-QString ColorPreview_Plugin::domXml() const
-{
-
-    return "<ui language=\"c++\">\n"
-           " <widget class=\"color_widgets::ColorPreview\" name=\"colorPreview\">\n"
-           " </widget>\n"
-            "</ui>\n";
-}
-
-QString ColorPreview_Plugin::includeFile() const
-{
-    return "color_preview.hpp";
-}
-
-//Q_EXPORT_PLUGIN2(color_widgets, ColorPreview_Plugin);
-
-
-
+// Q_EXPORT_PLUGIN2(color_widgets, ColorPreview_Plugin);

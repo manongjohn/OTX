@@ -25,123 +25,92 @@
 
 namespace color_widgets {
 
-class HueSlider::Private
-{
+class HueSlider::Private {
 private:
-    HueSlider *w;
+  HueSlider *w;
 
 public:
-    qreal saturation = 1;
-    qreal value = 1;
-    qreal alpha = 1;
+  qreal saturation = 1;
+  qreal value      = 1;
+  qreal alpha      = 1;
 
-    Private(HueSlider *widget)
-        : w(widget)
-    {
-        w->setRange(0, 359);
-        connect(w, &QSlider::valueChanged, [this]{
-            Q_EMIT w->colorHueChanged(w->colorHue());
-            Q_EMIT w->colorChanged(w->color());
-        });
-        updateGradient();
-    }
+  Private(HueSlider *widget) : w(widget) {
+    w->setRange(0, 359);
+    connect(w, &QSlider::valueChanged, [this] {
+      Q_EMIT w->colorHueChanged(w->colorHue());
+      Q_EMIT w->colorChanged(w->color());
+    });
+    updateGradient();
+  }
 
-    void updateGradient()
-    {
-        static const double n_colors = 6;
-        QGradientStops colors;
-        colors.reserve(n_colors+1);
-        for ( int i = 0; i <= n_colors; ++i )
-            colors.append(QGradientStop(i/n_colors, QColor::fromHsvF(i/n_colors, saturation, value)));
-        w->setColors(colors);
-    }
+  void updateGradient() {
+    static const double n_colors = 6;
+    QGradientStops colors;
+    colors.reserve(n_colors + 1);
+    for (int i = 0; i <= n_colors; ++i)
+      colors.append(QGradientStop(
+          i / n_colors, QColor::fromHsvF(i / n_colors, saturation, value)));
+    w->setColors(colors);
+  }
 };
 
-HueSlider::HueSlider(QWidget *parent) :
-    GradientSlider(parent), p(new Private(this))
-{
+HueSlider::HueSlider(QWidget *parent)
+    : GradientSlider(parent), p(new Private(this)) {}
+
+HueSlider::HueSlider(Qt::Orientation orientation, QWidget *parent)
+    : GradientSlider(orientation, parent), p(new Private(this)) {}
+
+HueSlider::~HueSlider() { delete p; }
+
+qreal HueSlider::colorSaturation() const { return p->saturation; }
+
+void HueSlider::setColorSaturation(qreal s) {
+  p->saturation = qBound(0.0, s, 1.0);
+  p->updateGradient();
 }
 
-HueSlider::HueSlider(Qt::Orientation orientation, QWidget *parent) :
-    GradientSlider(orientation, parent), p(new Private(this))
-{
+qreal HueSlider::colorValue() const { return p->value; }
+
+void HueSlider::setColorValue(qreal v) {
+  p->value = qBound(0.0, v, 1.0);
+  p->updateGradient();
 }
 
-HueSlider::~HueSlider()
-{
-	delete p;
+qreal HueSlider::colorAlpha() const { return p->alpha; }
+
+void HueSlider::setColorAlpha(qreal alpha) {
+  p->alpha = alpha;
+  p->updateGradient();
 }
 
-qreal HueSlider::colorSaturation() const
-{
-    return p->saturation;
+QColor HueSlider::color() const {
+  return QColor::fromHsvF(colorHue(), p->saturation, p->value, p->alpha);
 }
 
-void HueSlider::setColorSaturation(qreal s)
-{
-    p->saturation = qBound(0.0, s, 1.0);
-    p->updateGradient();
+void HueSlider::setColor(const QColor &color) {
+  p->saturation = color.saturationF();
+  p->value      = color.valueF();
+  p->updateGradient();
+  setColorHue(color.hueF());
 }
 
-qreal HueSlider::colorValue() const
-{
-    return p->value;
+void HueSlider::setFullColor(const QColor &color) {
+  p->alpha = color.alphaF();
+  setColor(color);
 }
 
-void HueSlider::setColorValue(qreal v)
-{
-    p->value = qBound(0.0, v, 1.0);
-    p->updateGradient();
+qreal HueSlider::colorHue() const {
+  if (maximum() == minimum()) return 0;
+  auto hue = qreal(value() - minimum()) / (maximum() - minimum());
+  if (orientation() == Qt::Vertical) hue = 1 - hue;
+  return hue;
 }
 
-qreal HueSlider::colorAlpha() const
-{
-    return p->alpha;
+void HueSlider::setColorHue(qreal colorHue) {
+  // TODO: consider supporting invertedAppearance?
+  if (orientation() == Qt::Vertical) colorHue = 1 - colorHue;
+  auto new_value = minimum() + colorHue * (maximum() - minimum());
+  if (new_value != value()) setValue(new_value);
 }
 
-void HueSlider::setColorAlpha(qreal alpha)
-{
-    p->alpha = alpha;
-    p->updateGradient();
-}
-
-QColor HueSlider::color() const
-{
-    return QColor::fromHsvF(colorHue(), p->saturation, p->value, p->alpha);
-}
-
-void HueSlider::setColor(const QColor& color)
-{
-    p->saturation = color.saturationF();
-    p->value = color.valueF();
-    p->updateGradient();
-    setColorHue(color.hueF());
-}
-
-void HueSlider::setFullColor(const QColor& color)
-{
-    p->alpha = color.alphaF();
-    setColor(color);
-}
-
-qreal HueSlider::colorHue() const
-{
-    if (maximum() == minimum())
-        return 0;
-    auto hue = qreal(value() - minimum()) / (maximum() - minimum());
-    if (orientation() == Qt::Vertical)
-        hue = 1 - hue;
-    return hue;
-}
-
-void HueSlider::setColorHue(qreal colorHue)
-{
-    // TODO: consider supporting invertedAppearance?
-    if (orientation() == Qt::Vertical)
-        colorHue = 1 - colorHue;
-    auto new_value = minimum()+colorHue*(maximum()-minimum());
-    if (new_value != value())
-        setValue(new_value);
-}
-
-} // namespace color_widgets
+}  // namespace color_widgets

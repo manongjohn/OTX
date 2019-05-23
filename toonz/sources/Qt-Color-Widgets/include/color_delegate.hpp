@@ -31,24 +31,22 @@ namespace color_widgets {
 /**
     Delegate to use a ColorSelector in a color list
 */
-class QCP_EXPORT ColorDelegate : public QAbstractItemDelegate
-{
-    Q_OBJECT
+class QCP_EXPORT ColorDelegate : public QAbstractItemDelegate {
+  Q_OBJECT
 public:
-    explicit ColorDelegate(QWidget *parent = 0);
+  explicit ColorDelegate(QWidget *parent = 0);
 
-    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,
-                    const QModelIndex &index) const Q_DECL_OVERRIDE;
+  virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,
+                     const QModelIndex &index) const Q_DECL_OVERRIDE;
 
-    bool editorEvent(QEvent* event,
-                     QAbstractItemModel* model,
-                     const QStyleOptionViewItem & option,
-                     const QModelIndex & index) override;
+  bool editorEvent(QEvent *event, QAbstractItemModel *model,
+                   const QStyleOptionViewItem &option,
+                   const QModelIndex &index) override;
 
-    virtual QSize sizeHint(const QStyleOptionViewItem &option,
-                           const QModelIndex &index) const Q_DECL_OVERRIDE;
+  virtual QSize sizeHint(const QStyleOptionViewItem &option,
+                         const QModelIndex &index) const Q_DECL_OVERRIDE;
 };
 
-} // namespace color_widgets
+}  // namespace color_widgets
 
-#endif // COLOR_DELEGATE_HPP
+#endif  // COLOR_DELEGATE_HPP

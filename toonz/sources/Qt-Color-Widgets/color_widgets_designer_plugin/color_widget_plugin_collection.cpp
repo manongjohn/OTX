@@ -32,23 +32,22 @@
 #include "color_line_edit_plugin.hpp"
 // add new plugin headers above this line
 
-ColorWidgets_PluginCollection::ColorWidgets_PluginCollection(QObject *parent) :
-    QObject(parent)
-{
-    widgets.push_back(new ColorPreview_Plugin(this));
-    widgets.push_back(new ColorWheel_Plugin(this));
-    widgets.push_back(new GradientSlider_Plugin(this));
-    widgets.push_back(new HueSlider_Plugin(this));
-    widgets.push_back(new ColorSelector_Plugin(this));
-    widgets.push_back(new ColorListWidget_Plugin(this));
-    widgets.push_back(new Swatch_Plugin(this));
-    widgets.push_back(new ColorPaletteWidget_Plugin(this));
-    widgets.push_back(new Color2DSlider_Plugin(this));
-    widgets.push_back(new ColorLineEdit_Plugin(this));
-    // add new plugins above this line
+ColorWidgets_PluginCollection::ColorWidgets_PluginCollection(QObject *parent)
+    : QObject(parent) {
+  widgets.push_back(new ColorPreview_Plugin(this));
+  widgets.push_back(new ColorWheel_Plugin(this));
+  widgets.push_back(new GradientSlider_Plugin(this));
+  widgets.push_back(new HueSlider_Plugin(this));
+  widgets.push_back(new ColorSelector_Plugin(this));
+  widgets.push_back(new ColorListWidget_Plugin(this));
+  widgets.push_back(new Swatch_Plugin(this));
+  widgets.push_back(new ColorPaletteWidget_Plugin(this));
+  widgets.push_back(new Color2DSlider_Plugin(this));
+  widgets.push_back(new ColorLineEdit_Plugin(this));
+  // add new plugins above this line
 }
 
-QList<QDesignerCustomWidgetInterface *> ColorWidgets_PluginCollection::customWidgets() const
-{
-    return widgets;
+QList<QDesignerCustomWidgetInterface *>
+ColorWidgets_PluginCollection::customWidgets() const {
+  return widgets;
 }

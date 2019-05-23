@@ -24,108 +24,86 @@
 
 namespace color_widgets {
 
-class ColorListWidget::Private
-{
+class ColorListWidget::Private {
 public:
-    QList<QColor>               colors;
-    QSignalMapper               mapper;
-    ColorWheel::DisplayFlags  wheel_flags;
+  QList<QColor> colors;
+  QSignalMapper mapper;
+  ColorWheel::DisplayFlags wheel_flags;
 };
 
-ColorListWidget::ColorListWidget(QWidget *parent)
-    : AbstractWidgetList(parent), p(new Private)
-{
-    connect(this, &AbstractWidgetList::removed, this, &ColorListWidget::handle_removed);
-    connect(&p->mapper, SIGNAL(mapped(int)), SLOT(color_changed(int)));
-    p->wheel_flags = ColorWheel::defaultDisplayFlags();
+ColorListWidget::ColorListWidget(QWidget* parent)
+    : AbstractWidgetList(parent), p(new Private) {
+  connect(this, &AbstractWidgetList::removed, this,
+          &ColorListWidget::handle_removed);
+  connect(&p->mapper, SIGNAL(mapped(int)), SLOT(color_changed(int)));
+  p->wheel_flags = ColorWheel::defaultDisplayFlags();
 }
 
-ColorListWidget::~ColorListWidget()
-{
-    delete p;
+ColorListWidget::~ColorListWidget() { delete p; }
+
+QList<QColor> ColorListWidget::colors() const { return p->colors; }
+
+void ColorListWidget::setColors(const QList<QColor>& colors) {
+  clear();
+  p->colors = colors;
+  for (int i = 0; i < colors.size(); i++) append_widget(i);
+  Q_EMIT colorsChanged(colors);
 }
 
-QList<QColor> ColorListWidget::colors() const
-{
-    return p->colors;
-}
-
-void ColorListWidget::setColors(const QList<QColor> &colors)
-{
-    clear();
-    p->colors = colors;
-    for(int i = 0;i < colors.size();i++ )
-        append_widget(i);
-    Q_EMIT colorsChanged(colors);
-}
-
-void ColorListWidget::swap(int a, int b)
-{
-    ColorSelector* sa = widget_cast<ColorSelector>(a);
-    ColorSelector* sb = widget_cast<ColorSelector>(b);
-    if ( sa && sb )
-    {
-        QColor ca = sa->color();
-        sa->setColor(sb->color());
-        sb->setColor(ca);
-        Q_EMIT colorsChanged(p->colors);
-    }
-}
-
-void ColorListWidget::append()
-{
-    p->colors.push_back(Qt::black);
-    append_widget(p->colors.size()-1);
+void ColorListWidget::swap(int a, int b) {
+  ColorSelector* sa = widget_cast<ColorSelector>(a);
+  ColorSelector* sb = widget_cast<ColorSelector>(b);
+  if (sa && sb) {
+    QColor ca = sa->color();
+    sa->setColor(sb->color());
+    sb->setColor(ca);
     Q_EMIT colorsChanged(p->colors);
+  }
 }
 
-void ColorListWidget::emit_changed()
-{
+void ColorListWidget::append() {
+  p->colors.push_back(Qt::black);
+  append_widget(p->colors.size() - 1);
+  Q_EMIT colorsChanged(p->colors);
+}
+
+void ColorListWidget::emit_changed() { Q_EMIT colorsChanged(p->colors); }
+
+void ColorListWidget::handle_removed(int i) {
+  p->colors.removeAt(i);
+  Q_EMIT colorsChanged(p->colors);
+}
+
+void ColorListWidget::color_changed(int row) {
+  ColorSelector* cs = widget_cast<ColorSelector>(row);
+  if (cs) {
+    p->colors[row] = cs->color();
     Q_EMIT colorsChanged(p->colors);
+  }
 }
 
-void ColorListWidget::handle_removed(int i)
-{
-    p->colors.removeAt(i);
-    Q_EMIT colorsChanged(p->colors);
+void ColorListWidget::append_widget(int col) {
+  ColorSelector* cbs = new ColorSelector;
+  cbs->setDisplayMode(ColorPreview::AllAlpha);
+  cbs->setColor(p->colors[col]);
+  // connect(cbs,SIGNAL(colorChanged(QColor)),SLOT(emit_changed()));
+  p->mapper.setMapping(cbs, col);
+  connect(cbs, SIGNAL(colorChanged(QColor)), &p->mapper, SLOT(map()));
+  connect(this, &ColorListWidget::wheelFlagsChanged, cbs,
+          &ColorSelector::setWheelFlags);
+  appendWidget(cbs);
+  setRowHeight(count() - 1, 22);
 }
 
-void ColorListWidget::color_changed(int row)
-{
-    ColorSelector *cs = widget_cast<ColorSelector>(row);
-    if ( cs )
-    {
-        p->colors[row] = cs->color();
-        Q_EMIT colorsChanged(p->colors);
-    }
+ColorWheel::DisplayFlags ColorListWidget::wheelFlags() const {
+  return p->wheel_flags;
 }
 
-void ColorListWidget::append_widget(int col)
-{
-    ColorSelector* cbs = new ColorSelector;
-    cbs->setDisplayMode(ColorPreview::AllAlpha);
-    cbs->setColor(p->colors[col]);
-    //connect(cbs,SIGNAL(colorChanged(QColor)),SLOT(emit_changed()));
-    p->mapper.setMapping(cbs,col);
-    connect(cbs,SIGNAL(colorChanged(QColor)),&p->mapper,SLOT(map()));
-    connect(this,&ColorListWidget::wheelFlagsChanged,
-            cbs,&ColorSelector::setWheelFlags);
-    appendWidget(cbs);
-    setRowHeight(count()-1,22);
+void ColorListWidget::setWheelFlags(ColorWheel::DisplayFlags flags) {
+  if (p->wheel_flags != flags) {
+    p->wheel_flags = flags;
+    Q_EMIT wheelFlagsChanged(flags);
+  }
 }
 
-ColorWheel::DisplayFlags ColorListWidget::wheelFlags() const
-{
-    return p->wheel_flags;
-}
-
-void ColorListWidget::setWheelFlags(ColorWheel::DisplayFlags flags)
-{
-    if ( p->wheel_flags != flags )
-    {
-        p->wheel_flags = flags;
-        Q_EMIT wheelFlagsChanged(flags);
-    }
-}
-
-} // namespace color_widgets
+}  // namespace color_widgets

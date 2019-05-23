@@ -34,79 +34,79 @@ namespace color_widgets {
 /**
  * \brief A slider that moves on top of a gradient
  */
-class QCP_EXPORT GradientSlider : public QSlider
-{
-    Q_OBJECT
-    Q_PROPERTY(QBrush background READ background WRITE setBackground)
-    Q_PROPERTY(QGradientStops colors READ colors WRITE setColors DESIGNABLE false)
-    Q_PROPERTY(QColor firstColor READ firstColor WRITE setFirstColor STORED false)
-    Q_PROPERTY(QColor lastColor READ lastColor WRITE setLastColor STORED false)
-    Q_PROPERTY(QLinearGradient gradient READ gradient WRITE setGradient)
+class QCP_EXPORT GradientSlider : public QSlider {
+  Q_OBJECT
+  Q_PROPERTY(QBrush background READ background WRITE setBackground)
+  Q_PROPERTY(QGradientStops colors READ colors WRITE setColors DESIGNABLE false)
+  Q_PROPERTY(QColor firstColor READ firstColor WRITE setFirstColor STORED false)
+  Q_PROPERTY(QColor lastColor READ lastColor WRITE setLastColor STORED false)
+  Q_PROPERTY(QLinearGradient gradient READ gradient WRITE setGradient)
 
 public:
-    explicit GradientSlider(QWidget *parent = 0);
-    explicit GradientSlider(Qt::Orientation orientation, QWidget *parent = 0);
-    ~GradientSlider();
+  explicit GradientSlider(QWidget *parent = 0);
+  explicit GradientSlider(Qt::Orientation orientation, QWidget *parent = 0);
+  ~GradientSlider();
 
-    void mousePressEvent(QMouseEvent *ev) override;
+  void mousePressEvent(QMouseEvent *ev) override;
 
-    /// Get the background, it's visible for transparent gradient stops
-    QBrush background() const;
-    /// Set the background, it's visible for transparent gradient stops
-    void setBackground(const QBrush &bg);
+  /// Get the background, it's visible for transparent gradient stops
+  QBrush background() const;
+  /// Set the background, it's visible for transparent gradient stops
+  void setBackground(const QBrush &bg);
 
-    /// Get the colors that make up the gradient
-    QGradientStops colors() const;
-    /// Set the colors that make up the gradient
-    void setColors(const QGradientStops &colors);
+  /// Get the colors that make up the gradient
+  QGradientStops colors() const;
+  /// Set the colors that make up the gradient
+  void setColors(const QGradientStops &colors);
 
-    /// Get the gradient
-    QLinearGradient gradient() const;
-    /// Set the gradient
-    void setGradient(const QLinearGradient &gradient);
+  /// Get the gradient
+  QLinearGradient gradient() const;
+  /// Set the gradient
+  void setGradient(const QLinearGradient &gradient);
 
-    /**
-     * Overload: create an evenly distributed gradient of the given colors
-     */
-    void setColors(const QVector<QColor> &colors);
+  /**
+   * Overload: create an evenly distributed gradient of the given colors
+   */
+  void setColors(const QVector<QColor> &colors);
 
-    /**
-     * \brief Set the first color of the gradient
-     *
-     * If the gradient is currently empty it will create a stop with the given color
-     */
-    void setFirstColor(const QColor &c);
+  /**
+   * \brief Set the first color of the gradient
+   *
+   * If the gradient is currently empty it will create a stop with the given
+   * color
+   */
+  void setFirstColor(const QColor &c);
 
-    /**
-     * \brief Set the last color of the gradient
-     *
-     * If the gradient is has less than two colors,
-     * it will create a stop with the given color
-     */
-    void setLastColor(const QColor &c);
+  /**
+   * \brief Set the last color of the gradient
+   *
+   * If the gradient is has less than two colors,
+   * it will create a stop with the given color
+   */
+  void setLastColor(const QColor &c);
 
-    /**
-     * \brief Get the first color
-     *
-     * \returns QColor() con empty gradient
-     */
-    QColor firstColor() const;
+  /**
+   * \brief Get the first color
+   *
+   * \returns QColor() con empty gradient
+   */
+  QColor firstColor() const;
 
-    /**
-     * \brief Get the last color
-     *
-     * \returns QColor() con empty gradient
-     */
-    QColor lastColor() const;
-    
+  /**
+   * \brief Get the last color
+   *
+   * \returns QColor() con empty gradient
+   */
+  QColor lastColor() const;
+
 protected:
-    void paintEvent(QPaintEvent *ev) override;
+  void paintEvent(QPaintEvent *ev) override;
 
 private:
-    class Private;
-    Private * const p;
+  class Private;
+  Private *const p;
 };
 
-} // namespace color_widgets
+}  // namespace color_widgets
 
-#endif // GRADIENT_SLIDER_HPP
+#endif  // GRADIENT_SLIDER_HPP

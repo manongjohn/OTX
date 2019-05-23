@@ -25,33 +25,32 @@
 #include <QObject>
 #include <QDesignerCustomWidgetInterface>
 
-class ColorWheel_Plugin : public QObject, public QDesignerCustomWidgetInterface
-{
-    Q_OBJECT
-    Q_INTERFACES(QDesignerCustomWidgetInterface)
+class ColorWheel_Plugin : public QObject,
+                          public QDesignerCustomWidgetInterface {
+  Q_OBJECT
+  Q_INTERFACES(QDesignerCustomWidgetInterface)
 
 public:
-    ColorWheel_Plugin(QObject *parent = 0);
+  ColorWheel_Plugin(QObject *parent = 0);
 
-    void initialize(QDesignerFormEditorInterface *core);
-    bool isInitialized() const;
+  void initialize(QDesignerFormEditorInterface *core);
+  bool isInitialized() const;
 
-    QWidget *createWidget(QWidget *parent);
+  QWidget *createWidget(QWidget *parent);
 
-    QString name() const;
-    QString group() const;
-    QIcon icon() const;
-    QString toolTip() const;
-    QString whatsThis() const;
-    bool isContainer() const;
+  QString name() const;
+  QString group() const;
+  QIcon icon() const;
+  QString toolTip() const;
+  QString whatsThis() const;
+  bool isContainer() const;
 
-    QString domXml() const;
+  QString domXml() const;
 
-    QString includeFile() const;
+  QString includeFile() const;
 
 private:
-    bool initialized;
+  bool initialized;
 };
 
-
-#endif // COLOR_WHEEL_PLUGIN_HPP
+#endif  // COLOR_WHEEL_PLUGIN_HPP

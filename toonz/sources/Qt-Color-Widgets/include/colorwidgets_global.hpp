@@ -4,11 +4,11 @@
 #include <QtCore/QtGlobal>
 
 #if defined(QTCOLORWIDGETS_LIBRARY)
-#    define QCP_EXPORT Q_DECL_EXPORT
+#define QCP_EXPORT Q_DECL_EXPORT
 #elif defined(QTCOLORWIDGETS_STATICALLY_LINKED)
-#    define QCP_EXPORT
+#define QCP_EXPORT
 #else
-#    define QCP_EXPORT Q_DECL_IMPORT
+#define QCP_EXPORT Q_DECL_IMPORT
 #endif
 
-#endif // QT_COLOR_WIDGETS_GLOBAL_H
+#endif  // QT_COLOR_WIDGETS_GLOBAL_H
