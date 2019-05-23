@@ -40,3 +40,7 @@ deploy:
   file: toonz/OpenToonz-OTX-$TRAVIS_OS_NAME.*
   skip_cleanup: true
   overwrite: true
+  on:
+    tags:   true
+    branch: OTX
+
