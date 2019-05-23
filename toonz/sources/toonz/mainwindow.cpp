@@ -960,7 +960,7 @@ void MainWindow::onUpgradeTabPro() {}
 
 void MainWindow::onAbout() {
   QLabel *label  = new QLabel();
-  QPixmap pixmap = QIcon(":Resources/splash.svg").pixmap(QSize(610, 344));
+  QPixmap pixmap = QIcon(":Resources/splash_OTX.svg").pixmap(QSize(610, 344));
   pixmap.setDevicePixelRatio(QApplication::desktop()->devicePixelRatio());
   label->setPixmap(pixmap);
 

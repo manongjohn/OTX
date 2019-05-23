@@ -470,5 +470,7 @@
       <file>Resources/shift_and_trace_reset.svg</file>
       <file>Resources/up.svg</file>
       <file>Resources/down.svg</file>
+      <file>Resources/splash_OTX.svg</file>
+      <file>Resources/startup_OTX.png</file>
     </qresource>
 </RCC>

@@ -33,7 +33,7 @@
 
 using namespace DVGui;
 
-QString DialogTitle = QObject::tr("OpenToonz 1.3");
+QString DialogTitle = QObject::tr("OpenToonz 1.3 (eXperimental)");
 
 //=============================================================================
 namespace {
@@ -344,8 +344,7 @@ void Dialog::moveEvent(QMoveEvent *e) {
 void Dialog::resizeEvent(QResizeEvent *e) {
   if (Preferences::instance()->getCurrentLanguage() != "English") {
     QSize t = this->size();
-    for (QLabel *s : m_labelList)
-      s->setFixedWidth(t.width() * .35);
+    for (QLabel *s : m_labelList) s->setFixedWidth(t.width() * .35);
   }
 
   if (m_name == QString()) return;
@@ -827,7 +826,7 @@ RadioButtonDialog::RadioButtonDialog(const QString &labelText,
                                      const QList<QString> &radioButtonList,
                                      QWidget *parent, Qt::WindowFlags f)
     : Dialog(parent, true, true), m_result(1) {
-  setWindowTitle(tr("OpenToonz"));
+  setWindowTitle(tr("OpenToonz (eXperimental)"));
 
   setMinimumSize(20, 20);
 
@@ -897,7 +896,7 @@ ProgressDialog::ProgressDialog(const QString &labelText,
                                const QString &cancelButtonText, int minimum,
                                int maximum, QWidget *parent, Qt::WindowFlags f)
     : Dialog(parent, true, true), m_isCanceled(false) {
-  setWindowTitle(tr("OpenToonz"));
+  setWindowTitle(tr("OpenToonz (eXperimental)"));
 
   setMinimumSize(20, 20);
 

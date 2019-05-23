@@ -169,9 +169,10 @@ public:
       m_applicationVersion = m_version.getAppVersionString();
     }
 
-    m_applicationFullName = m_version.getAppName() + " " + m_applicationVersion;
-    m_moduleName          = m_version.getAppName();
-    m_rootVarName         = toUpper(m_version.getAppName()) + "ROOT";
+    m_applicationFullName =
+        m_version.getAppName() + " " + m_applicationVersion + " (eXperimental)";
+    m_moduleName  = m_version.getAppName() + " (eXperimental)";
+    m_rootVarName = toUpper(m_version.getAppName()) + "ROOT";
 #ifdef _WIN32
     // from v1.3, registry root is moved to SOFTWARE\\OpenToonz\\OpenToonz
     m_registryRoot =
@@ -197,7 +198,9 @@ public:
   }
   std::string getApplicationFullName() { return m_applicationFullName; }
 
-  void setModuleName(std::string moduleName) { m_moduleName = moduleName; }
+  void setModuleName(std::string moduleName) {
+    m_moduleName = moduleName + " (eXperimental)";
+  }
   std::string getModuleName() { return m_moduleName; }
 
   void setRootVarName(std::string varName) {
