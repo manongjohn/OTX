@@ -41,6 +41,5 @@ deploy:
   skip_cleanup: true
   overwrite: true
   on:
-    tags:   true
     branch: OTX
 
