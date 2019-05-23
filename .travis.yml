@@ -39,6 +39,5 @@ deploy:
   file_glob: true
   file: toonz/OpenToonz-OTX-$TRAVIS_OS_NAME.*
   name: "OTX Nightly Build "$(date +'%Y-%m-%d')
-  body: "OTX Nightly Release"
   skip_cleanup: true
   overwrite: true
