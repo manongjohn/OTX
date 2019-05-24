@@ -1,9 +1,6 @@
 #!/bin/bash
 # We assume we're in opentoonz/toonz/sources/toonz
-export TOONZDIR=toonz/sources/toonz
-echo "====="
-pwd
-echo "====="
+export TOONZDIR=toonz/build/toonz
 mkdir -p $TOONZDIR/OTX/OpenToonzPortable folder
 cp -r $TOONZDIR/OpenToonz.app $T9ONZDIR/OTX/OpenToonzPortable 
 cp -r thirdparty/stuff to $TOONZDIR/OTX/OpenToonzPortable/portablestuff
