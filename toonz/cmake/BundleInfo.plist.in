@@ -9,7 +9,7 @@
 	<key>CFBundleGetInfoString</key>
 	<string></string>
 	<key>CFBundleIconFile</key>
-	<string>OpenToonz.icns</string>
+	<string>OpenToonz_OTX.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>io.github.opentoonz.OpenToonz</string>
 	<key>CFBundleInfoDictionaryVersion</key>
