@@ -35,7 +35,7 @@ before_deploy:
 deploy:
   provider: releases
   api_key:
-       secure: $SECURETOKEN
+       secure: "$SECURETOKEN"
   file_glob: true
   file: toonz/sources/toonz/OpenToonz-OTX-$TRAVIS_OS_NAME.*
   skip_cleanup: true
