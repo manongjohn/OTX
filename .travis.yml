@@ -37,7 +37,7 @@ deploy:
   api_key:
        secure: "u6cr0GJ6TTFwlyHhlBMkF41A5l1//jZsqw1/hwYoS6pctYgPOPAa4dNwc/01H3jTynUZVBoHGQ2wJAl+7XQi0+U55ulaByR66/Gjy8FTISvhgrWcNaeLaaojdvUMIo4cCCyvBO8Y0jeonC6WplecKcoppuKwBz5SPQx09cSA1bmeMVeaGutgmZ4mcob0vUXziHjFVP1Xlw8AVU5bENOeDzyQ2rkO32mEigoS0VWbYb2kv+vNwE6K7OnOIHrJYXMm9w35n4DWhDaMHA3/tX8aVHDy1xeJ0TFkjDiTauQw+h2mYE3U1wwPmhROmE5luo89LI/bsRCE2yxRFGt2Md9ATX568ULMOESTWSX10wDHsNqo402dv3FVBZgsMNwonbfuyS7HRZ0yrQzOaN5xVLqgyfohLSeV+HjUlxtiMXXiyw9+FvvTP/5NNXyGQJ9xmeprVZOKFnXL5gUlTXqCv9H0LnuNUl1dWqeNAKODOQBIaQ3EsoB4WABZLkHQzAY3Hyv1o13Q1K9G3v/OAJ+M27xSV9HbafY7JXO2YlMQKm48MNul4y0QdQUuQd1+8BRpiNyTgUpVN89VJKDo43iijjk40xDQxi6hADkLkGppok7w0Wcv7B5kcGXGIf2KteNRNYgS/fQB44w0adElEziFHhp0ZjvdSg+96Vg+P8utlm4KedQ="
   file_glob: true
-  file: toonz/sources/toonz/OpenToonz-OTX-$TRAVIS_OS_NAME.*
+  file: toonz/build/toonz/OpenToonz-OTX-$TRAVIS_OS_NAME.*
   skip_cleanup: true
   overwrite: true
   on:
