@@ -134,6 +134,8 @@ void CustomStyleManager::StyleLoaderTask::run() {
     } else
       assert(!"unsupported type for custom styles!");
 
+    if (!ras || ras->isEmpty()) return;
+
     QImage *image = new QImage(chipSize.lx, chipSize.ly, QImage::Format_RGB32);
     convertRaster32ToImage(ras, image);
 
