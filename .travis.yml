@@ -1,9 +1,5 @@
 language: cpp
 
-branches:
-  only:
-  - OTX
-
 git:
   depth: 1
   
