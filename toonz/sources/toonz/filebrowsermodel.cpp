@@ -18,12 +18,10 @@
 
 #include <QFileInfo>
 #include <QDir>
-#include <QDirIterator>
 
 #ifdef _WIN32
 #include <shlobj.h>
 #include <winnetwk.h>
-#include <wctype.h>
 #endif
 #ifdef MACOSX
 #include <Cocoa/Cocoa.h>
@@ -252,11 +250,13 @@ bool DvDirModelFileFolderNode::hasChildren() {
   if (m_childrenValid) return m_hasChildren;
 
   if (m_peeks) {
-    // Using QDirIterator and only checking existence of the first item
-    QDir dir(m_path.getQString());
+    // Using QDir directly rather than
+    // DvDirModelFileFolderNode::refreshChildren() due to
+    // performance issues
+    QDir dir(QString::fromStdWString(m_path.getWideString()));
     dir.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
-    QDirIterator it(dir);
-    return (it.hasNext());
+
+    return (dir.count() > 0);
   } else
     return true;  // Not peeking nodes allow users to actively scan for
                   // sub-folders
@@ -314,13 +314,16 @@ void DvDirModelFileFolderNode::getChildrenNames(
   TFileStatus folderPathStatus(m_path);
   if (folderPathStatus.isLink()) return;
 
-  if (!folderPathStatus.isDirectory()) return;
+  QStringList entries;
+  if (folderPathStatus.isDirectory()) {
+    QDir dir(toQString(m_path));
 
-  QStringList dirItems;
-  TSystem::readDirectory_DirItems(dirItems, m_path);
-  for (const QString &name : dirItems) names.push_back(name.toStdWString());
+    entries = dir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot,
+                            QDir::Name | QDir::LocaleAware);
+  }
 
-  QDir dir(toQString(m_path));
+  int e, eCount = entries.size();
+  for (e = 0; e != eCount; ++e) names.push_back(entries[e].toStdWString());
 }
 
 //-----------------------------------------------------------------------------
