@@ -348,6 +348,10 @@ Preferences::Preferences()
     , m_enableWinInk(false)
     , m_useOnionColorsForShiftAndTraceGhosts(false)
     , m_rasterBackgroundColor(TPixel::White) {
+  load();
+}
+
+void Preferences::load() {
   TCamera camera;
   m_defLevelType   = PLI_XSHLEVEL;
   m_defLevelWidth  = camera.getSize().lx;
