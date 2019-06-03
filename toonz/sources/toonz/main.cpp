@@ -193,36 +193,67 @@ void checkPreferences() {
     TFilePath oldSettingsDir = tmpRootPath + settingsPath;
 
     if (TFileStatus(oldSettingsDir).doesExist()) {
-      int ret = DVGui::MsgBox(
-          QObject::tr("Setting initial preferences and layouts:\n\nExisting "
-                      "preferences and layouts have been detected in %1. Do "
-                      "you wish to import them?")
-              .arg(QString::fromStdWString(tmpPath)),
-          QObject::tr("Yes"), QObject::tr("No"));
-      if (ret == 2 || ret == 0) return;
+      int ret =
+          DVGui::MsgBox(QObject::tr("Existing preferences and layouts have "
+                                    "been detected in \n\n\t%1\n\nWould you "
+                                    "like to import your old preferences?")
+                            .arg(QString::fromStdWString(tmpPath)),
+                        QObject::tr("Yes"), QObject::tr("No"));
+      if (ret == 1) {
+        // Remove preference.ini created by the DVGui::MsgBox
+        TSystem::removeFileOrLevel(prefPath);
 
-      // Remove preference.ini created by the DVGui::MsgBox
-      TSystem::removeFileOrLevel(prefPath);
+        // Copy layouts/settings.username directory
+        TFilePath newSettingsDir = TEnv::getStuffDir() + settingsPath;
+        TSystem::copyDir(newSettingsDir, oldSettingsDir);
 
-      // Copy layouts/settings.username directory
-      TFilePath newSettingsDir = TEnv::getStuffDir() + settingsPath;
-      TSystem::copyDir(newSettingsDir, oldSettingsDir);
+        // Copy env/username.env file
+        TFilePath oldEnvFile =
+            tmpRootPath + envPath + TFilePath(username + ".env");
+        TFilePath newEnvFile =
+            TEnv::getStuffDir() + envPath + TFilePath(username + ".env");
+        TSystem::copyFile(newEnvFile, oldEnvFile);
+
+        // Force reload of preferences because DVGui::MsgBox caused default
+        // preferences to load
+        Preferences::instance()->load();
+      }
 
       // Copy layouts/personal/Default.username
+      ret = DVGui::MsgBox(
+#ifdef _WIN32
+          QObject::tr("Would you like to import your old room and menu "
+                      "layouts?\n\nWARNING: If you import them, you will not "
+                      "see any new changes."),
+          QObject::tr("Import Both"), QObject::tr("Import Rooms Only"),
+          QObject::tr("No"), 2);
+#else
+        QObject::tr("Would you like to import your old room "
+                    "layouts?\n\nWARNING: If you import them, you will not see "
+                    "any new changes."),
+        QObject::tr("Yes"), QObject::tr("No"), 1);
+#endif
       TFilePath oldDefaultsDir = tmpRootPath + defaultsPath;
       TFilePath newDefaultsDir = TEnv::getStuffDir() + defaultsPath;
-      TSystem::copyDir(newDefaultsDir, oldDefaultsDir);
+      if (ret == 1) TSystem::copyDir(newDefaultsDir, oldDefaultsDir);
+#ifdef _WIN32
+      else if (ret == 2) {
+        QFileInfoList fil = QDir(toQString(oldDefaultsDir)).entryInfoList();
 
-      // Copy env/username.env file
-      TFilePath oldEnvFile =
-          tmpRootPath + envPath + TFilePath(username + ".env");
-      TFilePath newEnvFile =
-          TEnv::getStuffDir() + envPath + TFilePath(username + ".env");
-      TSystem::copyFile(newEnvFile, oldEnvFile);
-
-      // Force reload of preferences because DVGui::MsgBox causes preferences to
-      // load
-      Preferences::instance()->load();
+        int i;
+        for (i = 0; i < fil.size(); i++) {
+          QFileInfo fi = fil.at(i);
+          if (fi.fileName() == QString(".") || fi.fileName() == QString(".."))
+            continue;
+          TFilePath fp(fi.fileName());
+          if (fp.getType() == "xml") continue;
+          if (fi.isDir())
+            TSystem::copyDir(newDefaultsDir + fp, oldDefaultsDir + fp);
+          else
+            TSystem::copyFile(newDefaultsDir + fp, oldDefaultsDir + fp);
+        }
+      }
+#endif
 
       return;
     }
