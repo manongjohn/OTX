@@ -965,8 +965,9 @@ void SceneViewer::gestureEvent(QGestureEvent *e) {
       if (changeFlags & QPinchGesture::RotationAngleChanged) {
         qreal rotationDelta =
             gesture->rotationAngle() - gesture->lastRotationAngle();
-        TAffine aff    = getViewMatrix().inv();
-        TPointD center = aff * TPointD(0, 0);
+        if (m_isFlippedX != m_isFlippedY) rotationDelta = -rotationDelta;
+        TAffine aff                                     = getViewMatrix().inv();
+        TPointD center                                  = aff * TPointD(0, 0);
         if (!m_rotating && !m_zooming) {
           m_rotationDelta += rotationDelta;
           double absDelta = abs(m_rotationDelta);
@@ -1516,10 +1517,13 @@ void SceneViewer::dragEnterEvent(QDragEnterEvent *event) {
 
   const QMimeData *mimeData = event->mimeData();
 
-  if (acceptResourceOrFolderDrop(mimeData->urls()))
-    event->acceptProposedAction();
-  else
+  if (acceptResourceOrFolderDrop(mimeData->urls())) {
+    // Force CopyAction
+    event->setDropAction(Qt::CopyAction);
+    event->accept();
+  } else {
     event->ignore();
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1531,7 +1535,7 @@ void SceneViewer::dropEvent(QDropEvent *e) {
   if (mimeData->hasUrls()) {
     IoCmd::LoadResourceArguments args;
 
-    foreach (const QUrl &url, mimeData->urls()) {
+    for (const QUrl &url : mimeData->urls()) {
       TFilePath fp(url.toLocalFile().toStdWString());
       args.resourceDatas.push_back(fp);
     }

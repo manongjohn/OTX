@@ -712,7 +712,6 @@ class ZoomToolOptionsBox final : public ToolOptionsBox {
 public:
   ZoomToolOptionsBox(QWidget *parent, TTool *tool, TPaletteHandle *pltHandle,
                      ToolHandle *toolHandle);
-  void updateStatus();
 };
 
 //=============================================================================
@@ -727,7 +726,6 @@ class RotateToolOptionsBox final : public ToolOptionsBox {
 public:
   RotateToolOptionsBox(QWidget *parent, TTool *tool, TPaletteHandle *pltHandle,
                        ToolHandle *toolHandle);
-  void updateStatus();
 };
 
 //=============================================================================
@@ -742,7 +740,6 @@ class HandToolOptionsBox final : public ToolOptionsBox {
 public:
   HandToolOptionsBox(QWidget *parent, TTool *tool, TPaletteHandle *pltHandle,
                      ToolHandle *toolHandle);
-  void updateStatus();
 };
 
 //-----------------------------------------------------------------------------

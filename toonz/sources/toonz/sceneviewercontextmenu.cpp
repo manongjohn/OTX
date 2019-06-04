@@ -81,22 +81,6 @@ SceneViewerContextMenu::SceneViewerContextMenu(SceneViewer *parent)
           parent->connect(action, SIGNAL(triggered()), SLOT(swapCompared()));
   }
 
-  // flip horizontally
-  action = commandManager->createAction(V_FlipX, this);
-  addAction(action);
-  ret = ret && parent->connect(action, SIGNAL(triggered()), SLOT(flipX()));
-
-  // flip vertically
-  action = commandManager->createAction(V_FlipY, this);
-  addAction(action);
-  ret = ret && parent->connect(action, SIGNAL(triggered()), SLOT(flipY()));
-
-  // reset
-  action = commandManager->createAction(V_ViewReset, this);
-  addAction(action);
-  ret = ret &&
-        parent->connect(action, SIGNAL(triggered()), SLOT(resetSceneViewer()));
-
   if (!isEditingLevel) {
     // fit camera
     action = commandManager->createAction(V_ZoomFit, this);
@@ -105,20 +89,40 @@ SceneViewerContextMenu::SceneViewerContextMenu(SceneViewer *parent)
           parent->connect(action, SIGNAL(triggered()), SLOT(fitToCamera()));
   }
 
+  QMenu *flipViewMenu = addMenu(tr("Flip View"));
+
+  // flip horizontally
+  action = commandManager->createAction(V_FlipX, this);
+  flipViewMenu->addAction(action);
+  ret = ret && parent->connect(action, SIGNAL(triggered()), SLOT(flipX()));
+
+  // flip vertically
+  action = commandManager->createAction(V_FlipY, this);
+  flipViewMenu->addAction(action);
+  ret = ret && parent->connect(action, SIGNAL(triggered()), SLOT(flipY()));
+
+  QMenu *resetViewMenu = addMenu(tr("Reset View"));
+
+  // reset
+  action = commandManager->createAction(V_ViewReset, this);
+  resetViewMenu->addAction(action);
+  ret = ret &&
+        parent->connect(action, SIGNAL(triggered()), SLOT(resetSceneViewer()));
+
   // reset zoom
   action = commandManager->createAction(V_ZoomReset, this);
-  addAction(action);
+  resetViewMenu->addAction(action);
   ret = ret && parent->connect(action, SIGNAL(triggered()), SLOT(resetZoom()));
 
   // reset rotation
   action = commandManager->createAction(V_RotateReset, this);
-  addAction(action);
+  resetViewMenu->addAction(action);
   ret = ret &&
         parent->connect(action, SIGNAL(triggered()), SLOT(resetRotation()));
 
   // reset position
   action = commandManager->createAction(V_PositionReset, this);
-  addAction(action);
+  resetViewMenu->addAction(action);
   ret = ret &&
         parent->connect(action, SIGNAL(triggered()), SLOT(resetPosition()));
 
