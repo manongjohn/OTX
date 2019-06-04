@@ -93,6 +93,8 @@ public:
 public:
   static Preferences *instance();
 
+  void load();
+
   // General settings  tab
 
   void setUndoMemorySize(int memorySize);

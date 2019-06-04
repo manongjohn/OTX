@@ -351,6 +351,10 @@ Preferences::Preferences()
     , m_levelBasedToolsDisplay(0)
     , m_backupKeepCount(1)
     , m_showXsheetCameraColumn(true) {
+  load();
+}
+
+void Preferences::load() {
   TCamera camera;
   m_defLevelType   = TZP_XSHLEVEL;
   m_defLevelWidth  = camera.getSize().lx;
