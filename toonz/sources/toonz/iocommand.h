@@ -168,7 +168,7 @@ void newScene();
 
 bool loadScene(ToonzScene &scene, const TFilePath &scenePath, bool import);
 bool loadScene(const TFilePath &scenePath, bool updateRecentFile = true,
-               bool checkSaveOldScene = true, bool forceImport = false);
+               bool checkSaveOldScene = true);
 bool loadScene();
 
 bool loadSubScene();
