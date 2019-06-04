@@ -1245,9 +1245,12 @@ void XsheetViewer::keyPressEvent(QKeyEvent *event) {
       if (orientation()->isVerticalTimeline())
         locals.scrollVertTo((frameCount + 1) * orientation()->cellHeight(),
                             visibleRect);
-      else
-        locals.scrollHorizTo((frameCount + 1) * orientation()->cellWidth(),
-                             visibleRect);
+      else {
+        int x = (((frameCount + 1) * orientation()->cellWidth()) *
+                 getFrameZoomFactor()) /
+                100;
+        locals.scrollHorizTo(x, visibleRect);
+      }
       break;
     }
     break;
@@ -1368,8 +1371,11 @@ void XsheetViewer::scrollToColumn(int col) {
 
   if (orientation()->isVerticalTimeline())
     scrollToHorizontalRange(x0, x1);
-  else
+  else {
+    if (colNext == col) x1 += m_orientation->cellHeight();
+
     scrollToVerticalRange(x0, x1);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1382,13 +1388,19 @@ void XsheetViewer::scrollToHorizontalRange(int x0, int x1) {
 
   if (visibleLeft > x0) {  // If they are out of left visible region
     int deltaX = x0 - visibleLeft;
-    scroll(QPoint(deltaX, 0));
-    return;
+    if (!TApp::instance()->getCurrentFrame()->isPlaying() ||
+        Preferences::instance()->isXsheetAutopanEnabled()) {
+      scroll(QPoint(deltaX, 0));
+      return;
+    }
   }
   if (visibleRight < x1) {  // If they are out of right visible region
     int deltaX = x1 + 2 - visibleRight;
-    scroll(QPoint(deltaX, 0));
-    return;
+    if (!TApp::instance()->getCurrentFrame()->isPlaying() ||
+        Preferences::instance()->isXsheetAutopanEnabled()) {
+      scroll(QPoint(deltaX, 0));
+      return;
+    }
   }
   if (orientation()->isVerticalTimeline())
     updateCellColumnAree();
@@ -1597,7 +1609,8 @@ void XsheetViewer::changeWindowTitle() {
   QString sceneName   = QString::fromStdWString(scene->getSceneName());
   if (sceneName.isEmpty()) sceneName = tr("Untitled");
   if (app->getCurrentScene()->getDirtyFlag()) sceneName += QString("*");
-  QString name = tr("Scene: ") + sceneName + "   ::   Project: " + projectName;
+  QString name =
+      tr("Scene: ") + sceneName + tr("   ::   Project: ") + projectName;
   int frameCount = scene->getFrameCount();
   name           = name + "   ::   " + tr(std::to_string(frameCount).c_str()) +
          (frameCount == 1 ? tr(" Frame") : tr(" Frames"));

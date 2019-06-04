@@ -1616,7 +1616,7 @@ void MainWindow::defineActions() {
   createMenuEditAction(MI_Ungroup, tr("&Ungroup"), "Ctrl+Shift+G");
   createMenuEditAction(MI_BringToFront, tr("&Bring to Front"), "Ctrl+]");
   createMenuEditAction(MI_BringForward, tr("&Bring Forward"), "]");
-  createMenuEditAction(MI_SendBack, tr("&Send Back"), "Ctrl+[");
+  createMenuEditAction(MI_SendBack, tr("&Send to Back"), "Ctrl+[");
   createMenuEditAction(MI_SendBackward, tr("&Send Backward"), "[");
   createMenuEditAction(MI_EnterGroup, tr("&Enter Group"), "");
   createMenuEditAction(MI_ExitGroup, tr("&Exit Group"), "");
@@ -2100,8 +2100,11 @@ void MainWindow::defineActions() {
 
   createViewerAction(V_ZoomIn, tr("Zoom In"), "+");
   createViewerAction(V_ZoomOut, tr("Zoom Out"), "-");
-  createViewerAction(V_ZoomReset, tr("Reset View"), "Alt+0");
+  createViewerAction(V_ViewReset, tr("Reset View"), "Alt+0");
   createViewerAction(V_ZoomFit, tr("Fit to Window"), "Alt+9");
+  createViewerAction(V_ZoomReset, tr("Reset Zoom"), "");
+  createViewerAction(V_RotateReset, tr("Reset Rotation"), "");
+  createViewerAction(V_PositionReset, tr("Reset Position"), "");
   createViewerAction(V_ActualPixelSize, tr("Actual Pixel Size"), "N");
   createViewerAction(V_FlipX, tr("Flip Viewer Horizontally"), "");
   createViewerAction(V_FlipY, tr("Flip Viewer Vertically"), "");

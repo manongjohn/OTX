@@ -84,10 +84,10 @@ QString removeZeros(QString srcStr) {
 
 //=============================================================================
 /*! \class StartupPopup
-\brief The StartupPopup class provides a modal dialog to
-bring up recent files or create a new scene.
+                \brief The StartupPopup class provides a modal dialog to
+   bring up recent files or create a new scene.
 
-Inherits \b Dialog.
+                Inherits \b Dialog.
 */
 //-----------------------------------------------------------------------------
 
@@ -922,7 +922,7 @@ void StartupPopup::onCameraUnitChanged(int index) {
     m_widthFld->setValue(width);
     m_heightFld->setValue(height);
   } else {
-	  pref->setPixelsOnly(true);
+    pref->setPixelsOnly(true);
     pref->setUnits("pixel");
     pref->setCameraUnits("pixel");
     m_widthFld->setDecimals(0);
