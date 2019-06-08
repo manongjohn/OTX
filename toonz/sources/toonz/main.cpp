@@ -170,13 +170,14 @@ void checkPreferences() {
   TFilePath defaultsPath =
       layoutsPath + TFilePath("personal") + TFilePath("Default." + username);
 
+  TFilePath tmpRootPath(rootPath);
+
 #ifndef LINUX
   // Work backwards through versions to find an old stuff folder we might want
   // to pull preferences from. We'll only look for default paths.
   // Note: Linux versions used the same folders for each version so no need to
   // loop to look for different versioned stuff folders.
   for (int version = 3; version >= 0; version--) {
-    TFilePath tmpRootPath(rootPath);
     std::wstring tmpPath = tmpRootPath.getWideString();
     if (version != 3) {
       std::wstring versionStr = L"1." + std::to_wstring(version);
@@ -193,12 +194,12 @@ void checkPreferences() {
     TFilePath oldSettingsDir = tmpRootPath + settingsPath;
 
     if (TFileStatus(oldSettingsDir).doesExist()) {
-      int ret =
-          DVGui::MsgBox(QObject::tr("Existing preferences and layouts have "
-                                    "been detected in \n\n\t%1\n\nWould you "
-                                    "like to import your old preferences?")
-                            .arg(QString::fromStdWString(tmpPath)),
-                        QObject::tr("Yes"), QObject::tr("No"));
+      int ret = DVGui::MsgBox(
+          QObject::tr("Existing preferences and layouts have "
+                      "been detected in \n\n\t%1\n\nWould you "
+                      "like to import your old preferences?")
+              .arg(QString::fromStdWString(tmpRootPath.getWideString())),
+          QObject::tr("Yes"), QObject::tr("No"));
       if (ret == 1) {
         // Remove preference.ini created by the DVGui::MsgBox
         TSystem::removeFileOrLevel(prefPath);
