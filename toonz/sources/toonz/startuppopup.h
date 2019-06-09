@@ -62,7 +62,6 @@ class StartupPopup final : public DVGui::Dialog {
   QGroupBox *m_recentBox;
   QVBoxLayout *m_recentSceneLay;
   QVector<StartupLabel *> m_recentNamesLabels;
-  QCheckBox *m_useCurrentProjectCB;
 
 public:
   StartupPopup();

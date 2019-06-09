@@ -84,10 +84,10 @@ QString removeZeros(QString srcStr) {
 
 //=============================================================================
 /*! \class StartupPopup
-\brief The StartupPopup class provides a modal dialog to
-bring up recent files or create a new scene.
+                \brief The StartupPopup class provides a modal dialog to
+   bring up recent files or create a new scene.
 
-Inherits \b Dialog.
+                Inherits \b Dialog.
 */
 //-----------------------------------------------------------------------------
 
@@ -130,8 +130,6 @@ StartupPopup::StartupPopup()
   QStringList type;
   type << tr("pixel") << tr("cm") << tr("mm") << tr("inch") << tr("field");
   m_unitsCB->addItems(type);
-  m_useCurrentProjectCB =
-      new QCheckBox(tr("Import into Current Project"), this);
 
   // Exclude all character which cannot fit in a filepath (Win).
   // Dots are also prohibited since they are internally managed by Toonz.
@@ -170,7 +168,7 @@ StartupPopup::StartupPopup()
   m_sceneBox->setMinimumWidth(480);
   m_projectBox->setMinimumWidth(480);
   m_buttonFrame->setFixedHeight(34);
-  m_useCurrentProjectCB->setStyleSheet("QCheckBox{ background-color: none; }");
+
   //--- layout
   m_topLayout->setMargin(0);
   m_topLayout->setSpacing(0);
@@ -192,8 +190,7 @@ StartupPopup::StartupPopup()
       projectLay->addWidget(newProjectButton, 0);
     }
     m_projectBox->setLayout(projectLay);
-    guiLay->addWidget(m_projectBox, 1, 0, 1, 1,
-                      Qt::AlignTop | Qt::AlignHCenter);
+    guiLay->addWidget(m_projectBox, 1, 0, 1, 1, Qt::AlignCenter);
 
     newSceneLay->setMargin(8);
     newSceneLay->setVerticalSpacing(8);
@@ -244,7 +241,7 @@ StartupPopup::StartupPopup()
       newSceneLay->addWidget(createButton, 7, 1, 1, 3, Qt::AlignLeft);
     }
     m_sceneBox->setLayout(newSceneLay);
-    guiLay->addWidget(m_sceneBox, 2, 0, 5, 1, Qt::AlignTop | Qt::AlignHCenter);
+    guiLay->addWidget(m_sceneBox, 2, 0, 4, 1, Qt::AlignTop);
 
     m_recentSceneLay->setMargin(5);
     m_recentSceneLay->setSpacing(2);
@@ -253,8 +250,7 @@ StartupPopup::StartupPopup()
       m_recentBox->setLayout(m_recentSceneLay);
       guiLay->addWidget(m_recentBox, 1, 1, 4, 1,
                         Qt::AlignTop | Qt::AlignHCenter);
-      guiLay->addWidget(m_useCurrentProjectCB, 5, 1, 1, 1, Qt::AlignHCenter);
-      guiLay->addWidget(loadOtherSceneButton, 6, 1, 1, 1, Qt::AlignRight);
+      guiLay->addWidget(loadOtherSceneButton, 5, 1, 1, 1, Qt::AlignRight);
     }
     m_topLayout->addLayout(guiLay, 0);
   }
@@ -865,8 +861,7 @@ void StartupPopup::onRecentSceneClicked(int index) {
     DVGui::warning(msg);
     refreshRecentScenes();
   } else {
-    bool forceImport = m_useCurrentProjectCB->isChecked();
-    if (!forceImport && RecentFiles::instance()->getFileProject(index) != "-") {
+    if (RecentFiles::instance()->getFileProject(index) != "-") {
       QString projectName = RecentFiles::instance()->getFileProject(index);
       int projectIndex    = m_projectsCB->findText(projectName);
       if (projectIndex >= 0) {
@@ -879,7 +874,7 @@ void StartupPopup::onRecentSceneClicked(int index) {
         DVGui::warning(msg);
       }
     }
-    IoCmd::loadScene(TFilePath(path.toStdWString()), false, true, forceImport);
+    IoCmd::loadScene(TFilePath(path.toStdWString()), false, true);
     if (RecentFiles::instance()->getFileProject(index) == "-") {
       QString fileName =
           RecentFiles::instance()->getFilePath(index, RecentFiles::Scene);

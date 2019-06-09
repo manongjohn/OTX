@@ -1727,7 +1727,7 @@ bool IoCmd::loadScene(ToonzScene &scene, const TFilePath &scenePath,
 //---------------------------------------------------------------------------
 
 bool IoCmd::loadScene(const TFilePath &path, bool updateRecentFile,
-                      bool checkSaveOldScene, bool forceImport) {
+                      bool checkSaveOldScene) {
   RenderingSuspender suspender;
 
   if (checkSaveOldScene)
@@ -1774,7 +1774,7 @@ bool IoCmd::loadScene(const TFilePath &path, bool updateRecentFile,
               .arg(QString::fromStdWString(scenePath.getWideString()));
     DVGui::warning(msg);
   }
-  if (!forceImport && sceneProject && !sceneProject->isCurrent()) {
+  if (sceneProject && !sceneProject->isCurrent()) {
     QString currentProjectName = QString::fromStdWString(
         pm->getCurrentProject()->getName().getWideString());
     QString sceneProjectName =
