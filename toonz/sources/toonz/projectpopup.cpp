@@ -347,10 +347,13 @@ void ProjectPopup::updateChooseProjectCombo() {
   m_projectPaths.clear();
   m_chooseProjectCombo->clear();
 
+  QString sandboxName = TProjectManager::instance()->getSandboxProjectName();
+
   TFilePath sandboxFp = TProjectManager::instance()->getSandboxProjectFolder() +
-                        "sandbox_otprj.xml";
+                        TFilePath(sandboxName + "_otprj.xml");
+
   m_projectPaths.push_back(sandboxFp);
-  m_chooseProjectCombo->addItem("sandbox");
+  m_chooseProjectCombo->addItem(sandboxName);
 
   std::vector<TFilePath> prjRoots;
   TProjectManager::instance()->getProjectRoots(prjRoots);

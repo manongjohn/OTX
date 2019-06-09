@@ -508,10 +508,12 @@ void StartupPopup::updateProjectCB() {
   m_projectPaths.clear();
   m_projectsCB->clear();
 
+  QString sandboxName = TProjectManager::instance()->getSandboxProjectName();
+
   TFilePath sandboxFp = TProjectManager::instance()->getSandboxProjectFolder() +
-                        "sandbox_otprj.xml";
+                        TFilePath(sandboxName + "_otprj.xml");
   m_projectPaths.push_back(sandboxFp);
-  m_projectsCB->addItem("sandbox");
+  m_projectsCB->addItem(sandboxName);
 
   std::vector<TFilePath> prjRoots;
   TProjectManager::instance()->getProjectRoots(prjRoots);
