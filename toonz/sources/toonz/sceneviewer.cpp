@@ -2271,45 +2271,6 @@ void SceneViewer::resetPosition() {
 
 //-----------------------------------------------------------------------------
 
-void SceneViewer::resetZoom() {
-  TPointD realCenter(m_viewAff[m_viewMode].a13, m_viewAff[m_viewMode].a23);
-  TAffine aff =
-      getNormalZoomScale() * TRotation(realCenter, m_rotationAngle[m_viewMode]);
-  aff.a13               = realCenter.x;
-  aff.a23               = realCenter.y;
-  if (m_isFlippedX) aff = aff * TScale(-1, 1);
-  if (m_isFlippedY) aff = aff * TScale(1, -1);
-  setViewMatrix(aff, m_viewMode);
-  invalidateAll();
-  emit onZoomChanged();
-}
-
-//-----------------------------------------------------------------------------
-
-void SceneViewer::resetRotation() {
-  double reverseRotatation = m_rotationAngle[m_viewMode] * -1;
-  if (m_isFlippedX) reverseRotatation *= -1;
-  if (m_isFlippedY) reverseRotatation *= -1;
-  TTool *tool    = TApp::instance()->getCurrentTool()->getTool();
-  TPointD center = m_viewAff[m_viewMode].inv() * TPointD(0, 0);
-  if (tool->getName() == "T_Rotate" &&
-      tool->getProperties(0)
-              ->getProperty("Rotate On Camera Center")
-              ->getValueAsString() == "1")
-    center = TPointD(0, 0);
-  rotate(center, reverseRotatation);
-}
-
-//-----------------------------------------------------------------------------
-
-void SceneViewer::resetPosition() {
-  m_viewAff[m_viewMode].a13 = 0.0;
-  m_viewAff[m_viewMode].a23 = 0.0;
-  invalidateAll();
-}
-
-//-----------------------------------------------------------------------------
-
 void SceneViewer::setActualPixelSize() {
   TApp *app           = TApp::instance();
   TXshLevel *l        = app->getCurrentLevel()->getLevel();
