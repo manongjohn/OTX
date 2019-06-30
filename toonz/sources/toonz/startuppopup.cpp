@@ -877,23 +877,19 @@ void StartupPopup::onRecentSceneClicked(int index) {
       if (projectIndex >= 0) {
         TFilePath projectFp = m_projectPaths[projectIndex];
         TProjectManager::instance()->setCurrentProjectPath(projectFp);
-      } else {
-        QString msg = tr("The selected scene project '%1' is not in the "
-                         "Current Project list and may not open automatically.")
-                          .arg(projectName);
-        DVGui::warning(msg);
       }
     }
     IoCmd::loadScene(TFilePath(path.toStdWString()), false, true);
-    if (RecentFiles::instance()->getFileProject(index) == "-") {
+    QString origProjectName = RecentFiles::instance()->getFileProject(index);
+    QString projectName     = QString::fromStdString(TApp::instance()
+                                                     ->getCurrentScene()
+                                                     ->getScene()
+                                                     ->getProject()
+                                                     ->getName()
+                                                     .getName());
+    if (origProjectName == "-" || origProjectName != projectName) {
       QString fileName =
           RecentFiles::instance()->getFilePath(index, RecentFiles::Scene);
-      QString projectName = QString::fromStdString(TApp::instance()
-                                                       ->getCurrentScene()
-                                                       ->getScene()
-                                                       ->getProject()
-                                                       ->getName()
-                                                       .getName());
       RecentFiles::instance()->removeFilePath(index, RecentFiles::Scene);
       RecentFiles::instance()->addFilePath(fileName, RecentFiles::Scene,
                                            projectName);
