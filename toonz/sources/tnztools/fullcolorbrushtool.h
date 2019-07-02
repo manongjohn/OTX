@@ -30,16 +30,34 @@ class Brush;
 
 class FullColorBrushTool final : public TTool, public RasterController {
   Q_DECLARE_TR_FUNCTIONS(FullColorBrushTool)
+public:
+  class TrackHandler: public TTrackToolHandler {
+  public:
+    MyPaintToonzBrush brush;
 
+    TrackHandler(
+      const TRaster32P &ras,
+      RasterController &controller,
+      const mypaint::Brush &brush
+    ):
+      brush(ras, controller, brush) { }
+  };
+
+private:
   void updateCurrentStyle();
-  double restartBrushTimer();
   void applyClassicToonzBrushSettings(mypaint::Brush &mypaintBrush);
   void applyToonzBrushSettings(mypaint::Brush &mypaintBrush);
 
 public:
   FullColorBrushTool(std::string name);
 
-  ToolType getToolType() const override { return TTool::LevelWriteTool; }
+  ToolType getToolType() const override
+    { return LevelWriteTool; }
+  ToolModifiers getToolModifiers() const override
+    { return ModifierTangents | ModifierAssistants | ModifierCustom | ModifierSegmentation; }
+  bool isAssistantsEnabled() const override;
+  bool isCustomModifiersEnabled() const override
+    { return true; }
 
   ToolOptionsBox *createOptionsBox() override;
 
@@ -52,10 +70,10 @@ public:
   bool askWrite(const TRect &rect) override;
 
   bool preLeftButtonDown() override;
-  void leftButtonDown(const TPointD &pos, const TMouseEvent &e) override;
-  void leftButtonDrag(const TPointD &pos, const TMouseEvent &e) override;
-  void leftButtonUp(const TPointD &pos, const TMouseEvent &e) override;
-  void mouseMove(const TPointD &pos, const TMouseEvent &e) override;
+  void hoverEvent(const TInputManager &manager) override;
+  void paintBegin() override;
+  void paintTrackPoint(const TTrackPoint &point, const TTrack &track, bool firstTrack);
+  void paintEnd() override;
 
   void draw() override;
 
@@ -84,15 +102,16 @@ public:
 protected:
   TPropertyGroup m_prop;
 
-  TIntPairProperty m_thickness;
-  TBoolProperty m_pressure;
+  TIntPairProperty    m_thickness;
+  TBoolProperty       m_pressure;
   TDoublePairProperty m_opacity;
-  TDoubleProperty m_hardness;
-  TDoubleProperty m_modifierSize;
-  TDoubleProperty m_modifierOpacity;
-  TBoolProperty m_modifierEraser;
-  TBoolProperty m_modifierLockAlpha;
-  TEnumProperty m_preset;
+  TDoubleProperty     m_hardness;
+  TDoubleProperty     m_modifierSize;
+  TDoubleProperty     m_modifierOpacity;
+  TBoolProperty       m_modifierEraser;
+  TBoolProperty       m_modifierLockAlpha;
+  TBoolProperty       m_assistants;
+  TEnumProperty       m_preset;
 
   TPixel32 m_currentColor;
   bool m_enabledPressure;
@@ -101,13 +120,12 @@ protected:
   TPointD m_mousePos,  //!< Current mouse position, in world coordinates.
       m_brushPos;      //!< World position the brush will be painted at.
 
+  TTrackPoint m_trackPoint;
+
   TRasterP m_backUpRas;
   TRaster32P m_workRaster;
 
   TRect m_strokeRect, m_strokeSegmentRect, m_lastRect;
-
-  MyPaintToonzBrush *m_toonz_brush;
-  QElapsedTimer m_brushTimer;
 
   TTileSetFullColor *m_tileSet;
   TTileSaverFullColor *m_tileSaver;
@@ -118,8 +136,7 @@ protected:
 
   bool m_presetsLoaded;
   bool m_firstTime;
-  bool m_mousePressed = false;
-  TMouseEvent m_mouseEvent;
+  bool m_started;
 };
 
 //------------------------------------------------------------
