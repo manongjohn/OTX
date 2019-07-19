@@ -306,6 +306,8 @@ public:
 
   TPropertyGroup *getProperties(int targetType) override;
 
+  void beforeCut() override;
+
 protected:
   void onActivate() override;
   void onDeactivate() override;
