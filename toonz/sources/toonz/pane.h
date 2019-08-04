@@ -62,7 +62,7 @@ signals:
 //-----------------------------------------------------------------------------
 /*! specialized button for sage area which enables to choose safe area size by
  * context menu
-*/
+ */
 
 class TPanelTitleBarButtonForSafeArea final : public TPanelTitleBarButton {
   Q_OBJECT
@@ -238,6 +238,8 @@ public:
     else
       return false;
   };
+
+  void restoreFloatingPanelState();
 
 protected:
   void paintEvent(QPaintEvent *) override;
