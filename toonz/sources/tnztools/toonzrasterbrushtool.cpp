@@ -1069,8 +1069,9 @@ void ToonzRasterBrushTool::updateTranslation() {
 
 //---------------------------------------------------------------------------------------------------
 
-bool ToonzRasterBrushTool::isAssistantsEnabled() const
-  { return m_assistants.getValue(); }
+bool ToonzRasterBrushTool::isAssistantsEnabled() const {
+  return m_assistants.getValue();
+}
 
 //---------------------------------------------------------------------------------------------------
 
