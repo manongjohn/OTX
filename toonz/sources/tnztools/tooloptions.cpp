@@ -1064,7 +1064,7 @@ void ArrowToolOptionsBox::onStageObjectChange() { updateStatus(); }
 
 //-----------------------------------------------------------------------------
 /*! update the object list in combobox
-*/
+ */
 void ArrowToolOptionsBox::updateStageObjectComboItems() {
   // clear items
   m_currentStageObjectCombo->clear();
@@ -1093,7 +1093,7 @@ void ArrowToolOptionsBox::updateStageObjectComboItems() {
 
 //------------------------------------------------------------------------------
 /*! syncronize the current item in the combobox to the selected stage object
-*/
+ */
 void ArrowToolOptionsBox::syncCurrentStageObjectComboItem() {
   TStageObjectId curObjId = m_objHandle->getObjectId();
 
@@ -1116,7 +1116,7 @@ void ArrowToolOptionsBox::syncCurrentStageObjectComboItem() {
 
 //------------------------------------------------------------------------------
 /*!change the current stage object when user changes it via combobox by hand
-*/
+ */
 void ArrowToolOptionsBox::onCurrentStageObjectComboActivated(int index) {
   int code = m_currentStageObjectCombo->itemData(index).toInt();
   TStageObjectId id;
@@ -1627,7 +1627,7 @@ PaintbrushToolOptionsBox::PaintbrushToolOptionsBox(QWidget *parent, TTool *tool,
       dynamic_cast<ToolOptionCheckbox *>(m_controls.value("Selective"));
 
   if (m_colorMode->getProperty()->getValue() == L"Lines")
-    m_selectiveMode->setEnabled(false);
+    m_selectiveMode->setVisible(false);
 
   bool ret = connect(m_colorMode, SIGNAL(currentIndexChanged(int)), this,
                      SLOT(onColorModeChanged(int)));
@@ -1647,7 +1647,7 @@ void PaintbrushToolOptionsBox::updateStatus() {
 void PaintbrushToolOptionsBox::onColorModeChanged(int index) {
   const TEnumProperty::Range &range = m_colorMode->getProperty()->getRange();
   bool enabled                      = range[index] != L"Lines";
-  m_selectiveMode->setEnabled(enabled);
+  m_selectiveMode->setVisible(enabled);
 }
 
 //=============================================================================
@@ -2323,7 +2323,7 @@ void TapeToolOptionsBox::onJoinStrokesModeChanged() {
 
 //-----------------------------------------------------------------------------
 /*! Label with background color
-*/
+ */
 class RGBLabel final : public QWidget {
   QColor m_color;
 
@@ -2724,7 +2724,8 @@ void ToolOptions::showEvent(QShowEvent *) {
   if (currTool) {
     onToolSwitched();
     connect(currTool, SIGNAL(toolSwitched()), SLOT(onToolSwitched()));
-    connect(currTool, SIGNAL(toolOptionsBoxChanged()), SLOT(onToolOptionsBoxChanged()));
+    connect(currTool, SIGNAL(toolOptionsBoxChanged()),
+            SLOT(onToolOptionsBoxChanged()));
     connect(currTool, SIGNAL(toolChanged()), SLOT(onToolChanged()));
   }
 
