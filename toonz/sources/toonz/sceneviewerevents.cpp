@@ -72,7 +72,7 @@ namespace {
 
 void initToonzEvent(TMouseEvent &toonzEvent, QMouseEvent *event,
                     int widgetHeight, double pressure, int devPixRatio) {
-  toonzEvent.m_pos = TPointD(event->pos().x() * devPixRatio,
+  toonzEvent.m_pos      = TPointD(event->pos().x() * devPixRatio,
                              widgetHeight - 1 - event->pos().y() * devPixRatio);
   toonzEvent.m_mousePos = event->pos();
   toonzEvent.m_pressure = 1.0;
@@ -446,7 +446,7 @@ void SceneViewer::onMove(const TMouseEvent &event) {
 
   // if the "compare with snapshot" mode is activated, change the mouse cursor
   // on the border handle
-  if (m_visualSettings.m_doCompare) {
+  if (m_visualSettings.m_doCompare && isPreviewEnabled()) {
     if (abs(curPos.x() - width() * m_compareSettings.m_compareX) < 20) {
       cursorSet = true;
       setToolCursor(this, ToolCursor::ScaleHCursor);
@@ -865,12 +865,12 @@ void SceneViewer::wheelEvent(QWheelEvent *event) {
 
   default:  // Qt::MouseEventSynthesizedByQt,
             // Qt::MouseEventSynthesizedByApplication
-    {
-      std::cout << "not supported event: Qt::MouseEventSynthesizedByQt, "
-                   "Qt::MouseEventSynthesizedByApplication"
-                << std::endl;
-      break;
-    }
+  {
+    std::cout << "not supported event: Qt::MouseEventSynthesizedByQt, "
+                 "Qt::MouseEventSynthesizedByApplication"
+              << std::endl;
+    break;
+  }
 
   }  // end switch
 
@@ -966,8 +966,8 @@ void SceneViewer::gestureEvent(QGestureEvent *e) {
         qreal rotationDelta =
             gesture->rotationAngle() - gesture->lastRotationAngle();
         if (m_isFlippedX != m_isFlippedY) rotationDelta = -rotationDelta;
-        TAffine aff                                     = getViewMatrix().inv();
-        TPointD center                                  = aff * TPointD(0, 0);
+        TAffine aff    = getViewMatrix().inv();
+        TPointD center = aff * TPointD(0, 0);
         if (!m_rotating && !m_zooming) {
           m_rotationDelta += rotationDelta;
           double absDelta = abs(m_rotationDelta);
@@ -1108,10 +1108,9 @@ bool SceneViewer::event(QEvent *e) {
     break;
   }
   */
-  if (e->type() == QEvent::Gesture &&
-      CommandManager::instance()
-          ->getAction(MI_TouchGestureControl)
-          ->isChecked()) {
+  if (e->type() == QEvent::Gesture && CommandManager::instance()
+                                          ->getAction(MI_TouchGestureControl)
+                                          ->isChecked()) {
     gestureEvent(static_cast<QGestureEvent *>(e));
     return true;
   }
@@ -1181,11 +1180,11 @@ class ViewerZoomer final : public ImageUtils::ShortcutZoomer {
 public:
   ViewerZoomer(SceneViewer *parent) : ShortcutZoomer(parent) {}
 
-  bool zoom(bool zoomin, bool resetZoom) override {
+  bool zoom(bool zoomin, bool resetView) override {
     SceneViewer *sceneViewer = static_cast<SceneViewer *>(getWidget());
 
-    resetZoom ? sceneViewer->resetSceneViewer()
-              : sceneViewer->zoomQt(zoomin, resetZoom);
+    resetView ? sceneViewer->resetSceneViewer()
+              : sceneViewer->zoomQt(zoomin, resetView);
 
     return true;
   }
@@ -1207,6 +1206,21 @@ public:
 
   bool setFlipY() override {
     static_cast<SceneViewer *>(getWidget())->flipY();
+    return true;
+  }
+
+  bool resetZoom() override {
+    static_cast<SceneViewer *>(getWidget())->resetZoom();
+    return true;
+  }
+
+  bool resetRotation() override {
+    static_cast<SceneViewer *>(getWidget())->resetRotation();
+    return true;
+  }
+
+  bool resetPosition() override {
+    static_cast<SceneViewer *>(getWidget())->resetPosition();
     return true;
   }
 

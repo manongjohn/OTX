@@ -71,7 +71,8 @@ class ImageViewer final : public GLWidgetForHighDpi {
   bool m_panning                         = false;
   double m_scaleFactor;  // used for zoom gesture
 
-  bool m_stylusUsed = false;
+  bool m_stylusUsed       = false;
+  bool m_firstInitialized = true;
 
   int getDragType(const TPoint &pos, const TRect &loadBox);
   void updateLoadbox(const TPoint &curPos);
@@ -109,6 +110,7 @@ public:
    */
   void hideHistogram();
   void zoomQt(bool forward, bool reset);
+  void resetZoom();
 
   void setIsRemakingPreviewFx(bool on) {
     m_isRemakingPreviewFx = on;
