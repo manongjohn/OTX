@@ -1162,7 +1162,7 @@ void MainWindow::onMenuCheckboxChanged() {
 #endif
   else if (cm->getAction(MI_RasterizePli) == action) {
     if (!QGLPixelBuffer::hasOpenGLPbuffers()) isChecked = 0;
-    RasterizePliToggleAction = isChecked;
+    RasterizePliToggleAction                            = isChecked;
   } else if (cm->getAction(MI_SafeArea) == action)
     SafeAreaToggleAction = isChecked;
   else if (cm->getAction(MI_ViewColorcard) == action)
@@ -1904,6 +1904,9 @@ void MainWindow::defineActions() {
   createAction(MI_NextStep, tr("Next Step"), "", PlaybackCommandType);
   createAction(MI_PrevStep, tr("Prev Step"), "", PlaybackCommandType);
 
+  createAction(MI_NextKeyframe, tr("Next Key"), "", MenuXsheetCommandType);
+  createAction(MI_PrevKeyframe, tr("Prev Key"), "", MenuXsheetCommandType);
+
   createRGBAAction(MI_RedChannel, tr("Red Channel"), "");
   createRGBAAction(MI_GreenChannel, tr("Green Channel"), "");
   createRGBAAction(MI_BlueChannel, tr("Blue Channel"), "");
@@ -2393,9 +2396,9 @@ RecentFiles::~RecentFiles() {}
 void RecentFiles::addFilePath(QString path, FileType fileType,
                               QString projectName) {
   QList<QString> files =
-      (fileType == Scene)
-          ? m_recentScenes
-          : (fileType == Level) ? m_recentLevels : m_recentFlipbookImages;
+      (fileType == Scene) ? m_recentScenes : (fileType == Level)
+                                                 ? m_recentLevels
+                                                 : m_recentFlipbookImages;
   int i;
   for (i = 0; i < files.size(); i++)
     if (files.at(i) == path) {
@@ -2562,9 +2565,9 @@ void RecentFiles::saveRecentFiles() {
 
 QList<QString> RecentFiles::getFilesNameList(FileType fileType) {
   QList<QString> files =
-      (fileType == Scene)
-          ? m_recentScenes
-          : (fileType == Level) ? m_recentLevels : m_recentFlipbookImages;
+      (fileType == Scene) ? m_recentScenes : (fileType == Level)
+                                                 ? m_recentLevels
+                                                 : m_recentFlipbookImages;
   QList<QString> names;
   int i;
   for (i = 0; i < files.size(); i++) {
@@ -2591,9 +2594,9 @@ void RecentFiles::refreshRecentFilesMenu(FileType fileType) {
     menu->setEnabled(false);
   else {
     CommandId clearActionId =
-        (fileType == Scene)
-            ? MI_ClearRecentScene
-            : (fileType == Level) ? MI_ClearRecentLevel : MI_ClearRecentImage;
+        (fileType == Scene) ? MI_ClearRecentScene : (fileType == Level)
+                                                        ? MI_ClearRecentLevel
+                                                        : MI_ClearRecentImage;
     menu->setActions(names);
     menu->addSeparator();
     QAction *clearAction = CommandManager::instance()->getAction(clearActionId);
