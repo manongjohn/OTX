@@ -235,7 +235,7 @@ protected:
   static void drawEmptyCircle(TPointD point, int thick, bool isLxEven,
                               bool isLyEven, bool isPencil);
 
-  static TPointD getCenteredCursorPos(const TPointD &originalCursorPos);
+  TPointD getCenteredCursorPos(const TPointD &originalCursorPos);
 };
 
 //------------------------------------------------------------
