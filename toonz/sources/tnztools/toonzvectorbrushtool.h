@@ -43,7 +43,6 @@ struct VectorBrushData final : public TPersist {
   double m_min, m_max, m_acc, m_smooth;
   bool m_breakAngles, m_pressure;
   int m_cap, m_join, m_miter;
-  bool m_assistants;
 
   VectorBrushData();
   VectorBrushData(const std::wstring &name);
@@ -88,11 +87,6 @@ public:
   ToonzVectorBrushTool(std::string name, int targetType);
 
   ToolType getToolType() const override { return TTool::LevelWriteTool; }
-  ToolModifiers getToolModifiers() const override
-    { return ModifierTangents | ModifierAssistants | ModifierCustom | ModifierSegmentation; }
-  bool isAssistantsEnabled() const override;
-  bool isCustomModifiersEnabled() const override
-    { return true; }
 
   ToolOptionsBox *createOptionsBox() override;
 
@@ -145,7 +139,6 @@ protected:
   TEnumProperty m_preset;
   TBoolProperty m_breakAngles;
   TBoolProperty m_pressure;
-  TBoolProperty m_assistants;
   TBoolProperty m_snap;
   TEnumProperty m_frameRange;
   TEnumProperty m_snapSensitivity;

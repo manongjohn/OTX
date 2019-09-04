@@ -1,7 +1,5 @@
-#include "toonz/preferences.h"
-#include "toonz/toonzfolders.h"
-
 #include "tiio_ffmpeg.h"
+#include "../toonz/tapp.h"
 #include "tsystem.h"
 #include "tsound.h"
 
@@ -9,6 +7,8 @@
 #include <QDir>
 #include <QtGui/QImage>
 #include <QRegExp>
+#include "toonz/preferences.h"
+#include "toonz/toonzfolders.h"
 #include "tmsgcore.h"
 
 Ffmpeg::Ffmpeg() {

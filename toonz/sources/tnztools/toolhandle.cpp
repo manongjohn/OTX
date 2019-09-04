@@ -115,7 +115,7 @@ void ToolHandle::changeTool(QAction* action)
 //-----------------------------------------------------------------------------
 
 void ToolHandle::onImageChanged(TImage::Type imageType) {
-  TTool::ToolTargetType targetType = TTool::EmptyTarget;
+  TTool::ToolTargetType targetType = TTool::NoTarget;
 
   switch (imageType) {
   case TImage::RASTER:
@@ -124,17 +124,12 @@ void ToolHandle::onImageChanged(TImage::Type imageType) {
   case TImage::TOONZ_RASTER:
     targetType = TTool::ToonzImage;
     break;
-  case TImage::MESH:
-    targetType = TTool::MeshImage;
-    break;
-  case TImage::META:
-    targetType = TTool::MetaImage;
-    break;
   case TImage::VECTOR:
+  default:
     targetType = TTool::VectorImage;
     break;
-  default:
-    targetType = TTool::EmptyTarget;
+  case TImage::MESH:
+    targetType = TTool::MeshImage;
     break;
   }
 

@@ -3,6 +3,9 @@
 #define _CRT_SECURE_NO_WARNINGS (1)   // Warning treated as errors
 #define _CRT_SECURE_NO_DEPRECATE (1)  // use of fopen deprecated
 
+// Tnz includes (-.-')
+#include "../toonz/tapp.h"
+
 // TFarmController includes
 #include "tfarmcontroller.h"
 

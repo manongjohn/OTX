@@ -36,41 +36,23 @@ struct {
   const char *toolName;
   bool collapsable;
   QAction *action;
-} buttonLayout[] = {{T_Edit, false, 0},
-                    {T_Selection, false, 0},
-                    {"Separator_1", false, 0},
-                    {T_Brush, false, 0},
-                    {T_Geometric, false, 0},
-                    {T_Type, true, 0},
-                    {T_Fill, false, 0},
-                    {T_PaintBrush, false, 0},
-                    {"Separator_2", false, 0},
-                    {T_Eraser, false, 0},
-                    {T_Tape, false, 0},
-                    {T_Finger, false, 0},
-                    {"Separator_3", false, 0},
-                    {T_StylePicker, false, 0},
-                    {T_RGBPicker, false, 0},
-                    {T_Ruler, false, 0},
-                    {T_EditAssistants, false, 0},
-                    {"Separator_4", false, 0},
-                    {T_ControlPointEditor, false, 0},
-                    {T_Pinch, true, 0},
-                    {T_Pump, true, 0},
-                    {T_Magnet, true, 0},
-                    {T_Bender, true, 0},
-                    {T_Iron, true, 0},
-                    {T_Cutter, true, 0},
-                    {"Separator_5", false, 0},
-                    {T_Skeleton, true, 0},
-                    {T_Tracker, true, 0},
-                    {T_Hook, true, 0},
-                    {T_Plastic, true, 0},
-                    {"Separator_6", false, 0},
-                    {T_Zoom, false, 0},
-                    {T_Rotate, true, 0},
-                    {T_Hand, false, 0},
-                    {0, false, 0}};
+} buttonLayout[] = {{T_Edit, false, 0},        {T_Selection, false, 0},
+                    {"Separator_1", false, 0}, {T_Brush, false, 0},
+                    {T_Geometric, false, 0},   {T_Type, true, 0},
+                    {T_Fill, false, 0},        {T_PaintBrush, false, 0},
+                    {"Separator_2", false, 0}, {T_Eraser, false, 0},
+                    {T_Tape, false, 0},        {T_Finger, false, 0},
+                    {"Separator_3", false, 0}, {T_StylePicker, false, 0},
+                    {T_RGBPicker, false, 0},   {T_Ruler, false, 0},
+                    {"Separator_4", false, 0}, {T_ControlPointEditor, false, 0},
+                    {T_Pinch, true, 0},        {T_Pump, true, 0},
+                    {T_Magnet, true, 0},       {T_Bender, true, 0},
+                    {T_Iron, true, 0},         {T_Cutter, true, 0},
+                    {"Separator_5", false, 0}, {T_Skeleton, true, 0},
+                    {T_Tracker, true, 0},      {T_Hook, true, 0},
+                    {T_Plastic, true, 0},      {"Separator_6", false, 0},
+                    {T_Zoom, false, 0},        {T_Rotate, true, 0},
+                    {T_Hand, false, 0},        {0, false, 0}};
 }
 //=============================================================================
 // Toolbar
@@ -169,9 +151,6 @@ void Toolbar::updateToolbar() {
     break;
   case MESH_XSHLEVEL:
     targetType = TTool::MeshImage;
-    break;
-  case META_XSHLEVEL:
-    targetType = TTool::MetaImage;
     break;
   }
 

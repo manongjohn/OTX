@@ -499,25 +499,6 @@ IconRenderer::~IconRenderer() {}
 //=============================================================================
 
 //======================================
-//    NoImageIconRenderer class
-//--------------------------------------
-
-class NoImageIconRenderer final : public IconRenderer {
-public:
-  NoImageIconRenderer(const std::string &id, const TDimension &iconSize):
-    IconRenderer(id, iconSize) { }
-  void run() override {
-    try {
-      TRaster32P ras(getIconSize());
-      ras->fill(TPixel32::Gray);
-      setIcon(ras);
-    } catch(...){}
-  }
-};
-
-//=============================================================================
-
-//======================================
 //    VectorImageIconRenderer class
 //--------------------------------------
 
@@ -1443,7 +1424,7 @@ QPixmap IconGenerator::getIcon(TXshLevel *xl, const TFrameId &fid,
       addTask(id, new MeshImageIconRenderer(id, iconSize, sl, fid, m_settings));
       break;
     default:
-      addTask(id, new NoImageIconRenderer(id, iconSize));
+      assert(false);
       break;
     }
 
@@ -1486,7 +1467,7 @@ void IconGenerator::invalidate(TXshLevel *xl, const TFrameId &fid,
                                             m_settings));
       break;
     default:
-      addTask(id, new NoImageIconRenderer(id, getIconSize()));
+      assert(false);
       break;
     }
 
@@ -1524,7 +1505,7 @@ void IconGenerator::invalidate(TXshLevel *xl, const TFrameId &fid,
                                             m_settings));
       break;
     default:
-      addTask(id, new NoImageIconRenderer(id, TDimension(80, 60)));
+      assert(false);
       break;
     }
 

@@ -176,6 +176,7 @@ protected:
   void resizeGL(int width, int height) override final;
 
 private:
+  GLdouble m_matrix[16];
   bool m_firstResize;
   int m_width;
   int m_height;

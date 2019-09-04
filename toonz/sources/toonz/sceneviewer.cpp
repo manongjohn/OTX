@@ -18,11 +18,6 @@
 #include "tools/toolhandle.h"
 #include "tools/toolcommandids.h"
 #include "tools/toolutils.h"
-#include "tools/inputmanager.h"
-#include "tools/modifiers/modifiertest.h"
-#include "tools/modifiers/modifiertangents.h"
-#include "tools/modifiers/modifierassistants.h"
-#include "tools/modifiers/modifiersegmentation.h"
 
 // TnzQt includes
 #include "toonzqt/icongenerator.h"
@@ -535,33 +530,11 @@ public:
 } positionResetCommand;
 
 //=============================================================================
-// SceneViewer::Modifiers
-//-----------------------------------------------------------------------------
-
-class SceneViewer::Modifiers {
-public:
-  TSmartPointerT<TModifierTangents>     tangents;
-  TSmartPointerT<TModifierAssistants>   assistants;
-  TSmartPointerT<TModifierTest>         test;
-  TSmartPointerT<TModifierSegmentation> segmentation;
-
-  Modifiers():
-    tangents     ( new TModifierTangents() ),
-    assistants   ( new TModifierAssistants() ),
-    test         ( new TModifierTest(5, 40.0) ),
-    segmentation ( new TModifierSegmentation() )
-      { }
-};
-
-//=============================================================================
 // SceneViewer
 //-----------------------------------------------------------------------------
 
 SceneViewer::SceneViewer(ImageUtils::FullScreenWidget *parent)
     : GLWidgetForHighDpi(parent)
-    , m_inputManager(new TInputManager())
-    , m_modifiers(new Modifiers())
-    , m_hovers(1)
     , m_pressure(0)
     , m_lastMousePos(0, 0)
     , m_mouseButton(Qt::NoButton)
@@ -584,6 +557,7 @@ SceneViewer::SceneViewer(ImageUtils::FullScreenWidget *parent)
     , m_zoomScale3D(0.1)
     , m_theta3D(20)
     , m_phi3D(30)
+    , m_dpiScale(TPointD(1, 1))
     , m_compareSettings()
     , m_minZ(0)
     , m_tableDLId(-1)
@@ -600,8 +574,7 @@ SceneViewer::SceneViewer(ImageUtils::FullScreenWidget *parent)
     , m_editPreviewSubCamera(false)
     , m_locator(NULL)
     , m_isLocator(false)
-    , m_isBusyOnTabletMove(false)
-{
+    , m_isBusyOnTabletMove(false) {
   m_visualSettings.m_sceneProperties =
       TApp::instance()->getCurrentScene()->getScene()->getProperties();
   // Enables multiple key input.
@@ -634,54 +607,6 @@ SceneViewer::SceneViewer(ImageUtils::FullScreenWidget *parent)
 
   if (Preferences::instance()->isColorCalibrationEnabled())
     m_lutCalibrator = new LutCalibrator();
-
-  m_inputManager->setViewer(this);
-}
-
-//-----------------------------------------------------------------------------
-
-SceneViewer::~SceneViewer() {
-  if (m_fbo) delete m_fbo;
-  delete m_modifiers;
-
-  // release all the registered context (once when exit the software)
-  std::set<TGlContext>::iterator ct, cEnd(l_contexts.end());
-  for (ct = l_contexts.begin(); ct != cEnd; ++ct)
-    TGLDisplayListsManager::instance()->releaseContext(*ct);
-  l_contexts.clear();
-}
-
-//-----------------------------------------------------------------------------
-
-void SceneViewer::rebuildModifiers() {
-  updateModifiers();
-
-  TTool *tool = TApp::instance()->getCurrentTool()->getTool();
-  TTool::ToolModifiers modifiers = tool ? tool->getToolModifiers() : TTool::NoModifiers;
-
-  m_inputManager->clearModifiers();
-  if (TTool::ModifierTangents & modifiers)
-    m_inputManager->addModifier( m_modifiers->tangents.getPointer() );
-  if (TTool::ModifierAssistants & modifiers)
-    m_inputManager->addModifier( m_modifiers->assistants.getPointer() );
-  if (TTool::ModifierCustom & modifiers)
-    m_inputManager->addModifier( m_modifiers->test.getPointer() );
-  if (TTool::ModifierSegmentation & modifiers)
-    m_inputManager->addModifier( m_modifiers->segmentation.getPointer() );
-}
-
-//-----------------------------------------------------------------------------
-
-void SceneViewer::updateModifiers() {
-  if (TTool *tool = TApp::instance()->getCurrentTool()->getTool()) {
-    m_modifiers->assistants->drawOnly = !tool->isAssistantsEnabled();
-    m_modifiers->test->enabled = tool->isCustomModifiersEnabled();
-    m_modifiers->segmentation->setStep(tool->getInterpolationStep());
-  } else {
-    m_modifiers->assistants->drawOnly = true;
-    m_modifiers->test->enabled = false;
-    m_modifiers->segmentation->setStep(TPointD(1.0, 1.0));
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -694,6 +619,18 @@ void SceneViewer::setVisual(const ImagePainter::VisualSettings &settings) {
   m_visualSettings.m_sceneProperties =
       TApp::instance()->getCurrentScene()->getScene()->getProperties();
   if (repaint) GLInvalidateAll();
+}
+
+//-----------------------------------------------------------------------------
+
+SceneViewer::~SceneViewer() {
+  if (m_fbo) delete m_fbo;
+
+  // release all the registered context (once when exit the software)
+  std::set<TGlContext>::iterator ct, cEnd(l_contexts.end());
+  for (ct = l_contexts.begin(); ct != cEnd; ++ct)
+    TGLDisplayListsManager::instance()->releaseContext(*ct);
+  l_contexts.clear();
 }
 
 //-------------------------------------------------------------------------------
@@ -809,9 +746,39 @@ void SceneViewer::enablePreview(int previewMode) {
 TPointD SceneViewer::winToWorld(const QPointF &pos) const {
   // coordinate window (origine in alto a sinistra) -> coordinate colonna
   // (origine al centro dell'immagine)
-  TPointD pp( pos.x() - (double)width()/2.0,
-             -pos.y() + (double)height()/2.0 );
-  return get3dViewMatrix().get2d().inv() * pp;
+  TPointD pp(pos.x() - (double)width() / 2.0,
+             -pos.y() + (double)height() / 2.0);
+  if (is3DView()) {
+    TXsheet *xsh            = TApp::instance()->getCurrentXsheet()->getXsheet();
+    TStageObjectId cameraId = xsh->getStageObjectTree()->getCurrentCameraId();
+    double z                = xsh->getStageObject(cameraId)->getZ(
+        TApp::instance()->getCurrentFrame()->getFrame());
+
+    TPointD p(pp.x - m_pan3D.x, pp.y - m_pan3D.y);
+    p               = p * (1 / m_zoomScale3D);
+    double theta    = m_theta3D * M_PI_180;
+    double phi      = m_phi3D * M_PI_180;
+    double cs_phi   = cos(phi);
+    double sn_phi   = sin(phi);
+    double cs_theta = cos(theta);
+    double sn_theta = sin(theta);
+    TPointD a(cs_phi, sn_theta * sn_phi);   // proiezione di (1,0,0)
+    TPointD b(0, cs_theta);                 // proiezione di (0,1,0)
+    TPointD c(sn_phi, -sn_theta * cs_phi);  // proiezione di (0,0,1)
+    TPointD aa = rotate90(a);
+    TPointD bb = rotate90(b);
+
+    double abb = a * bb;
+    double baa = b * aa;
+    if (fabs(abb) > 0.001 && fabs(baa) > 0.001) {
+      p -= c * z;
+      TPointD g((p * bb) / (a * bb), (p * aa) / (b * aa));
+      return TAffine() * g;
+    } else
+      return TAffine() * TPointD(0, 0);
+  }
+
+  return getViewMatrix().inv() * pp;
 }
 
 //-----------------------------------------------------------------------------
@@ -823,9 +790,8 @@ TPointD SceneViewer::winToWorld(const TPointD &winPos) const {
 //-----------------------------------------------------------------------------
 
 TPointD SceneViewer::worldToPos(const TPointD &worldPos) const {
-  TPointD p;
-  p = get3dViewMatrix().get2d() * worldPos;
-  return TPointD(width()/2 + p.x, height()/2 + p.y);
+  TPointD p = getViewMatrix() * worldPos;
+  return TPointD(width() / 2 + p.x, height() / 2 + p.y);
 }
 
 //-----------------------------------------------------------------------------
@@ -863,7 +829,7 @@ void SceneViewer::showEvent(QShowEvent *) {
           SLOT(update()));
   connect(app->getCurrentLevel(), SIGNAL(xshCanvasSizeChanged()), this,
           SLOT(update()));
-  // when level is switched, update dpiScale in order to show white background
+  // when level is switched, update m_dpiScale in order to show white background
   // for Ink&Paint work properly
   connect(app->getCurrentLevel(), SIGNAL(xshLevelSwitched(TXshLevel *)), this,
           SLOT(onLevelSwitched()));
@@ -1041,14 +1007,16 @@ void SceneViewer::drawBuildVars() {
 
   // Camera test check
   m_drawCameraTest = CameraTestCheck::instance()->isEnabled();
+
   if (m_previewMode == NO_PREVIEW) {
     m_drawEditingLevel = app->getCurrentFrame()->isEditingLevel();
     m_viewMode         = m_drawEditingLevel ? LEVEL_VIEWMODE : SCENE_VIEWMODE;
+    m_draw3DMode       = is3DView() && (m_previewMode != SUBCAMERA_PREVIEW);
   } else {
     m_drawEditingLevel = false;
     m_viewMode         = app->getCurrentFrame()->isEditingLevel();
+    m_draw3DMode       = false;
   }
-  m_draw3DMode = is3DView();
 
   // Clip rect
   if (!m_clipRect.isEmpty() && !m_draw3DMode) {
@@ -1162,7 +1130,7 @@ void SceneViewer::drawCameraStand() {
     glDepthFunc(GL_ALWAYS);
     glClear(GL_DEPTH_BUFFER_BIT);
     glPushMatrix();
-    tglMultMatrix(get3dViewMatrix());
+    mult3DMatrix();
   } else
     glDisable(GL_DEPTH_TEST);
 
@@ -1196,8 +1164,13 @@ void SceneViewer::drawCameraStand() {
   if (m_drawEditingLevel && tool && tool->isEnabled()) {
     if (!m_isLocator) tool->setViewer(this);
     glPushMatrix();
-    tglMultMatrix(getViewMatrix());
-    tglMultMatrix(getInputManager()->toolToWorld());
+    if (m_referenceMode == CAMERA3D_REFERENCE) {
+      mult3DMatrix();
+      tglMultMatrix(tool->getMatrix());
+    } else {
+      tglMultMatrix(getViewMatrix() * tool->getMatrix());
+    }
+    glScaled(m_dpiScale.x, m_dpiScale.y, 1);
 
     TImageP image = tool->getImage(false);
 
@@ -1254,12 +1227,11 @@ void SceneViewer::drawPreview() {
     else
       previewStageRectD = cameraStageRectD;
 
-    TAffine rasterToStageRef = TAffine::translation(
-                                 previewStageRectD.y0 + 0.5 * previewStageRectD.getLy(),
-                                 previewStageRectD.x0 + 0.5 * previewStageRectD.getLx() )
-                             * TAffine::scale(
-                                 previewStageRectD.getLx() / ras->getLx(),
-                                 previewStageRectD.getLy() / ras->getLy() );
+    TAffine rasterToStageRef(
+        previewStageRectD.getLx() / ras->getLx(), 0.0,
+        previewStageRectD.x0 + 0.5 * previewStageRectD.getLx(), 0.0,
+        previewStageRectD.getLy() / ras->getLy(),
+        previewStageRectD.y0 + 0.5 * previewStageRectD.getLy());
 
     TDimension dim(width(), height());
     TAffine finalAff              = m_drawCameraAff * rasterToStageRef;
@@ -1429,10 +1401,16 @@ void SceneViewer::drawOverlay() {
     // tool->setViewer(this);                            // Moved at
     // drawBuildVars(), before drawing anything
     glPushMatrix();
-    tglMultMatrix(get3dViewMatrix());
-    tglMultMatrix(getInputManager()->toolToWorld());
+    if (m_draw3DMode) {
+      mult3DMatrix();
+      tglMultMatrix(tool->getMatrix());
+    } else
+      tglMultMatrix(getViewMatrix() * tool->getMatrix());
+    if (tool->getToolType() & TTool::LevelTool &&
+        !app->getCurrentObject()->isSpline())
+      glScaled(m_dpiScale.x, m_dpiScale.y, 1);
     m_pixelSize = sqrt(tglGetPixelSize2()) * getDevPixRatio();
-    getInputManager()->draw();
+    tool->draw();
     glPopMatrix();
     // Used (only in the T_RGBPicker tool) to notify and set the currentColor
     // outside the draw() methods:
@@ -1727,11 +1705,20 @@ void SceneViewer::drawScene() {
   }
 }
 
+//------------------------------------------------------------------------------
+
+void SceneViewer::mult3DMatrix() {
+  glTranslated(m_pan3D.x, m_pan3D.y, 0);
+  glScaled(m_zoomScale3D, m_zoomScale3D, 1);
+  glRotated(m_theta3D, 1, 0, 0);
+  glRotated(m_phi3D, 0, 1, 0);
+}
+
 //-----------------------------------------------------------------------------
 
 double SceneViewer::projectToZ(const TPointD &delta) {
   glPushMatrix();
-  tglMultMatrix(get3dViewMatrix());
+  mult3DMatrix();
   GLint viewport[4];
   double modelview[16], projection[16];
   glGetIntegerv(GL_VIEWPORT, viewport);
@@ -1772,42 +1759,12 @@ TRect SceneViewer::getActualClipRect(const TAffine &aff) {
   else if (m_clipRect.isEmpty())
     clipRect -= TPointD(viewerSize.lx / 2, viewerSize.ly / 2);
   else {
-    clipRect = aff * (m_clipRect.enlarge(3));
+    TRectD app = aff * (m_clipRect.enlarge(3));
+    clipRect =
+        TRectD(tceil(app.x0), tceil(app.y0), tfloor(app.x1), tfloor(app.y1));
   }
 
-  clipRect *= TRectD(viewerSize) - TPointD(viewerSize.lx/2, viewerSize.ly/2);
   return convert(clipRect);
-}
-
-//-----------------------------------------------------------------------------
-
-TAffine4 SceneViewer::get3dViewMatrix() const {
-  if (is3DView()) {
-    TXsheet *xsh = TApp::instance()->getCurrentXsheet()->getXsheet();
-    TStageObjectId cameraId = xsh->getStageObjectTree()->getCurrentCameraId();
-    double z = xsh->getStageObject(cameraId)->getZ(
-                  TApp::instance()->getCurrentFrame()->getFrame());
-
-    TAffine4 affine;
-    affine *= TAffine4::translation(m_pan3D.x, m_pan3D.y, z);
-    affine *= TAffine4::scale(m_zoomScale3D, m_zoomScale3D, m_zoomScale3D);
-    affine *= TAffine4::rotationX(M_PI_180*m_theta3D);
-    affine *= TAffine4::rotationY(M_PI_180*m_phi3D);
-    return affine;
-  }
-
-  int viewMode = TApp::instance()->getCurrentFrame()->isEditingLevel()
-                     ? LEVEL_VIEWMODE
-                     : SCENE_VIEWMODE;
-
-  if (m_referenceMode == CAMERA_REFERENCE) {
-    int frame    = TApp::instance()->getCurrentFrame()->getFrame();
-    TXsheet *xsh = TApp::instance()->getCurrentXsheet()->getXsheet();
-    TAffine aff  = xsh->getCameraAff(frame);
-    return TAffine4(m_viewAff[viewMode] * aff.inv());
-  }
-
-  return TAffine4(m_viewAff[viewMode]);
 }
 
 //-----------------------------------------------------------------------------
@@ -1816,9 +1773,7 @@ TAffine SceneViewer::getViewMatrix() const {
   int viewMode = TApp::instance()->getCurrentFrame()->isEditingLevel()
                      ? LEVEL_VIEWMODE
                      : SCENE_VIEWMODE;
-  if (is3DView()) {
-    return TAffine();
-  } else
+  if (is3DView()) return TAffine();
   if (m_referenceMode == CAMERA_REFERENCE) {
     int frame    = TApp::instance()->getCurrentFrame()->getFrame();
     TXsheet *xsh = TApp::instance()->getCurrentXsheet()->getXsheet();
@@ -1850,7 +1805,7 @@ void SceneViewer::setViewMatrix(const TAffine &aff, int viewMode) {
 
 bool SceneViewer::is3DView() const {
   bool isCameraTest = CameraTestCheck::instance()->isEnabled();
-  return (m_referenceMode == CAMERA3D_REFERENCE && !isCameraTest && m_previewMode == NO_PREVIEW);
+  return (m_referenceMode == CAMERA3D_REFERENCE && !isCameraTest);
 }
 
 //-----------------------------------------------------------------------------
@@ -1902,7 +1857,6 @@ void SceneViewer::GLInvalidateRect(const TRectD &rect) {
   if (m_hRuler) m_hRuler->update();
   m_guidedDrawingBBox.empty();
 }
-
 //-----------------------------------------------------------------------------
 
 // delta.x: right panning, pixel; delta.y: down panning, pixel
@@ -1919,11 +1873,6 @@ void SceneViewer::panQt(const QPointF &delta) {
   invalidateAll();
   emit refreshNavi();
 }
-
-//-----------------------------------------------------------------------------
-
-TPointD SceneViewer::getDpiScale() const
-  { return getInputManager()->dpiScale(); }
 
 //-----------------------------------------------------------------------------
 
@@ -2398,19 +2347,32 @@ void SceneViewer::setActualPixelSize() {
 
 //-----------------------------------------------------------------------------
 
-/*! when level is switched, update dpiScale in order to show white background
+void SceneViewer::onLevelChanged() {
+  TTool *tool = TApp::instance()->getCurrentTool()->getTool();
+  if (tool) {
+    TXshLevel *level = TApp::instance()->getCurrentLevel()->getLevel();
+    if (level && level->getSimpleLevel())
+      m_dpiScale =
+          getCurrentDpiScale(level->getSimpleLevel(), tool->getCurrentFid());
+    else
+      m_dpiScale = TPointD(1, 1);
+  }
+}
+//-----------------------------------------------------------------------------
+/*! when level is switched, update m_dpiScale in order to show white background
  * for Ink&Paint work properly
  */
-
 void SceneViewer::onLevelSwitched() {
   invalidateToolStatus();
-  getInputManager()->updateDpiScale();
+  TApp *app        = TApp::instance();
+  TTool *tool      = app->getCurrentTool()->getTool();
+  TXshLevel *level = app->getCurrentLevel()->getLevel();
+  if (level && level->getSimpleLevel())
+    m_dpiScale =
+        getCurrentDpiScale(level->getSimpleLevel(), tool->getCurrentFid());
+  else
+    m_dpiScale = TPointD(1, 1);
 }
-
-//-----------------------------------------------------------------------------
-
-void SceneViewer::onLevelChanged()
-  { getInputManager()->updateDpiScale(); }
 
 //-----------------------------------------------------------------------------
 
@@ -2459,7 +2421,6 @@ void SceneViewer::onFrameSwitched() {
 void SceneViewer::onToolChanged() {
   TTool *tool = TApp::instance()->getCurrentTool()->getTool();
   if (tool) setToolCursor(this, tool->getCursorId());
-  updateModifiers();
   GLInvalidateAll();
 }
 
@@ -2796,12 +2757,21 @@ void SceneViewer::invalidateToolStatus() {
 */
 
 TRectD SceneViewer::getGeometry() const {
-  int devPixRatio     = getDevPixRatio();
-  TAffine worldToTool = getInputManager()->worldToTool();
-  TPointD topLeft     = worldToTool
-                      * winToWorld( geometry().topLeft()     * devPixRatio );
-  TPointD bottomRight = worldToTool
-                      * winToWorld( geometry().bottomRight() * devPixRatio );
+  int devPixRatio = getDevPixRatio();
+  TTool *tool     = TApp::instance()->getCurrentTool()->getTool();
+  TPointD topLeft =
+      tool->getMatrix().inv() * winToWorld(geometry().topLeft() * devPixRatio);
+  TPointD bottomRight = tool->getMatrix().inv() *
+                        winToWorld(geometry().bottomRight() * devPixRatio);
+
+  TObjectHandle *objHandle = TApp::instance()->getCurrentObject();
+  if (tool->getToolType() & TTool::LevelTool && !objHandle->isSpline()) {
+    topLeft.x /= m_dpiScale.x;
+    topLeft.y /= m_dpiScale.y;
+    bottomRight.x /= m_dpiScale.x;
+    bottomRight.y /= m_dpiScale.y;
+  }
+
   return TRectD(topLeft, bottomRight);
 }
 

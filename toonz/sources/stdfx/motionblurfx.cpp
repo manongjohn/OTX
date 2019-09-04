@@ -310,14 +310,14 @@ void directionalBlur(TRasterPT<T> rout, TRasterPT<T> rin, const TPointD &blur,
   cy_aux = ly_aux * .5;
 
   TRasterPT<T> raux = TRasterPT<T>(lx_aux, ly_aux);
-  TAffine rot( TPointD(cs, -sn), TPointD(sn, cs) );
+  TAffine rot(cs, sn, 0, -sn, cs, 0);
   rot = rot.place(convert(rin->getCenter()), convert(raux->getCenter()));
 
   TRop::resample(raux, rin, rot);
 
   doDirectionalBlur<T>(raux, blurValue, bidirectional);
 
-  TAffine rotInv( TPointD(cs, sn), TPointD(-sn, cs) );
+  TAffine rotInv(cs, -sn, 0, sn, cs, 0);
   rotInv = rotInv.place(convert(raux->getCenter()),
                         convert(rin->getCenter() + offset));
 

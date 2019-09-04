@@ -53,8 +53,12 @@ ToolOptionControl::ToolOptionControl(TTool *tool, std::string propertyName,
 
 //-----------------------------------------------------------------------------
 
-void ToolOptionControl::notifyTool(bool addToUndo)
-  { m_tool->onPropertyChanged(m_propertyName, addToUndo); }
+void ToolOptionControl::notifyTool(bool addToUndo) {
+  std::string tempPropertyName = m_propertyName;
+  if (addToUndo && m_propertyName == "Maximum Gap")
+    tempPropertyName = tempPropertyName + "withUndo";
+  m_tool->onPropertyChanged(tempPropertyName);
+}
 
 //-----------------------------------------------------------------------------
 /*! return true if the control is belonging to the visible combo viewer. very
@@ -286,7 +290,7 @@ void ToolOptionPairSlider::updateStatus() {
 
 void ToolOptionPairSlider::onValuesChanged(bool isDragging) {
   m_property->setValue(getValues());
-  notifyTool(!isDragging);
+  notifyTool();
   // synchronize the state with the same widgets in other tool option bars
   if (m_toolHandle) m_toolHandle->notifyToolChanged();
 }
@@ -395,7 +399,7 @@ void ToolOptionIntPairSlider::updateStatus() {
 
 void ToolOptionIntPairSlider::onValuesChanged(bool isDragging) {
   m_property->setValue(getValues());
-  notifyTool(!isDragging);
+  notifyTool();
   // synchronize the state with the same widgets in other tool option bars
   if (m_toolHandle) m_toolHandle->notifyToolChanged();
 }
@@ -559,7 +563,7 @@ void ToolOptionIntSlider::decrease() {
 
 void ToolOptionIntSlider::onValueChanged(bool isDragging) {
   m_property->setValue(getValue());
-  notifyTool(!isDragging);
+  notifyTool();
 }
 
 //=============================================================================
@@ -1346,7 +1350,7 @@ void PegbarChannelField::onChange(TMeasuredValue *fld, bool addToUndo) {
     after.setValue(v);
   after.applyValues();
 
-  TToolViewer *viewer = m_tool->getViewer();
+  TTool::Viewer *viewer = m_tool->getViewer();
   if (viewer) m_tool->invalidate();
   setCursorPosition(0);
 

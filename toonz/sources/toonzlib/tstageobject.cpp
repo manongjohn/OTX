@@ -1383,7 +1383,7 @@ TAffine TStageObject::computeLocalPlacement(double frame) {
       break;
     }
 
-    TAffine shear = TAffine::shear(shx, shy);
+    TAffine shear(1, shx, 0, shy, 1, 0);
 
     TPointD handlePos = getHandlePos(m_handle, (int)frame);
     TPointD center    = (m_center + handlePos) * Stage::inch;

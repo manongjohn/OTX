@@ -16,10 +16,8 @@
 
 // #include "tfxparam.h"
 #include <toonzqt/addfxcontextmenu.h>  // as receiver
-#include <toonzqt/fxsettings.h>
-#include <toonzqt/pluginloader.h>
-
 #include "tenv.h"
+#include "../include/toonzqt/fxsettings.h"
 #include "toonz/tcolumnfx.h"
 
 #include "pluginhost.h"
@@ -41,6 +39,7 @@
 //#include <QtConcurrent>
 
 #include "plugin_param_traits.h"
+#include "../include/toonzqt/pluginloader.h"
 
 using namespace toonz;  // plugin namespace
 

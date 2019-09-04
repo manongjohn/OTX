@@ -49,8 +49,7 @@ lines, curves, and shapes or polygon(s),
     RASTER       = 1,  //!< A fullcolor raster image.
     VECTOR       = 2,  //!< A vector image.
     TOONZ_RASTER = 3,  //!< A colormap raster image.
-    MESH         = 4,  //!< A textured mesh image.
-    META         = 5   //!< A non-painting data, GUI helpers, assistants, etc.
+    MESH         = 4   //!< A textured mesh image.
   };
 
   /*!

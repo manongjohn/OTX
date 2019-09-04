@@ -9,7 +9,6 @@
 #include "cellselection.h"
 
 // TnzTools includes
-#include "tools/inputmanager.h"
 #include "tools/tool.h"
 #include "tools/toolhandle.h"
 #include "tools/toolcommandids.h"
@@ -310,7 +309,6 @@ int TApp::getCurrentImageType() {
         cell = xsh->getCell(r0, col);
       } else /*-- Columnが空の場合 --*/
       {
-        return TImage::NONE;
 #ifdef LINETEST
         return TImage::RASTER;
 #else
@@ -333,18 +331,15 @@ int TApp::getCurrentImageType() {
       return TImage::TOONZ_RASTER;
     case OVL_XSHLEVEL:
       return TImage::RASTER;
-    case META_XSHLEVEL:
-      return TImage::META;
+    case PLI_XSHLEVEL:
+    default:
+      return TImage::VECTOR;
     case MESH_XSHLEVEL:
       return TImage::MESH;
-    case PLI_XSHLEVEL:
-      return TImage::VECTOR;
-    default:
-      return TImage::NONE;
     }
   }
 
-  return TImage::NONE;
+  return TImage::VECTOR;
 }
 
 //-----------------------------------------------------------------------------

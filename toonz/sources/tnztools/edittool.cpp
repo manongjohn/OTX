@@ -570,11 +570,11 @@ public:
 
 class DragZTool final : public DragChannelTool {
   TPointD m_lastPos;
-  TToolViewer *m_viewer;
+  TTool::Viewer *m_viewer;
   double m_dz;
 
 public:
-  DragZTool(TToolViewer *viewer, bool globalKeyframesEnabled)
+  DragZTool(TTool::Viewer *viewer, bool globalKeyframesEnabled)
       : DragChannelTool(TStageObject::T_Z, globalKeyframesEnabled)
       , m_viewer(viewer) {}
 

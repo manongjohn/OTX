@@ -1246,7 +1246,7 @@ public:
     int cc             = TApp::instance()->getCurrentColumn()->getColumnIndex();
     bool sound_changed = false;
     TTool *tool        = TApp::instance()->getCurrentTool()->getTool();
-    TToolViewer *viewer = tool ? tool->getViewer() : nullptr;
+    TTool::Viewer *viewer = tool ? tool->getViewer() : nullptr;
     bool viewer_changed   = false;
 
     for (int i = 0; i < xsh->getColumnCount(); i++) {

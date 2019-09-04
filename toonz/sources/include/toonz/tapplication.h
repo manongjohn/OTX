@@ -14,7 +14,6 @@ class TObjectHandle;
 class TColumnHandle;
 class TSceneHandle;
 class ToolHandle;
-class TInputManager;
 class TSelectionHandle;
 class TOnionSkinMaskHandle;
 class TPaletteHandle;

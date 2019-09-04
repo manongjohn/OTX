@@ -611,7 +611,17 @@ void FileBrowser::refreshCurrentFolderItems() {
 
     for (it = all_files.begin(); it != all_files.end(); it++) {
       TFrameId tFrameId;
-      tFrameId = it->getFrame();
+      try {
+        tFrameId = it->getFrame();
+      } catch (TMalformedFrameException tmfe) {
+        // Incorrect frame name sequence. Warning to the user in the message
+        // center.
+        DVGui::warning(QString::fromStdWString(
+            tmfe.getMessage() + L": " +
+            QObject::tr("Skipping frame.").toStdWString()));
+        continue;
+      }
+
       TFilePath levelName(it->getLevelName());
 
       if (levelName.isLevelName()) {

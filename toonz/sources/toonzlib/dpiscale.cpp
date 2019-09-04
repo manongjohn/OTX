@@ -21,7 +21,6 @@ TAffine getDpiAffine(TXshSimpleLevel *level, const TFrameId &fid,
   const double factor = Stage::inch;
 
   if (level->getType() == PLI_XSHLEVEL) return TAffine();
-  if (level->getType() == META_XSHLEVEL) return TAffine();
   LevelProperties *prop = level->getProperties();
   TAffine aff;
 

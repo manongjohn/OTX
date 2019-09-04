@@ -116,8 +116,17 @@ TLevelP TLevelReader::loadInfo() {
     TFilePath ln(it->getLevelName());
     // cout << "try " << *it << "  " << it->getLevelName() <<  endl;
     if (levelName == TFilePath(it->getLevelName())) {
-      level->setFrame(it->getFrame(), TImageP());
-      data.push_back(*it);
+      try {
+        level->setFrame(it->getFrame(), TImageP());
+        data.push_back(*it);
+      } catch (TMalformedFrameException tmfe) {
+        // skip frame named incorrectly warning to the user in the message
+        // center.
+        DVGui::warning(QString::fromStdWString(
+            tmfe.getMessage() + L": " +
+            QObject::tr("Skipping frame.").toStdWString()));
+        continue;
+      }
     }
   }
   if (!data.empty()) {
