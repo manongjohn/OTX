@@ -81,7 +81,8 @@ public:
   bool getAntialiasing() const;
   void setAntialiasing(bool value);
 
-  RasterController *getController() const { return controller; }
+  RasterController* getController() const
+    { return controller; }
 };
 
 //=======================================================
@@ -98,17 +99,25 @@ private:
   bool reset;
 
 public:
-  MyPaintToonzBrush(const TRaster32P &ras, RasterController &controller,
-                    const mypaint::Brush &brush);
+  MyPaintToonzBrush(
+    const TRaster32P &ras,
+    RasterController &controller,
+    const mypaint::Brush &brush);
 
   void beginStroke();
-  void strokeTo(const TPointD &position, double pressure, const TPointD &tilt,
-                double dtime);
+  void strokeTo(
+    const TPointD &position,
+    double pressure,
+    const TPointD &tilt,
+    double dtime );
   void endStroke();
 
-  const TRaster32P &getRaster() const { return ras; }
-  RasterController &getController() { return *mypaintSurface.getController(); }
-  const mypaint::Brush &getBrush() const { return brush; }
+  const TRaster32P& getRaster() const
+    { return ras; }
+  RasterController& getController()
+    { return *mypaintSurface.getController(); }
+  const mypaint::Brush& getBrush() const
+    { return brush; }
 
   // colormapped
   void updateDrawing(const TRasterCM32P rasCM, const TRasterCM32P rasBackupCM,

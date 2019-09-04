@@ -19,6 +19,7 @@
 #define DVVAR DV_IMPORT_VAR
 #endif
 
+
 //===================================================================
 
 //*****************************************************************************************
@@ -38,9 +39,9 @@ public:
   static const double step;
   static const double epsilon;
 
-  static inline TTimerTicks ticks() {
-    return m_instance.m_timer.nsecsElapsed();
-  }
+  static inline TTimerTicks ticks()
+    { return m_instance.m_timer.nsecsElapsed(); }
 };
+
 
 #endif

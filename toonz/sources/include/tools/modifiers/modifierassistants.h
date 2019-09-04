@@ -17,15 +17,16 @@
 #define DVVAR DV_IMPORT_VAR
 #endif
 
+
 //===================================================================
 
 //*****************************************************************************************
 //    TModifierAssistants definition
 //*****************************************************************************************
 
-class DVAPI TModifierAssistants : public TInputModifier {
+class DVAPI TModifierAssistants: public TInputModifier {
 public:
-  class DVAPI Modifier : public TTrackModifier {
+  class DVAPI Modifier: public TTrackModifier {
   public:
     bool initialized;
     TInputSavePoint::Holder savePoint;
@@ -36,9 +37,12 @@ public:
   };
 
 private:
-  bool scanAssistants(const TPointD *positions, int positionsCount,
-                      TGuidelineList *outGuidelines, bool draw,
-                      bool enabledOnly) const;
+  bool scanAssistants(
+    const TPointD *positions,
+    int positionsCount,
+    TGuidelineList *outGuidelines,
+    bool draw,
+    bool enabledOnly ) const;
 
 public:
   bool drawOnly;
@@ -46,15 +50,16 @@ public:
 
   explicit TModifierAssistants(bool drawOnly = false);
 
-  void modifyTrack(const TTrack &track,
-                   const TInputSavePoint::Holder &savePoint,
-                   TTrackList &outTracks) override;
+  void modifyTrack(
+    const TTrack &track,
+    const TInputSavePoint::Holder &savePoint,
+    TTrackList &outTracks ) override;
 
-  TRectD calcDrawBounds(const TTrackList &tracks,
-                        const THoverList &hovers) override;
+  TRectD calcDrawBounds(const TTrackList &tracks, const THoverList &hovers) override;
 
   void drawTrack(const TTrack &track) override;
   void draw(const TTrackList &tracks, const THoverList &hovers) override;
 };
+
 
 #endif

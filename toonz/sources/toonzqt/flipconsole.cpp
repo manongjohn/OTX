@@ -672,6 +672,7 @@ protected:
 //-----------------------------------------------------------------------------
 
 void FlipConsole::enableButton(UINT button, bool enable, bool doShowHide) {
+
   if (!m_playToolBar) return;
 
   QList<QAction *> list = m_playToolBar->actions();

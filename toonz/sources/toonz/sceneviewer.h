@@ -203,7 +203,8 @@ public:
   SceneViewer(ImageUtils::FullScreenWidget *parent);
   ~SceneViewer();
 
-  TInputManager *getInputManager() const override { return m_inputManager; }
+  TInputManager* getInputManager() const override
+    { return m_inputManager; }
 
   double getPixelSize() const override { return m_pixelSize; }
 
@@ -299,9 +300,8 @@ public:
 
   TPointD worldToPos(const TPointD &worldPos) const override;
 
-  TDimensionI getWindowSize() const override {
-    return TDimensionI(width(), height());
-  }
+  TDimensionI getWindowSize() const override
+    { return TDimensionI(width(), height()); }
 
 protected:
   // Paint vars

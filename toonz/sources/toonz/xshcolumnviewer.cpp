@@ -1539,10 +1539,8 @@ QPixmap ColumnArea::getColumnIcon(int columnIndex) {
           return QPixmap();
       }
     }
-    QPixmap icon = xl->getType() == META_XSHLEVEL
-                       ? QPixmap(":Resources/tool_assistant.svg")
-                       : IconGenerator::instance()->getIcon(xl, cell.m_frameId,
-                                                            false, onDemand);
+    QPixmap icon =
+        IconGenerator::instance()->getIcon(xl, cell.m_frameId, false, onDemand);
     QRect thumbnailImageRect = o->rect(PredefinedRect::THUMBNAIL);
     if (thumbnailImageRect.isEmpty()) return QPixmap();
     return scalePixmapKeepingAspectRatio(icon, thumbnailImageRect.size());

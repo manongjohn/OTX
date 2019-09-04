@@ -112,7 +112,6 @@ public:
   void onNewVectorLevelButtonPressed();
   void onNewToonzRasterLevelButtonPressed();
   void onNewRasterLevelButtonPressed();
-  void onNewAssistantLevelButtonPressed();
 
   QString getLayoutName() { return m_layoutName; }
 

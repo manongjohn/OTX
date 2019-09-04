@@ -589,9 +589,8 @@ void ToonzVectorBrushTool::updateTranslation() {
 
 //---------------------------------------------------------------------------------------------------
 
-bool ToonzVectorBrushTool::isAssistantsEnabled() const {
-  return m_assistants.getValue();
-}
+bool ToonzVectorBrushTool::isAssistantsEnabled() const
+  { return m_assistants.getValue(); }
 
 //---------------------------------------------------------------------------------------------------
 
@@ -1284,8 +1283,8 @@ void ToonzVectorBrushTool::checkGuideSnapping(bool beforeMousePress,
   if (checkSnap) {
     // check guide snapping
     int vGuideCount = 0, hGuideCount = 0;
-    double guideDistance = sqrt(m_minDistance2);
-    TToolViewer *viewer  = getViewer();
+    double guideDistance  = sqrt(m_minDistance2);
+    TToolViewer *viewer = getViewer();
     if (viewer) {
       vGuideCount = viewer->getVGuideCount();
       hGuideCount = viewer->getHGuideCount();
@@ -1341,8 +1340,8 @@ void ToonzVectorBrushTool::checkGuideSnapping(bool beforeMousePress,
         snapPoint.x = hGuide;
       }
       beforeMousePress ? m_foundFirstSnap = true : m_foundLastSnap = true;
-      beforeMousePress ? m_firstSnapPoint = snapPoint : m_lastSnapPoint =
-                                                            snapPoint;
+      beforeMousePress ? m_firstSnapPoint                          = snapPoint
+                       : m_lastSnapPoint                           = snapPoint;
     }
   }
 }
