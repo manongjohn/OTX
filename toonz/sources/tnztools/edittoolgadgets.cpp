@@ -965,7 +965,7 @@ public:
       }
     };
 
-    auto drawPoint = [&](TPointD &pos, int id) {
+    auto drawPoint = [&](const TPointD &pos, int id) {
       setColorById(id);
       glPushName(idBase + id);
       double unit = getPixelSize();
