@@ -159,7 +159,8 @@ public:
                                  "FunctionEditor", "FxSettings",
                                  "ComboViewer",    "SceneViewer"};
 
-    QWidget *panel = QApplication::focusWidget();
+    QWidget *panel    = QApplication::focusWidget();
+    if (!panel) panel = TApp::instance()->getActiveViewer();
     while (panel) {
       QString pane = panel->objectName();
       if (panel->windowType() == Qt::WindowType::SubWindow ||
@@ -187,7 +188,8 @@ public:
                                  "FunctionEditor", "FxSettings",
                                  "ComboViewer",    "SceneViewer"};
 
-    QWidget *panel = QApplication::focusWidget();
+    QWidget *panel    = QApplication::focusWidget();
+    if (!panel) panel = TApp::instance()->getActiveViewer();
     while (panel) {
       QString pane = panel->objectName();
       if (panel->windowType() == Qt::WindowType::SubWindow ||
