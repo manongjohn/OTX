@@ -180,7 +180,7 @@ public:
     TXsheet *xsh = TApp::instance()->getCurrentXsheet()->getXsheet();
     int row = pos.frame(), col = pos.layer();
     int firstCol =
-        Preferences::instance()->isXsheetCameraColumnEnabled() ? -1 : 0;
+        Preferences::instance()->isXsheetCameraColumnVisible() ? -1 : 0;
     if (col < firstCol || (!getViewer()->orientation()->isVerticalTimeline() &&
                            col >= xsh->getColumnCount()))
       return;
@@ -1171,7 +1171,7 @@ public:
         TStageObjectId::CameraId(xsh->getCameraColumnIndex());
 
     TStageObjectId objId = col >= 0 ? TStageObjectId::ColumnId(col) : cameraId;
-    if (col >= 0 && xsh->getColumn(col) && xsh->getColumn(col)->isLocked()) {
+    if (xsh->getColumn(col) && xsh->getColumn(col)->isLocked()) {
       m_enable = false;
       return;
     }
@@ -1549,7 +1549,7 @@ public:
     int col      = pos.layer();
     if (!m_enabled) return;
     int firstCol =
-        Preferences::instance()->isXsheetCameraColumnEnabled() ? -1 : 0;
+        Preferences::instance()->isXsheetCameraColumnVisible() ? -1 : 0;
     if (col < firstCol || (!getViewer()->orientation()->isVerticalTimeline() &&
                            col >= xsh->getColumnCount()))
       return;
@@ -2149,8 +2149,8 @@ public:
           CellRange(CellPosition(rect.y0, rect.x0),
                     CellPosition(rect.y1 + 1, rect.x1 + 1)));
     else {
-      int newY0  = qMax(rect.y0, rect.y1);
-      int newY1  = qMin(rect.y0, rect.y1);
+      int newY0  = std::max(rect.y0, rect.y1);
+      int newY1  = std::min(rect.y0, rect.y1);
       screenCell = getViewer()->rangeToXYRect(CellRange(
           CellPosition(rect.x0, newY0), CellPosition(rect.x1 + 1, newY1 - 1)));
     }

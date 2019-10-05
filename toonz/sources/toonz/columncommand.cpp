@@ -36,6 +36,7 @@
 #include "toonz/tcamera.h"
 #include "toonz/tstageobjectspline.h"
 #include "toonz/fxcommand.h"
+#include "toonz/preferences.h"
 
 // TnzBase includes
 #include "tfx.h"
@@ -1249,18 +1250,21 @@ public:
     TTool::Viewer *viewer = tool ? tool->getViewer() : nullptr;
     bool viewer_changed   = false;
 
-    for (int i = 0; i < xsh->getColumnCount(); i++) {
-      /*- 空のカラムの場合は飛ばす -*/
-      if (xsh->isColumnEmpty(i)) continue;
-      /*- カラムが取得できなかったら飛ばす -*/
+    int startCol =
+        Preferences::instance()->isXsheetCameraColumnVisible() ? -1 : 0;
+
+    for (int i = startCol; i < xsh->getColumnCount(); i++) {
+      /*- Skip if empty column -*/
+      if (i >= 0 && xsh->isColumnEmpty(i)) continue;
+      /*- Skip if column cannot be obtained -*/
       TXshColumn *column = xsh->getColumn(i);
       if (!column) continue;
-      /*- ターゲットが選択カラムのモードで、選択されていなかった場合は飛ばす -*/
+      /*- Skip if target is in selected column mode and not selected -*/
       bool isSelected = selection && selection->isColumnSelected(i);
       if (m_target == TARGET_SELECTED && !isSelected) continue;
 
       /*-
-       * ターゲットが「カレントカラムより右側」のモードで、iがカレントカラムより左の場合は飛ばす
+       * Skip if target is "right side of current column" mode and i is left of current column
        * -*/
       if (m_target == TARGET_UPPER && i < cc) continue;
 

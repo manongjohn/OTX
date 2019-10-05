@@ -166,10 +166,10 @@ public:
   void drag(int row, int col, QMouseEvent *e) override {
     if (row < 0) row = 0;
     if (col < 0) col = 0;
-    int r0 = qMin(row, m_firstRow);
-    int r1 = qMax(row, m_firstRow);
-    int c0 = qMin(col, m_firstCol);
-    int c1 = qMax(col, m_firstCol);
+    int r0 = std::min(row, m_firstRow);
+    int r1 = std::max(row, m_firstRow);
+    int c0 = std::min(col, m_firstCol);
+    int c1 = std::max(col, m_firstCol);
     QRect selectedCells(c0, r0, c1 - c0 + 1, r1 - r0 + 1);
     m_sheet->selectCells(selectedCells);
   }
@@ -381,7 +381,6 @@ void FunctionSheetColumnHeadViewer::mouseMoveEvent(QMouseEvent *e) {
     Qt::DropAction dropAction = drag->exec();
     return;
   }
-
   // get the column under the cursor
   int col = getViewer()->xyToPosition(e->pos()).layer();
   FunctionTreeModel::Channel *channel = m_sheet->getChannel(col);
@@ -389,41 +388,80 @@ void FunctionSheetColumnHeadViewer::mouseMoveEvent(QMouseEvent *e) {
     setToolTip(QString(""));
   } else
     setToolTip(channel->getExprRefName());
+
+  // modify selected channel by left dragging
+  if (m_clickedColumn >= 0 && channel && e->buttons() & Qt::LeftButton) {
+    int fromC      = std::min(m_clickedColumn, col);
+    int toC        = std::max(m_clickedColumn, col);
+    int lastKeyPos = 0;
+    for (int c = fromC; c <= toC; c++) {
+      FunctionTreeModel::Channel *tmpChan = m_sheet->getChannel(c);
+      if (!tmpChan) continue;
+      std::set<double> frames;
+      tmpChan->getParam()->getKeyframes(frames);
+      if (!frames.empty())
+        lastKeyPos = std::max(lastKeyPos, (int)*frames.rbegin());
+    }
+    QRect rect(std::min(m_clickedColumn, col), 0,
+               std::abs(col - m_clickedColumn) + 1, lastKeyPos + 1);
+    getViewer()->selectCells(rect);
+  }
 }
 
 //-----------------------------------------------------------------------------
 
 void FunctionSheetColumnHeadViewer::mousePressEvent(QMouseEvent *e) {
-  QPoint pos   = e->pos();
-  int currentC = getViewer()->xyToPosition(pos).layer();
-  FunctionTreeModel::Channel *channel;
-  for (int c = 0; c <= m_sheet->getChannelCount(); c++) {
-    channel = m_sheet->getChannel(c);
-    if (!channel || c != currentC) continue;
-    break;
+  QPoint pos                          = e->pos();
+  int currentC                        = getViewer()->xyToPosition(pos).layer();
+  FunctionTreeModel::Channel *channel = m_sheet->getChannel(currentC);
+  if (!channel) {
+    m_clickedColumn = -1;
+    return;
   }
-  if (channel && e->button() == Qt::MidButton) {
+
+  if (e->button() == Qt::MidButton) {
     m_draggingChannel   = channel;
     m_dragStartPosition = e->pos();
     return;
-  } else if (channel)
+  } else
     channel->setIsCurrent(true);
   m_draggingChannel = 0;
-  if (!channel) return;
 
-  // Open folder
-  FunctionTreeModel::ChannelGroup *channelGroup = channel->getChannelGroup();
-  if (!channelGroup->isOpen())
-    channelGroup->getModel()->setExpandedItem(channelGroup->createIndex(),
-                                              true);
-  // Select all segment
-  std::set<double> frames;
-  channel->getParam()->getKeyframes(frames);
+  if (e->button() == Qt::LeftButton) {
+    int lastKeyPos = 0;
+    // if the current selection does not contain the first cell in m_firstColumn
+    // then we assume that the selection has been modified and treat shift+click
+    // as normal click.
+    if (getViewer()->getSelectedCells().contains(m_clickedColumn, 0) &&
+        (e->modifiers() & Qt::ShiftModifier)) {
+      int fromC = std::min(m_clickedColumn, currentC);
+      int toC   = std::max(m_clickedColumn, currentC);
+      for (int c = fromC; c <= toC; c++) {
+        FunctionTreeModel::Channel *tmpChan = m_sheet->getChannel(c);
+        if (!tmpChan) continue;
+        std::set<double> frames;
+        tmpChan->getParam()->getKeyframes(frames);
+        if (!frames.empty())
+          lastKeyPos = std::max(lastKeyPos, (int)*frames.rbegin());
+      }
+    } else {
+      // Open folder
+      FunctionTreeModel::ChannelGroup *channelGroup =
+          channel->getChannelGroup();
+      if (!channelGroup->isOpen())
+        channelGroup->getModel()->setExpandedItem(channelGroup->createIndex(),
+                                                  true);
+      // Select all segment
+      std::set<double> frames;
+      channel->getParam()->getKeyframes(frames);
+      if (!frames.empty()) lastKeyPos = (int)*frames.rbegin();
+      m_clickedColumn = currentC;
+    }
+    QRect rect(std::min(m_clickedColumn, currentC), 0,
+               std::abs(currentC - m_clickedColumn) + 1, lastKeyPos + 1);
 
-  QRect rect(0, 0, 0, 0);
-  if (!frames.empty()) rect = QRect(currentC, 0, 1, (*frames.rbegin()) + 1);
-
-  getViewer()->selectCells(rect);
+    getViewer()->selectCells(rect);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -880,30 +918,17 @@ void FunctionSheetCellViewer::onMouseMovedInLineEdit(QMouseEvent *event) {
 
 // TODO: refactor: cfr functionpanel.cpp
 void FunctionSheetCellViewer::openContextMenu(QMouseEvent *e) {
-  struct locals {
-    static void sheet__setSegmentType(FunctionSelection *selection,
-                                      TDoubleParam *curve, int segmentIndex,
-                                      TDoubleKeyframe::Type type) {
-      selection->selectSegment(curve, segmentIndex);
-      KeyframeSetter setter(curve, segmentIndex);
-      setter.setType(type);
-    }
-  };  // locals
-
   QAction deleteKeyframeAction(tr("Delete Key"), 0);
   QAction insertKeyframeAction(tr("Set Key"), 0);
-  QAction setLinearAction(tr("Linear Interpolation"), 0);
-  QAction setSpeedInOutAction(tr("Speed In / Speed Out Interpolation"), 0);
-  QAction setEaseInOutAction(tr("Ease In / Ease Out Interpolation"), 0);
-  QAction setEaseInOut2Action(tr("Ease In / Ease Out (%) Interpolation"), 0);
-  QAction setExponentialAction(tr("Exponential Interpolation"), 0);
-  QAction setExpressionAction(tr("Expression Interpolation"), 0);
-  QAction setFileAction(tr("File Interpolation"), 0);
-  QAction setConstantAction(tr("Constant Interpolation"), 0);
-  QAction setStep1Action(tr("Step 1"), 0);
-  QAction setStep2Action(tr("Step 2"), 0);
-  QAction setStep3Action(tr("Step 3"), 0);
-  QAction setStep4Action(tr("Step 4"), 0);
+
+  QStringList interpNames;
+  interpNames << tr("Constant Interpolation") << tr("Linear Interpolation")
+              << tr("Speed In / Speed Out Interpolation")
+              << tr("Ease In / Ease Out Interpolation")
+              << tr("Ease In / Ease Out (%) Interpolation")
+              << tr("Exponential Interpolation")
+              << tr("Expression Interpolation") << tr("File Interpolation")
+              << tr("Similar Shape Interpolation");
   QAction activateCycleAction(tr("Activate Cycle"), 0);
   QAction deactivateCycleAction(tr("Deactivate Cycle"), 0);
   QAction showIbtwnAction(tr("Show Inbetween Values"), 0);
@@ -929,6 +954,15 @@ void FunctionSheetCellViewer::openContextMenu(QMouseEvent *e) {
   }
   int kIndex = curve->getPrevKeyframe(row);
 
+  // if the FunctionSelection is not current or when clicking outside of the
+  // selection, then select the clicked cell.
+  FunctionSelection *selection = m_sheet->getSelection();
+  if (!selection->getSelectedCells().contains(col, row)) {
+    selection->makeCurrent();
+    selection->selectCells(QRect(col, row, 1, 1));
+  }
+  CommandManager *cmdManager = CommandManager::instance();
+
   // build menu
   QMenu menu(0);
 
@@ -943,37 +977,35 @@ void FunctionSheetCellViewer::openContextMenu(QMouseEvent *e) {
   if (!isKeyframe)  // menu.addAction(&deleteKeyframeAction); else
     menu.addAction(&insertKeyframeAction);
 
-  if (!isEmpty && !isKeyframe && kIndex >= 0) {
+  // change interpolation commands
+  QList<QAction *> interpActions;
+  int interp = selection->getCommonSegmentType();
+  if (interp != -1) {
     menu.addSeparator();
-    QMenu *interpMenu  = menu.addMenu(tr("Change Interpolation"));
-    TDoubleKeyframe kf = curve->getKeyframe(kIndex);
-    if (kf.m_type != TDoubleKeyframe::Linear)
-      interpMenu->addAction(&setLinearAction);
-    if (kf.m_type != TDoubleKeyframe::SpeedInOut)
-      interpMenu->addAction(&setSpeedInOutAction);
-    if (kf.m_type != TDoubleKeyframe::EaseInOut)
-      interpMenu->addAction(&setEaseInOutAction);
-    if (kf.m_type != TDoubleKeyframe::EaseInOutPercentage)
-      interpMenu->addAction(&setEaseInOut2Action);
-    if (kf.m_type != TDoubleKeyframe::Exponential)
-      interpMenu->addAction(&setExponentialAction);
-    if (kf.m_type != TDoubleKeyframe::Expression)
-      interpMenu->addAction(&setExpressionAction);
-    if (kf.m_type != TDoubleKeyframe::File)
-      interpMenu->addAction(&setFileAction);
-    if (kf.m_type != TDoubleKeyframe::Constant)
-      interpMenu->addAction(&setConstantAction);
+    QMenu *interpMenu = menu.addMenu(tr("Change Interpolation"));
+    for (int i = (int)TDoubleKeyframe::Constant;
+         i <= (int)TDoubleKeyframe::SimilarShape; i++) {
+      if (interp != i) {
+        QAction *interpAction = new QAction(interpNames[i - 1], 0);
+        interpAction->setData(i);
+        interpActions.append(interpAction);
+        interpMenu->addAction(interpAction);
+      }
+    }
+  }
 
+  // change step commands
+  int step = selection->getCommonStep();
+  if (step != -1) {
     QMenu *stepMenu = menu.addMenu(tr("Change Step"));
-    if (kf.m_step != 1) stepMenu->addAction(&setStep1Action);
-    if (kf.m_step != 2) stepMenu->addAction(&setStep2Action);
-    if (kf.m_step != 3) stepMenu->addAction(&setStep3Action);
-    if (kf.m_step != 4) stepMenu->addAction(&setStep4Action);
+    if (step != 1) stepMenu->addAction(cmdManager->getAction("MI_ResetStep"));
+    if (step != 2) stepMenu->addAction(cmdManager->getAction("MI_Step2"));
+    if (step != 3) stepMenu->addAction(cmdManager->getAction("MI_Step3"));
+    if (step != 4) stepMenu->addAction(cmdManager->getAction("MI_Step4"));
   }
 
   menu.addSeparator();
 
-  CommandManager *cmdManager = CommandManager::instance();
   menu.addAction(cmdManager->getAction("MI_Cut"));
   menu.addAction(cmdManager->getAction("MI_Copy"));
   menu.addAction(cmdManager->getAction("MI_Paste"));
@@ -989,47 +1021,16 @@ void FunctionSheetCellViewer::openContextMenu(QMouseEvent *e) {
       menu.addAction(&showIbtwnAction);
   }
 
-  FunctionSelection *selection = m_sheet->getSelection();
-  TSceneHandle *sceneHandle    = m_sheet->getViewer()->getSceneHandle();
+  TSceneHandle *sceneHandle = m_sheet->getViewer()->getSceneHandle();
   // execute menu
   QAction *action = menu.exec(e->globalPos());  // QCursor::pos());
   if (action == &deleteKeyframeAction) {
     KeyframeSetter::removeKeyframeAt(curve, row);
   } else if (action == &insertKeyframeAction) {
     KeyframeSetter(curve).createKeyframe(row);
-  } else if (action == &setLinearAction)
-    locals::sheet__setSegmentType(selection, curve, kIndex,
-                                  TDoubleKeyframe::Linear);
-  else if (action == &setSpeedInOutAction)
-    locals::sheet__setSegmentType(selection, curve, kIndex,
-                                  TDoubleKeyframe::SpeedInOut);
-  else if (action == &setEaseInOutAction)
-    locals::sheet__setSegmentType(selection, curve, kIndex,
-                                  TDoubleKeyframe::EaseInOut);
-  else if (action == &setEaseInOut2Action)
-    locals::sheet__setSegmentType(selection, curve, kIndex,
-                                  TDoubleKeyframe::EaseInOutPercentage);
-  else if (action == &setExponentialAction)
-    locals::sheet__setSegmentType(selection, curve, kIndex,
-                                  TDoubleKeyframe::Exponential);
-  else if (action == &setExpressionAction)
-    locals::sheet__setSegmentType(selection, curve, kIndex,
-                                  TDoubleKeyframe::Expression);
-  else if (action == &setFileAction)
-    locals::sheet__setSegmentType(selection, curve, kIndex,
-                                  TDoubleKeyframe::File);
-  else if (action == &setConstantAction)
-    locals::sheet__setSegmentType(selection, curve, kIndex,
-                                  TDoubleKeyframe::Constant);
-  else if (action == &setStep1Action)
-    KeyframeSetter(curve, kIndex).setStep(1);
-  else if (action == &setStep2Action)
-    KeyframeSetter(curve, kIndex).setStep(2);
-  else if (action == &setStep3Action)
-    KeyframeSetter(curve, kIndex).setStep(3);
-  else if (action == &setStep4Action)
-    KeyframeSetter(curve, kIndex).setStep(4);
-  else if (action == &activateCycleAction)
+  } else if (interpActions.contains(action)) {
+    selection->setSegmentType((TDoubleKeyframe::Type)action->data().toInt());
+  } else if (action == &activateCycleAction)
     KeyframeSetter::enableCycle(curve, true, sceneHandle);
   else if (action == &deactivateCycleAction)
     KeyframeSetter::enableCycle(curve, false, sceneHandle);

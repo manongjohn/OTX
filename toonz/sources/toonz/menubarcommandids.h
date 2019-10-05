@@ -350,5 +350,5 @@
 #define MI_SeparateColors "MI_SeparateColors"
 
 #define MI_OpenOnlineManual "MI_OpenOnlineManual"
-
+#define MI_ClearCacheFolder "MI_ClearCacheFolder"
 #endif

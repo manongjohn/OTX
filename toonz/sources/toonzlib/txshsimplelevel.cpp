@@ -104,8 +104,8 @@ bool checkCreatorString(const QString &creator) {
     if (pos >= 0 && len >= 4) {
       QString v;
       if (len > 4) v = creator.mid(pos + 3, len - 4);
-      bool ok        = true;
-      mask           = v.toInt(&ok, 16);
+      bool ok = true;
+      mask    = v.toInt(&ok, 16);
     }
   }
   return (mask & compatibility.neededMask) == compatibility.neededMask &&
@@ -169,8 +169,8 @@ void getIndexesRangefromFids(TXshSimpleLevel *level,
 
   std::set<TFrameId>::const_iterator it;
   for (it = fids.begin(); it != fids.end(); ++it) {
-    int index                        = level->guessIndex(*it);
-    if (index > toIndex) toIndex     = index;
+    int index = level->guessIndex(*it);
+    if (index > toIndex) toIndex = index;
     if (index < fromIndex) fromIndex = index;
   }
 }
@@ -178,7 +178,7 @@ void getIndexesRangefromFids(TXshSimpleLevel *level,
 }  // namespace
 
 //******************************************************************************************
-//    TXshSimpleLevel  impementation
+//    TXshSimpleLevel  implementation
 //******************************************************************************************
 
 bool TXshSimpleLevel::m_rasterizePli        = false;
@@ -909,13 +909,13 @@ void TXshSimpleLevel::loadData(TIStream &is) {
         if (is.getTagParam("dpix", v)) xdpi = std::stod(v);
         if (is.getTagParam("dpiy", v)) ydpi = std::stod(v);
         if (xdpi != 0 && ydpi != 0) dpiPolicy = LevelProperties::DP_CustomDpi;
-        std::string dpiType                   = is.getTagAttribute("dpiType");
-        if (dpiType == "image") dpiPolicy     = LevelProperties::DP_ImageDpi;
-        if (is.getTagParam("type", v) && v == "s") type       = TZI_XSHLEVEL;
-        if (is.getTagParam("subsampling", v)) subsampling     = std::stoi(v);
-        if (is.getTagParam("premultiply", v)) doPremultiply   = std::stoi(v);
+        std::string dpiType = is.getTagAttribute("dpiType");
+        if (dpiType == "image") dpiPolicy = LevelProperties::DP_ImageDpi;
+        if (is.getTagParam("type", v) && v == "s") type = TZI_XSHLEVEL;
+        if (is.getTagParam("subsampling", v)) subsampling = std::stoi(v);
+        if (is.getTagParam("premultiply", v)) doPremultiply = std::stoi(v);
         if (is.getTagParam("antialias", v)) antialiasSoftness = std::stoi(v);
-        if (is.getTagParam("whiteTransp", v)) whiteTransp     = std::stoi(v);
+        if (is.getTagParam("whiteTransp", v)) whiteTransp = std::stoi(v);
 
         m_properties->setDpiPolicy(dpiPolicy);
         m_properties->setDpi(TPointD(xdpi, ydpi));
@@ -1046,9 +1046,8 @@ static TFilePath getLevelPathAndSetNameWithPsdLevelName(
       if (removeFileName) wLevelName = list[1].toStdWString();
 
       TLevelSet *levelSet = xshLevel->getScene()->getLevelSet();
-      if (levelSet &&
-          levelSet->hasLevel(
-              wLevelName))  // levelSet should be asserted instead
+      if (levelSet && levelSet->hasLevel(
+                          wLevelName))  // levelSet should be asserted instead
         levelSet->renameLevel(xshLevel, wLevelName);
 
       xshLevel->setName(wLevelName);
@@ -1209,10 +1208,35 @@ void TXshSimpleLevel::load() {
           if (img && getPalette()) {
             img->setPalette(0);
             getPalette()->setRefImg(img);
-            std::vector<TFrameId> fids;
-            for (TLevel::Iterator it = level->begin(); it != level->end(); ++it)
-              fids.push_back(it->first);
-            getPalette()->setRefLevelFids(fids);
+            std::vector<TFrameId> fids = getPalette()->getRefLevelFids();
+            // in case the fids are specified by user
+            if (fids.size() > 0) {
+              // check existence of each fid
+              auto itr = fids.begin();
+              while (itr != fids.end()) {
+                bool found = false;
+                for (TLevel::Iterator it = level->begin(); it != level->end();
+                     ++it) {
+                  if (itr->getNumber() == it->first.getNumber()) {
+                    found = true;
+                    break;
+                  }
+                }
+                if (!found)  // remove the fid if it does not exist in the level
+                  itr = fids.erase(itr);
+                else
+                  itr++;
+              }
+            }
+            // in case the fids are not specified, or all specified fids are
+            // absent
+            if (fids.size() == 0) {
+              for (TLevel::Iterator it = level->begin(); it != level->end();
+                   ++it)
+                fids.push_back(it->first);
+              getPalette()->setRefLevelFids(fids, false);
+            } else if (fids.size() != getPalette()->getRefLevelFids().size())
+              getPalette()->setRefLevelFids(fids, true);
           }
         }
       }
@@ -1375,6 +1399,19 @@ void TXshSimpleLevel::save() {
 //-----------------------------------------------------------------------------
 
 static void saveBackup(TFilePath path) {
+  // The additional .bak extension keeps it from being detected as a sequence.
+  // If the original path is a sequence, find the individual files and back it
+  // up individually
+  if (path.isLevelName()) {
+    TFilePathSet files =
+        TSystem::readDirectory(path.getParentDir(), false, true);
+    for (TFilePathSet::iterator file = files.begin(); file != files.end();
+         file++) {
+      if (file->getLevelName() == path.getLevelName()) saveBackup(*file);
+    }
+    return;
+  }
+
   int totalBackups = Preferences::instance()->getBackupKeepCount();
   totalBackups -= 1;
   TFilePath backup = path.withType(path.getType() + ".bak");
@@ -1384,12 +1421,11 @@ static void saveBackup(TFilePath path) {
     std::string bakExt =
         ".bak" + (totalBackups > 0 ? std::to_string(totalBackups) : "");
     backup = path.withType(path.getType() + bakExt);
-    if (!TSystem::doesExistFileOrLevel(backup)) continue;
-    try {
-      if (TSystem::doesExistFileOrLevel(prevBackup))
-        TSystem::removeFileOrLevel_throw(prevBackup);
-      TSystem::copyFileOrLevel_throw(prevBackup, backup);
-    } catch (...) {
+    if (TSystem::doesExistFileOrLevel(backup)) {
+      try {
+        TSystem::copyFileOrLevel_throw(prevBackup, backup);
+      } catch (...) {
+      }
     }
     prevBackup = backup;
   }
@@ -1422,7 +1458,7 @@ void TXshSimpleLevel::save(const TFilePath &fp, const TFilePath &oldFp,
 
   if (isAreadOnlyLevel(dDstPath)) {
     if (m_editableRange.empty() &&
-        !m_temporaryHookMerged)  // file interaly locked
+        !m_temporaryHookMerged)  // file internally locked
       throw TSystemException(
           dDstPath, "The level cannot be saved: it is a read only level.");
     else if (getType() != OVL_XSHLEVEL) {
@@ -1544,8 +1580,8 @@ void TXshSimpleLevel::saveSimpleLevel(const TFilePath &decodedFp,
   std::vector<TFrameId> fids;
   getFids(fids);
 
-  bool isLevelModified                = getProperties()->getDirtyFlag();
-  bool isPaletteModified              = false;
+  bool isLevelModified   = getProperties()->getDirtyFlag();
+  bool isPaletteModified = false;
   if (getPalette()) isPaletteModified = getPalette()->getDirtyFlag();
 
   if (isLevelModified || isPaletteModified) {
@@ -1788,11 +1824,11 @@ void TXshSimpleLevel::saveSimpleLevel(const TFilePath &decodedFp,
 std::string TXshSimpleLevel::getImageId(const TFrameId &fid,
                                         int frameStatus) const {
   if (frameStatus < 0) frameStatus = getFrameStatus(fid);
-  std::string prefix               = "L";
+  std::string prefix = "L";
   if (frameStatus & CleanupPreview)
     prefix = "P";
   else if ((frameStatus & (Scanned | Cleanupped)) == Scanned)
-    prefix            = "S";
+    prefix = "S";
   std::string imageId = m_idBase + "_" + prefix + fid.expand();
   return imageId;
 }
@@ -2218,13 +2254,14 @@ TFilePath TXshSimpleLevel::getExistingHookFile(
 
   int f, fCount = hookFiles.size();
   for (f = 0; f != fCount; ++f) {
-    fPattern            = locals::getPattern(hookFiles[f]);
+    fPattern = locals::getPattern(hookFiles[f]);
     if (fPattern < p) p = fPattern, h = f;
   }
 
   assert(h >= 0);
-  return (h < 0) ? TFilePath() : decodedLevelPath.getParentDir() +
-                                     TFilePath(hookFiles[h].toStdWString());
+  return (h < 0) ? TFilePath()
+                 : decodedLevelPath.getParentDir() +
+                       TFilePath(hookFiles[h].toStdWString());
 }
 
 //-----------------------------------------------------------------------------

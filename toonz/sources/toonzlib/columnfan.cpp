@@ -13,12 +13,17 @@
 // ColumnFan
 
 ColumnFan::ColumnFan()
-    : m_firstFreePos(0), m_unfolded(74), m_folded(9), m_cameraActive(true) {}
+    : m_firstFreePos(0)
+    , m_unfolded(74)
+    , m_folded(9)
+    , m_cameraActive(true)
+    , m_cameraColumnDim(22) {}
 
 //-----------------------------------------------------------------------------
 
-void ColumnFan::setDimension(int unfolded) {
-  m_unfolded = unfolded;
+void ColumnFan::setDimensions(int unfolded, int cameraColumn) {
+  m_unfolded        = unfolded;
+  m_cameraColumnDim = cameraColumn;
   // folded always 9
   update();
 }
@@ -53,10 +58,10 @@ void ColumnFan::update() {
 //-----------------------------------------------------------------------------
 
 int ColumnFan::layerAxisToCol(int coord) const {
-  if (Preferences::instance()->isXsheetCameraColumnEnabled()) {
+  if (Preferences::instance()->isXsheetCameraColumnVisible()) {
     int firstCol =
         m_cameraActive
-            ? m_unfolded
+            ? m_cameraColumnDim
             : ((m_columns.size() > 0 && !m_columns[0].m_active) ? 0 : m_folded);
     if (coord < firstCol) return -1;
     coord -= firstCol;
@@ -75,12 +80,12 @@ int ColumnFan::layerAxisToCol(int coord) const {
 int ColumnFan::colToLayerAxis(int col) const {
   int m        = m_columns.size();
   int firstCol = 0;
-  if (Preferences::instance()->isXsheetCameraColumnEnabled()) {
-    if (col < -1) return -m_unfolded;
+  if (Preferences::instance()->isXsheetCameraColumnVisible()) {
+    if (col < -1) return -m_cameraColumnDim;
     if (col < 0) return 0;
     firstCol =
         m_cameraActive
-            ? m_unfolded
+            ? m_cameraColumnDim
             : ((m_columns.size() > 0 && !m_columns[0].m_active) ? 0 : m_folded);
   }
   if (col >= 0 && col < m)
@@ -148,8 +153,6 @@ void ColumnFan::copyFoldedStateFrom(const ColumnFan &from) {
 void ColumnFan::saveData(
     TOStream &os) {  // only saves indices of folded columns
   int index, n = (int)m_columns.size();
-  if (Preferences::instance()->isXsheetCameraColumnEnabled() && !m_cameraActive)
-    os << -1 << 1;
   for (index = 0; index < n;) {
     while (index < n && m_columns[index].m_active) index++;
     if (index < n) {

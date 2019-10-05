@@ -239,7 +239,7 @@ public:
       return false;
   };
 
-  void restoreFloatingPanelState();
+  virtual void restoreFloatingPanelState();
 
 protected:
   void paintEvent(QPaintEvent *) override;

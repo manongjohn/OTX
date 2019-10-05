@@ -49,8 +49,10 @@ void TColumnSelection::enableCommands() {
   enableCommand(this, MI_Resequence, &TColumnSelection::resequence);
   enableCommand(this, MI_CloneChild, &TColumnSelection::cloneChild);
   enableCommand(this, MI_FoldColumns, &TColumnSelection::hideColumns);
-  enableCommand(this, MI_ToggleXsheetCameraColumn,
-                &TColumnSelection::toggleCameraColumn);
+
+  if (Preferences::instance()->isShowKeyframesOnXsheetCellAreaEnabled())
+    enableCommand(this, MI_ToggleXsheetCameraColumn,
+                  &TColumnSelection::toggleCameraColumn);
 
   enableCommand(this, MI_Reframe1, &TColumnSelection::reframe1Cells);
   enableCommand(this, MI_Reframe2, &TColumnSelection::reframe2Cells);
@@ -273,6 +275,6 @@ void TColumnSelection::hideColumns() {
 
 void TColumnSelection::toggleCameraColumn() {
   Preferences *pref = Preferences::instance();
-  pref->enableXsheetCameraColumn(!pref->isXsheetCameraColumnEnabled());
+  pref->enableXsheetCameraColumn(!pref->isXsheetCameraColumnVisible());
   TApp::instance()->getCurrentXsheet()->notifyXsheetChanged();
 }
