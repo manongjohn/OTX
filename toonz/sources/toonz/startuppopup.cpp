@@ -508,15 +508,16 @@ void StartupPopup::updateProjectCB() {
   m_projectPaths.clear();
   m_projectsCB->clear();
 
-  QString sandboxName = TProjectManager::instance()->getSandboxProjectName();
+  TProjectManager *pm = TProjectManager::instance();
 
-  TFilePath sandboxFp = TProjectManager::instance()->getSandboxProjectFolder() +
-                        TFilePath(sandboxName + "_otprj.xml");
+  QString sandboxName = pm->getSandboxProjectName();
+
+  TFilePath sandboxFp = pm->getSandboxProjectFolder() + TFilePath(sandboxName + "_otprj.xml");
   m_projectPaths.push_back(sandboxFp);
   m_projectsCB->addItem(sandboxName);
 
   std::vector<TFilePath> prjRoots;
-  TProjectManager::instance()->getProjectRoots(prjRoots);
+  pm->getProjectRoots(prjRoots);
   for (int i = 0; i < prjRoots.size(); i++) {
     TFilePathSet fps;
     TSystem::readDirectory_Dir_ReadExe(fps, prjRoots[i]);
@@ -524,15 +525,15 @@ void StartupPopup::updateProjectCB() {
     TFilePathSet::iterator it;
     for (it = fps.begin(); it != fps.end(); ++it) {
       TFilePath fp(*it);
-      if (TProjectManager::instance()->isProject(fp)) {
-        m_projectPaths.push_back(
-            TProjectManager::instance()->projectFolderToProjectPath(fp));
-        m_projectsCB->addItem(QString::fromStdString(fp.getName()));
+      if (pm->isProject(fp)) {
+        m_projectPaths.push_back(pm->projectFolderToProjectPath(fp));
+        TFilePath prjFile = pm->getProjectPathByProjectFolder(fp);
+        m_projectsCB->addItem(QString::fromStdString(prjFile.getName()));
       }
     }
   }
   // Add in project of current project if outside known Project root folders
-  TProjectP currentProject   = TProjectManager::instance()->getCurrentProject();
+  TProjectP currentProject   = pm->getCurrentProject();
   TFilePath currentProjectFP = currentProject->getProjectPath();
   if (m_projectPaths.indexOf(currentProjectFP) == -1) {
     m_projectPaths.push_back(currentProjectFP);
@@ -541,8 +542,7 @@ void StartupPopup::updateProjectCB() {
   }
   int i;
   for (i = 0; i < m_projectPaths.size(); i++) {
-    if (TProjectManager::instance()->getCurrentProjectPath() ==
-        m_projectPaths[i]) {
+    if (pm->getCurrentProjectPath() == m_projectPaths[i]) {
       m_projectsCB->setCurrentIndex(i);
       break;
     }
@@ -562,7 +562,16 @@ void StartupPopup::onProjectChanged(int index) {
   if (m_updating) return;
   TFilePath projectFp = m_projectPaths[index];
 
-  TProjectManager::instance()->setCurrentProjectPath(projectFp);
+  TProjectManager *pm = TProjectManager::instance();
+  pm->setCurrentProjectPath(projectFp);
+
+  TProjectP currentProject = pm->getCurrentProject();
+
+  // In case the project file was upgraded to current version, save it now
+  if (currentProject->getProjectPath() != projectFp) {
+    m_projectPaths[index] = currentProject->getProjectPath();
+    currentProject->save();
+  }
 
   IoCmd::newScene();
   m_pathFld->setPath(TApp::instance()
