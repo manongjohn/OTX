@@ -744,10 +744,11 @@ private:
   bool m_enableWinInk                         = false;
   bool m_useOnionColorsForShiftAndTraceGhosts = false;
 
-  int m_levelBasedToolsDisplay;
   int m_backupKeepCount;
 
   bool m_showXsheetCameraColumn = true;
+
+  int m_levelBasedToolsDisplay;
 
 private:
   Preferences();

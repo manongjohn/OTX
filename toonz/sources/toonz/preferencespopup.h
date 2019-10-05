@@ -226,9 +226,9 @@ private slots:
   void onEnableTouchGesturesTriggered(bool checked);
   void onEnableWinInkChanged(int index);
   void onRasterBackgroundColorChanged(const TPixel32 &, bool isDragging);
-  void onLevelBasedToolsDisplayChanged(int);
   void onBackupKeepCountChanged();
   void onShowXsheetCameraColumnChanged(int index);
+  void onLevelBasedToolsDisplayChanged(int);
 };
 
 //**********************************************************************************
