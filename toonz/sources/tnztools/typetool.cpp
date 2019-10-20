@@ -35,6 +35,9 @@
 
 // For Qt translation support
 #include <QCoreApplication>
+#include <QClipboard>
+#include <QApplication>
+#include <QMimeData>
 
 //#include "tw/message.h"
 
@@ -422,7 +425,7 @@ TypeTool::TypeTool()
     , m_vertical("Vertical Orientation", false)  // W_ToolOptions_Vertical
     , m_size("Size:")                            // W_ToolOptions_Size
     , m_undo(0) {
-  bind(TTool::CommonLevels | TTool::EmptyTarget);
+  bind(TTool::VectorImage | TTool::ToonzImage | TTool::EmptyTarget);
   m_prop[0].bind(m_fontFamilyMenu);
   // Su mac non e' visibile il menu dello style perche' e' stato inserito nel
   // nome
@@ -1511,6 +1514,20 @@ void TypeTool::deleteKey() {
 bool TypeTool::keyDown(QKeyEvent *event) {
   QString text = event->text();
   if ((event->modifiers() & Qt::ShiftModifier)) text.toUpper();
+
+  std::string keyStr =
+      QKeySequence(event->key() + event->modifiers()).toString().toStdString();
+  QAction *action = CommandManager::instance()->getActionFromShortcut(keyStr);
+  if (action) {
+    std::string actionId = CommandManager::instance()->getIdFromAction(action);
+    if (actionId == "MI_Paste") {
+      QClipboard *clipboard     = QApplication::clipboard();
+      const QMimeData *mimeData = clipboard->mimeData();
+      if (!mimeData->hasText()) return true;
+      text = mimeData->text().replace('\n', '\r');
+    }
+  }
+
   std::wstring unicodeChar = text.toStdWString();
 
   // per sicurezza
@@ -1618,9 +1635,10 @@ bool TypeTool::keyDown(QKeyEvent *event) {
   default:
     if (unicodeChar.empty()) return false;
     replaceText(unicodeChar, m_cursorIndex, m_cursorIndex);
-    m_cursorIndex++;
-    m_preeditRange = std::make_pair(m_cursorIndex, m_cursorIndex);
-    updateCharPositions(m_cursorIndex - 1);
+    int startIndex = m_cursorIndex + 1;
+    m_cursorIndex += unicodeChar.size();
+    m_preeditRange = std::make_pair(startIndex, m_cursorIndex);
+    updateCharPositions(startIndex - 1);
   }
 
   invalidate();

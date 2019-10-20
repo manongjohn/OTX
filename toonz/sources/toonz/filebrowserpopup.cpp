@@ -391,8 +391,7 @@ void FileBrowserPopup::showEvent(QShowEvent *) {
 
 void FileBrowserPopup::setModalBrowserToParent(QWidget *widget) {
   if (!widget) return;
-  QWidget *pwidget = NULL;
-  foreach (pwidget, QApplication::topLevelWidgets()) {
+  for (QWidget *pwidget : QApplication::topLevelWidgets()) {
     if ((pwidget->isWindow()) && (pwidget->isModal()) &&
         (pwidget->isVisible())) {
       FileBrowserPopup *popup = qobject_cast<FileBrowserPopup *>(pwidget);
@@ -2013,7 +2012,7 @@ void ReplaceParentDirectoryPopup::initFolder() {
 // ImportMagpieFilePopup
 
 ImportMagpieFilePopup::ImportMagpieFilePopup()
-    : FileBrowserPopup(tr("Import Magpie File")) {
+    : FileBrowserPopup(tr("Import Toonz Lip Sync File")) {
   setOkText(tr("Load"));
   addFilterType("tls");
 }
@@ -2122,8 +2121,7 @@ void BrowserPopupController::openPopup(QStringList filters,
   m_browserPopup->setFileMode(isDirectoryOnly);
 
   if (parentWidget) {
-    QWidget *pwidget = NULL;
-    foreach (pwidget, QApplication::topLevelWidgets()) {
+    for (QWidget *pwidget : QApplication::topLevelWidgets()) {
       if (pwidget->isWindow() && pwidget->isVisible() &&
           pwidget->isAncestorOf(parentWidget)) {
         Qt::WindowFlags flags = m_browserPopup->windowFlags();

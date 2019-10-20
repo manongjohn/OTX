@@ -11,7 +11,6 @@ enum {
   CURSOR_ARROW,
   CURSOR_HAND,
   CURSOR_HOURGLASS,
-  CURSOR_NO,
   CURSOR_DUMMY,
 #ifndef _WIN32
   CURSOR_DND,
@@ -33,6 +32,7 @@ enum {
   MagnetCursor,
   PanCursor,
   PickerCursor,
+  PointingHandCursor,
   PumpCursor,
   RotCursor,
   RotTopLeft,
@@ -56,6 +56,7 @@ enum {
   SplineEditorCursorAdd,
   TrackerCursor,
   ForbiddenCursor,
+  CURSOR_NO = ForbiddenCursor,
 
   NormalEraserCursor,
   RectEraserCursor,

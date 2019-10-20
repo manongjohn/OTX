@@ -1,4 +1,4 @@
-﻿set(VERSION 1.2)
+set(VERSION 1.3)
 
 set(MOC_HEADERS
     addfilmstripframespopup.h
@@ -6,126 +6,104 @@ set(MOC_HEADERS
     adjustthicknesspopup.h
     antialiaspopup.h
     audiorecordingpopup.h
+    autoinputcellnumberpopup.h
     batches.h
     batchserversviewer.h
     binarizepopup.h
+    boardsettingspopup.h
     brightnessandcontrastpopup.h
     cachefxcommand.h
+    cameracapturelevelcontrol.h
     camerasettingspopup.h
     canvassizepopup.h
-    castselection.h
     castviewer.h
-    celldata.h
-    cellkeyframedata.h
-    cellkeyframeselection.h
-    cellselection.h
-	../include/cellposition.h
     cleanuppaletteviewer.h
     cleanuppopup.h
     cleanuppreview.h
     cleanupsettingsmodel.h
+    cleanupsettingspane.h
     cleanupsettingspopup.h
     cleanupswatch.h
+    colormodelbehaviorpopup.h
     colormodelviewer.h
-    columncommand.h
-    columnselection.h
+    comboviewerpane.h
     commandbar.h
     commandbarpopup.h
     convertpopup.h
-    curveio.h
-    drawingdata.h
     duplicatepopup.h
     dvdirtreeview.h
     dvitemview.h
     dvwidgets.h
-    exportlevelcommand.h
     exportlevelpopup.h
-    exportscenepopup.h
     exportpanel.h
+    exportscenepopup.h
     filebrowser.h
     filebrowsermodel.h
     filebrowserpopup.h
-    filedata.h
     fileinfopopup.h
-    fileselection.h
     filmstrip.h
-    filmstripcommand.h
-    filmstripselection.h
     flipbook.h
-    floatingpanelcommand.h
     formatsettingspopups.h
     frameheadgadget.h
     fxparameditorpopup.h
     histogrampopup.h
-    history.h
+    historypane.h
     imageviewer.h
     insertfxpopup.h
-    iocommand.h
-    keyframedata.h
-    keyframeselection.h
-    keyframemover.h
     layerfooterpanel.h
     layerheaderpanel.h
     levelcreatepopup.h
     levelsettingspopup.h
     linesfadepopup.h
-    linetestcapturepane.h
-    linetestpane.h
-    linetestviewer.h
     lipsyncpopup.h
     loadfolderpopup.h
+    locatorpopup.h
     magpiefileimportpopup.h
     mainwindow.h
     matchline.h
     menubar.h
     menubarpopup.h
-    menubarcommandids.h
     meshifypopup.h
     messagepanel.h
-    moviegenerator.h
-	../include/orientation.h
     onionskinmaskgui.h
     outputsettingspopup.h
     overwritepopup.h
     pane.h
+    penciltestpopup.h
     pltgizmopopup.h
     preferencespopup.h
     previewer.h
     previewfxmanager.h
     projectpopup.h
     psdsettingspopup.h
+    reframepopup.h
     renumberpopup.h
     reslist.h
     ruler.h
-	../include/saveloadqsettings.h
     savepresetpopup.h
-    scanlist.h
     scanpopup.h
     scenesettingspopup.h
     sceneviewer.h
     sceneviewercontextmenu.h
-    sceneviewerevents.h
     scriptconsolepanel.h
-    selectionutils.h
+    separatecolorspopup.h
+    separatecolorsswatch.h
     shortcutpopup.h
     soundtrackexport.h
     startuppopup.h
-    subcameramanager.h
-    subscenecommand.h
+    styleshortcutswitchablepanel.h
     svncleanupdialog.h
     svncommitdialog.h
     svndeletedialog.h
     svnlockdialog.h
     svnlockframerangedialog.h
+    svnpurgedialog.h
     svnrevertdialog.h
     svnupdateandlockdialog.h
     svnupdatedialog.h
-    svnpurgedialog.h
     tapp.h
-    kis_tablet_support_win8.h
     tasksviewer.h
     testpanel.h
-    tfarmstuff.h
     timestretchpopup.h
     toolbar.h
     tpanels.h
@@ -133,43 +111,67 @@ set(MOC_HEADERS
     vectorizerpopup.h
     vectorizerswatch.h
     versioncontrol.h
-    versioncontrolgui.h
     versioncontroltimeline.h
-    versioncontrolxmlreader.h
     versioncontrolwidget.h
-    viewerdraw.h
     viewerpane.h
-    viewerpopup.h
-    xshcellmover.h
     xshcellviewer.h
     xshcolumnviewer.h
-    xsheetdragtool.h
     xsheetviewer.h
     xshnoteviewer.h
     xshrowviewer.h
     xshtoolbar.h
-    comboviewerpane.h
-    historypane.h
-    cleanupsettingspane.h
-    penciltestpopup.h
-    locatorpopup.h
-    styleshortcutswitchablepanel.h
-	cameracapturelevelcontrol.h
-	reframepopup.h
-	autoinputcellnumberpopup.h
-	colormodelbehaviorpopup.h
-	boardsettingspopup.h
-	separatecolorsswatch.h
-	separatecolorspopup.h
-# Tracker file
-    dummyprocessor.h
-    metnum.h
-    ObjectTracker.h
-    predict3d.h
-    processor.h
 )
 
-set(HEADERS ${MOC_HEADERS})
+set(HEADERS
+    ${MOC_HEADERS}
+    celldata.h
+    cellkeyframedata.h
+    cellkeyframeselection.h
+    cellselection.h
+    columncommand.h
+    columnselection.h
+    curveio.h
+    drawingdata.h
+    exportlevelcommand.h
+    filedata.h
+    fileselection.h
+    filmstripcommand.h
+    filmstripselection.h
+    floatingpanelcommand.h
+    history.h
+    iocommand.h
+    keyframedata.h
+    keyframemover.h
+    keyframeselection.h
+    kis_tablet_support_win8.h
+    linetestcapturepane.h
+    linetestpane.h
+    linetestviewer.h
+    menubarcommandids.h
+    moviegenerator.h
+    scanlist.h
+    sceneviewerevents.h
+    selectionutils.h
+    subcameramanager.h
+    subscenecommand.h
+    tfarmstuff.h
+    versioncontrolgui.h
+    versioncontrolxmlreader.h
+    viewerdraw.h
+    viewerpopup.h
+    xshcellmover.h
+    xsheetdragtool.h
+    castselection.h
+    ../include/cellposition.h
+    ../include/orientation.h
+    ../include/saveloadqsettings.h
+# Tracker file
+    ObjectTracker.h
+    dummyprocessor.h
+    metnum.h
+    processor.h
+    predict3d.h
+)
 
 set(SOURCES
     floatingpanelcommand.cpp
@@ -480,29 +482,29 @@ if(BUILD_ENV_APPLE)
     message(" ==> App Bundle: " ${loc})
     message(" ==> Mach-o: " ${bin})
     foreach(lib ${EXTRA_LIBS})
-        message(" copy:" ${lib} "==>" ${CMAKE_CURRENT_BINARY_DIR}/OpenToonz.app/Contents/MacOS/)
-        add_custom_command(TARGET OpenToonz POST_BUILD COMMAND cp ${lib} ${CMAKE_CURRENT_BINARY_DIR}/OpenToonz.app/Contents/MacOS/)
+        message(" copy:" ${lib} "==>" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+        add_custom_command(TARGET OpenToonz POST_BUILD COMMAND cp ${lib} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
-
-    add_custom_command(TARGET OpenToonz
-        POST_BUILD COMMAND
-        ${CMAKE_INSTALL_NAME_TOOL} -add_rpath @executable_path/. ${bin}
-    )
-    add_custom_command(TARGET OpenToonz
-        POST_BUILD COMMAND
-        ${CMAKE_INSTALL_NAME_TOOL} -add_rpath ${CMAKE_INSTALL_RPATH} ${bin}
-    )
-    add_custom_command(TARGET OpenToonz POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/OpenToonz.app/Contents/Resources)
-
-    add_custom_command(TARGET OpenToonz POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/OpenToonz.app/Contents/Resources)
-    add_custom_command(TARGET OpenToonz POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/qss)
-    add_custom_command(TARGET OpenToonz POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../install/SystemVar.ini ${CMAKE_CURRENT_BINARY_DIR}/OpenToonz.app/Contents/Resources)
 
     add_custom_command(TARGET OpenToonz POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:tcomposer> ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} DEPENDS tcomposer)
     add_custom_command(TARGET OpenToonz POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:tcleanup> ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} DEPENDS tcleanup)
     add_custom_command(TARGET OpenToonz POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:tconverter> ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} DEPENDS tconverter)
     add_custom_command(TARGET OpenToonz POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:tfarmcontroller> ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} DEPENDS tfarmcontroller)
     add_custom_command(TARGET OpenToonz POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:tfarmserver> ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} DEPENDS tfarmserver)
+
+    add_custom_command(TARGET OpenToonz POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/../Resources)
+    add_custom_command(TARGET OpenToonz POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../install/SystemVar.ini ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/../Resources)
+
+    add_custom_command(TARGET OpenToonz POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/../../../qss)
+
+    add_custom_command(TARGET OpenToonz
+        POST_BUILD COMMAND
+        ${CMAKE_INSTALL_NAME_TOOL} -add_rpath @executable_path/. ${bin} || true
+    )
+    add_custom_command(TARGET OpenToonz
+        POST_BUILD COMMAND
+        ${CMAKE_INSTALL_NAME_TOOL} -add_rpath ${CMAKE_INSTALL_RPATH} ${bin} || true
+    )
 
 elseif(BUILD_ENV_UNIXLIKE AND BUILD_TARGET_WIN)
     # Setup files on Windows platform while cross compilation.
