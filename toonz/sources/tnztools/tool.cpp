@@ -874,6 +874,14 @@ QString TTool::updateEnabled(int rowIndex, int columnIndex) {
         m_application->getCurrentObject()->getObjectId().getIndex());
   }
 
+  // Check against splines
+  if (spline && (toolType & TTool::LevelTool)) {
+    return (targetType & Splines)
+               ? (enable(true), QString())
+               : (enable(false), QObject::tr("The current tool cannot be "
+                                             "used to edit a motion path."));
+  }
+
   // Check against unplaced columns (not in filmstrip mode)
   if (column && !filmstrip) {
     if (column->isLocked())
@@ -919,14 +927,6 @@ QString TTool::updateEnabled(int rowIndex, int columnIndex) {
 
   // Check LevelRead & LevelWrite tools
   if (toolType & TTool::LevelTool) {
-    // Check against splines
-    if (spline) {
-      return (targetType & Splines)
-                 ? (enable(true), QString())
-                 : (enable(false), QObject::tr("The current tool cannot be "
-                                               "used to edit a motion path."));
-    }
-
     // Check against empty levels
     if (!xl)
       return (targetType & EmptyTarget) ? (enable(true), QString())
