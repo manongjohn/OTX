@@ -101,7 +101,7 @@ qt5_wrap_ui(SOURCES src/color_dialog.ui src/color_palette_widget.ui)
 qt5_add_resources(SOURCES src/color_widgets.qrc)
 
 # Library
-add_library(${COLOR_WIDGETS_LIBRARY} ${SOURCES})
+add_library(${COLOR_WIDGETS_LIBRARY} SHARED ${SOURCES})
 target_link_libraries(${COLOR_WIDGETS_LIBRARY} Qt5::Widgets)
 
 add_definitions(-DQTCOLORWIDGETS_LIBRARY)

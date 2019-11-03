@@ -581,8 +581,8 @@ add_subdirectory(tnztools)
 
 add_subdirectory(${SDKROOT}/lzo/driver lzodriver)
 
-add_subdirectory(Qt-Color-Widgets)
-include_directories(Qt-Color-Widgets/include)
+add_subdirectory(../../thirdparty/Qt-Color-Widgets qtcolorwidgets)
+include_directories(../../thirdparty/Qt-Color-Widgets/include)
 
 add_subdirectory(toonz)
 add_subdirectory(tcleanupper)
