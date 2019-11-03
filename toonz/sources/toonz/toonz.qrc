@@ -472,19 +472,19 @@
       <file>Resources/shift_and_trace_reset.svg</file>
       <file>Resources/up.svg</file>
       <file>Resources/down.svg</file>
+      <file>Resources/zoomin.svg</file>
+      <file>Resources/zoomin_over.svg</file>
+      <file>Resources/zoomout.svg</file>
+      <file>Resources/zoomout_over.svg</file>
+      <file>Resources/fliphoriz_on.svg</file>
+      <file>Resources/fliphoriz_off.svg</file>
+      <file>Resources/fliphoriz_over.svg</file>
+      <file>Resources/flipvert_on.svg</file>
+      <file>Resources/flipvert_off.svg</file>
+      <file>Resources/flipvert_over.svg</file>
+      <file>Resources/reset.svg</file>
+      <file>Resources/reset_over.svg</file>
       <file>Resources/splash_OTX.svg</file>
       <file>Resources/startup_OTX.png</file>
-      <file>Resources/pane_zoomin.svg</file>
-      <file>Resources/pane_zoomin_over.svg</file>
-      <file>Resources/pane_zoomout.svg</file>
-      <file>Resources/pane_zoomout_over.svg</file>
-      <file>Resources/pane_fliph_off.svg</file>
-      <file>Resources/pane_fliph_on.svg</file>
-      <file>Resources/pane_fliph_over.svg</file>
-      <file>Resources/pane_flipv_off.svg</file>
-      <file>Resources/pane_flipv_on.svg</file>
-      <file>Resources/pane_flipv_over.svg</file>
-      <file>Resources/pane_reset.svg</file>
-      <file>Resources/pane_reset_over.svg</file>
     </qresource>
 </RCC>

@@ -91,6 +91,8 @@ public slots:
   void updateFrameRange();
   void updateFrameMarkers();
   void onButtonPressed(FlipConsole::EGadget button);
+  void setFlipHButtonChecked(bool checked);
+  void setFlipVButtonChecked(bool checked);
 
 protected slots:
 
