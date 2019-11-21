@@ -20,6 +20,10 @@
 // Platform-specific includes
 #if defined(_WIN32)
 
+#include "./mov/tiio_mov.h"
+#include "./3gp/tiio_3gp.h"
+#include "./zcc/tiio_zcc.h"
+
 #ifndef x64
 
 #define list QuickTime_list
@@ -44,10 +48,6 @@
 #undef uint_fast16_t
 
 #endif
-
-#include "./mov/tiio_mov.h"
-#include "./3gp/tiio_3gp.h"
-#include "./zcc/tiio_zcc.h"
 
 #elif defined(MACOSX)
 #include "./mov/tiio_movM.h"
