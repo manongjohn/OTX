@@ -1594,6 +1594,14 @@ void SceneViewer::dropEvent(QDropEvent *e) {
     }
 
     IoCmd::loadResources(args);
+
+	if (acceptResourceOrFolderDrop(mimeData->urls())) {
+		// Force Copy Action
+		e->setDropAction(Qt::CopyAction);
+		// For files, don't accept original proposed action in case it's a move
+		e->accept();
+		return;
+	}
   }
   e->acceptProposedAction();
 }
