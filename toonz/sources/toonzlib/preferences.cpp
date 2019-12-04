@@ -273,8 +273,7 @@ Preferences::Preferences()
     , m_generatedMovieViewEnabled(true)
     , m_xsheetAutopanEnabled(true)
     , m_ignoreAlphaonColumn1Enabled(false)
-    , m_rewindAfterPlaybackEnabled(false)
-    , m_shortPlayFrameCount(12)
+    , m_rewindAfterPlaybackEnabled(true)
     , m_fitToFlipbookEnabled(false)
     , m_previewAlwaysOpenNewFlipEnabled(false)
     , m_autosaveEnabled(false)
@@ -390,7 +389,6 @@ void Preferences::load() {
   getValue(*m_settings, "ignoreAlphaonColumn1Enabled",
            m_ignoreAlphaonColumn1Enabled);
   getValue(*m_settings, "rewindAfterPlayback", m_rewindAfterPlaybackEnabled);
-  getValue(*m_settings, "shortPlayFrameCount", m_shortPlayFrameCount);
   getValue(*m_settings, "previewAlwaysOpenNewFlip",
            m_previewAlwaysOpenNewFlipEnabled);
   getValue(*m_settings, "fitToFlipbook", m_fitToFlipbookEnabled);
@@ -802,13 +800,6 @@ void Preferences::enableShowKeyframesOnXsheetCellArea(bool on) {
 void Preferences::enableRewindAfterPlayback(bool on) {
   m_rewindAfterPlaybackEnabled = on;
   m_settings->setValue("rewindAfterPlayback", on ? "1" : "0");
-}
-
-//-----------------------------------------------------------------
-
-void Preferences::setShortPlayFrameCount(int frames) {
-  m_shortPlayFrameCount = frames;
-  m_settings->setValue("shortPlayFrameCount", QString::number(frames));
 }
 
 //-----------------------------------------------------------------
