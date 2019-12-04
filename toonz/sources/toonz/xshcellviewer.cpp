@@ -3115,17 +3115,17 @@ void CellArea::contextMenuEvent(QContextMenuEvent *event) {
 //-----------------------------------------------------------------------------
 
 void CellArea::dragEnterEvent(QDragEnterEvent *e) {
-  bool isResourceOrFolderDrop = 
-	  acceptResourceOrFolderDrop(e->mimeData()->urls());
+  bool isResourceOrFolderDrop =
+      acceptResourceOrFolderDrop(e->mimeData()->urls());
   if (isResourceOrFolderDrop ||
       e->mimeData()->hasFormat(CastItems::getMimeFormat()) ||
       e->mimeData()->hasFormat("application/vnd.toonz.drawings")) {
     setDragTool(XsheetGUI::DragTool::makeDragAndDropDataTool(m_viewer));
-	// For file dragging force CopyAction
-	if (isResourceOrFolderDrop) e->setDropAction(Qt::CopyAction);
+    // For file dragging force CopyAction
+    if (isResourceOrFolderDrop) e->setDropAction(Qt::CopyAction);
     m_viewer->dragToolClick(e);
-	// For files, don't accept original proposed action in case it's a move
-	isResourceOrFolderDrop ? e->accept() : e->acceptProposedAction();
+    // For files, don't accept original proposed action in case it's a move
+    isResourceOrFolderDrop ? e->accept() : e->acceptProposedAction();
   }
 }
 
@@ -3141,7 +3141,7 @@ void CellArea::dragLeaveEvent(QDragLeaveEvent *e) {
 void CellArea::dragMoveEvent(QDragMoveEvent *e) {
   if (!getDragTool()) return;
   bool isResourceOrFolderDrop =
-	  acceptResourceOrFolderDrop(e->mimeData()->urls());
+      acceptResourceOrFolderDrop(e->mimeData()->urls());
   // For file dragging force CopyAction
   if (isResourceOrFolderDrop) e->setDropAction(Qt::CopyAction);
   m_viewer->dragToolDrag(e);
@@ -3158,12 +3158,12 @@ void CellArea::dropEvent(QDropEvent *e) {
     e->setDropAction(Qt::MoveAction);
     e->accept();
   } else if (acceptResourceOrFolderDrop(e->mimeData()->urls())) {
-	// For file dragging force CopyAction
-	e->setDropAction(Qt::CopyAction);
-	// For files, don't accept original proposed action in case it's a move
-	  e->accept();
+    // For file dragging force CopyAction
+    e->setDropAction(Qt::CopyAction);
+    // For files, don't accept original proposed action in case it's a move
+    e->accept();
   } else
-	e->acceptProposedAction();
+    e->acceptProposedAction();
 }
 
 //-----------------------------------------------------------------------------
@@ -3199,9 +3199,8 @@ void CellArea::createCellMenu(QMenu &menu, bool isCellSelected, TXshCell cell) {
   CommandManager *cmdManager = CommandManager::instance();
 
   bool soundCellsSelected     = m_viewer->areSoundCellsSelected();
-  bool cameraCellsSelected    = m_viewer->areCameraCellsSelected();
   bool soundTextCellsSelected = m_viewer->areSoundTextCellsSelected();
-  if (m_viewer->areSoundTextCellsSelected()) return;  // Magpies stop here
+  bool cameraCellsSelected    = m_viewer->areCameraCellsSelected();
 
   menu.addSeparator();
 
@@ -3343,8 +3342,10 @@ void CellArea::createCellMenu(QMenu &menu, bool isCellSelected, TXshCell cell) {
 
     menu.addAction(cmdManager->getAction(MI_Clear));
     menu.addAction(cmdManager->getAction(MI_Insert));
-    menu.addAction(cmdManager->getAction(MI_CreateBlankDrawing));
-    menu.addAction(cmdManager->getAction(MI_Duplicate));
+    if (!soundTextCellsSelected) {
+      menu.addAction(cmdManager->getAction(MI_CreateBlankDrawing));
+      menu.addAction(cmdManager->getAction(MI_Duplicate));
+    }
     menu.addSeparator();
 
     TXshSimpleLevel *sl = TApp::instance()->getCurrentLevel()->getSimpleLevel();
@@ -3394,6 +3395,7 @@ void CellArea::createCellMenu(QMenu &menu, bool isCellSelected, TXshCell cell) {
   if (!soundCellsSelected)
     menu.addAction(cmdManager->getAction(MI_ImportMagpieFile));
 }
+
 //-----------------------------------------------------------------------------
 /*! replace level with another level in the cast
  */
