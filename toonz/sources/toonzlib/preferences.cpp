@@ -234,6 +234,7 @@ void Preferences::load() {
   // initialize environment based on loaded preferences
   setUnits();
   setCameraUnits();
+  setUndoMemorySize();
 
   // Load level formats
   getDefaultLevelFormats(m_levelFormats);
