@@ -136,7 +136,6 @@ FullColorBrushTool::FullColorBrushTool(std::string name)
     , m_started(false) {
   bind(TTool::RasterImage | TTool::EmptyTarget);
   m_thickness.setNonLinearSlider();
-
   m_preset.setId("BrushPreset");
   m_modifierEraser.setId("RasterEraser");
   m_modifierLockAlpha.setId("LockAlpha");
@@ -895,6 +894,9 @@ FullColorBrushToolNotifier::FullColorBrushToolNotifier(FullColorBrushTool *tool)
                     SLOT(onColorStyleChanged()));
       assert(ret);
       ret = connect(paletteHandle, SIGNAL(colorStyleSwitched()), this,
+                    SLOT(onColorStyleChanged()));
+      assert(ret);
+      ret = connect(paletteHandle, SIGNAL(paletteSwitched()), this,
                     SLOT(onColorStyleChanged()));
       assert(ret);
     }

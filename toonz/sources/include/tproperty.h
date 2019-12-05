@@ -453,8 +453,8 @@ public:
   //! returns 0 if the property doesn't exist
   TProperty *getProperty(const TStringId &name);
   TProperty *getProperty(const std::string &name) {
-	  return getProperty(TStringId::find(name));
-  }  
+    return getProperty(TStringId::find(name));
+  }
   TProperty *getProperty(int i) {
     return (i >= (int)m_properties.size()) ? 0 : m_properties[i].first;
   }

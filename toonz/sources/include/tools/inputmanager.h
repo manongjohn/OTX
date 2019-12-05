@@ -228,6 +228,10 @@ private:
                      const TPointD &screenPosition, double time, bool final);
   void touchTrack(const TTrackP &track, bool finish = false);
   void touchTracks(bool finish = false);
+  
+  void tryTouchTrack(TInputState::DeviceId deviceId,
+                     TInputState::TouchId touchId,
+                     TPointD last_position);
 
   void modifierActivate(const TInputModifierP &modifier);
   void modifierDeactivate(const TInputModifierP &modifier);
@@ -290,11 +294,12 @@ public:
                 QKeyEvent *event);
   void buttonEvent(bool press, TInputState::DeviceId deviceId,
                    TInputState::Button button, TTimerTicks ticks);
+  void releaseAllEvent(TTimerTicks ticks);
   void hoverEvent(const THoverList &hovers);
   void doubleClickEvent();
   void textEvent(const std::wstring &preedit, const std::wstring &commit,
                  int replacementStart, int replacementLen);
-  void enverEvent();
+  void enterEvent();
   void leaveEvent();
 
   TRectD calcDrawBounds();
