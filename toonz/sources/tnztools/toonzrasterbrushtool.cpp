@@ -53,6 +53,7 @@ TEnv::DoubleVar BrushSmooth("InknpaintBrushSmooth", 0);
 TEnv::IntVar BrushDrawOrder("InknpaintBrushDrawOrder", 0);
 TEnv::IntVar RasterBrushPencilMode("InknpaintRasterBrushPencilMode", 0);
 TEnv::IntVar BrushPressureSensitivity("InknpaintBrushPressureSensitivity", 1);
+TEnv::IntVar BrushAssistants("InknpaintBrushAssistants", 0);
 TEnv::DoubleVar RasterBrushHardness("RasterBrushHardness", 100);
 TEnv::DoubleVar RasterBrushModifierSize("RasterBrushModifierSize", 0);
 TEnv::StringVar RasterBrushPreset("RasterBrushPreset", "<custom>");
@@ -829,16 +830,21 @@ ToonzRasterBrushTool::ToonzRasterBrushTool(std::string name, int targetType)
     , m_drawOrder("Draw Order:")
     , m_pencil("Pencil", false)
     , m_pressure("Pressure", true)
+    , m_assistants("Assistants", false)
     , m_modifierSize("ModifierSize", -3, 3, 0, true)
-    , m_rasterTrack(0)
-    , m_styleId(0)
-    , m_bluredBrush(0)
+    , m_rasterTrack()
+    , m_tileSet()
+    , m_tileSaver()
+    , m_styleId()
+    , m_minThick()
+    , m_maxThick()
+    , m_targetType(targetType)
+    , m_bluredBrush()
     , m_active(false)
     , m_enabled(false)
     , m_isPrompting(false)
     , m_firstTime(true)
     , m_presetsLoaded(false)
-    , m_targetType(targetType)
     , m_workingFrameId(TFrameId())
     , m_notifier(0) {
   bind(targetType);
@@ -859,6 +865,7 @@ ToonzRasterBrushTool::ToonzRasterBrushTool(std::string name, int targetType)
   m_drawOrder.setId("DrawOrder");
 
   m_prop[0].bind(m_pressure);
+  m_prop[0].bind(m_assistants);
 
   m_prop[0].bind(m_preset);
   m_preset.setId("BrushPreset");
@@ -1056,8 +1063,14 @@ void ToonzRasterBrushTool::updateTranslation() {
   m_preset.setQStringName(tr("Preset:"));
   m_preset.setItemUIName(CUSTOM_WSTR, tr("<custom>"));
   m_pencil.setQStringName(tr("Pencil"));
+  m_assistants.setQStringName(tr("Assistants"));
   m_pressure.setQStringName(tr("Pressure"));
 }
+
+//---------------------------------------------------------------------------------------------------
+
+bool ToonzRasterBrushTool::isAssistantsEnabled() const
+  { return m_assistants.getValue(); }
 
 //---------------------------------------------------------------------------------------------------
 
@@ -1291,7 +1304,7 @@ void ToonzRasterBrushTool::leftButtonDown(const TPointD &pos,
       m_strokeRect.empty();
       m_strokeSegmentRect.empty();
       m_toonz_brush->beginStroke();
-      m_toonz_brush->strokeTo(point, pressure, restartBrushTimer());
+      m_toonz_brush->strokeTo(point, pressure, TPointD(), restartBrushTimer());
       TRect updateRect = m_strokeSegmentRect * ras->getBounds();
       if (!updateRect.isEmpty()) {
         // ras->extract(updateRect)->copy(m_workRas->extract(updateRect));
@@ -1393,7 +1406,7 @@ void ToonzRasterBrushTool::leftButtonDrag(const TPointD &pos,
         m_pressure.getValue() && e.isTablet() ? e.m_pressure : 0.5;
 
     m_strokeSegmentRect.empty();
-    m_toonz_brush->strokeTo(point, pressure, restartBrushTimer());
+    m_toonz_brush->strokeTo(point, pressure, TPointD(), restartBrushTimer());
     TRect updateRect = m_strokeSegmentRect * ras->getBounds();
     if (!updateRect.isEmpty()) {
       // ras->extract(updateRect)->copy(m_workRaster->extract(updateRect));
@@ -1544,7 +1557,7 @@ void ToonzRasterBrushTool::finishRasterBrush(const TPointD &pos,
     double pressure = m_pressure.getValue() ? pressureVal : 0.5;
 
     m_strokeSegmentRect.empty();
-    m_toonz_brush->strokeTo(point, pressure, restartBrushTimer());
+    m_toonz_brush->strokeTo(point, pressure, TPointD(), restartBrushTimer());
     m_toonz_brush->endStroke();
     TRect updateRect = m_strokeSegmentRect * ras->getBounds();
     if (!updateRect.isEmpty()) {
@@ -1971,10 +1984,13 @@ bool ToonzRasterBrushTool::onPropertyChanged(std::string propertyName) {
     RasterBrushPencilMode = m_pencil.getValue();
   } else if (propertyName == m_pressure.getName()) {
     BrushPressureSensitivity = m_pressure.getValue();
-  } else if (propertyName == m_hardness.getName())
+  } else if (propertyName == m_assistants.getName()) {
+    BrushAssistants = m_assistants.getValue();
+  } else if (propertyName == m_hardness.getName()) {
     setWorkAndBackupImages();
-  else if (propertyName == m_modifierSize.getName())
+  } else if (propertyName == m_modifierSize.getName()) {
     RasterBrushModifierSize = m_modifierSize.getValue();
+  }
 
   if (propertyName == m_hardness.getName() ||
       propertyName == m_rasThickness.getName()) {
@@ -2037,8 +2053,8 @@ void ToonzRasterBrushTool::loadPreset() {
     m_drawOrder.setIndex(preset.m_drawOrder);
     m_pencil.setValue(preset.m_pencil);
     m_pressure.setValue(preset.m_pressure);
+    m_assistants.setValue(preset.m_assistants);
     m_modifierSize.setValue(preset.m_modifierSize);
-
   } catch (...) {
   }
 }
@@ -2057,6 +2073,7 @@ void ToonzRasterBrushTool::addPreset(QString name) {
   preset.m_drawOrder    = m_drawOrder.getIndex();
   preset.m_pencil       = m_pencil.getValue();
   preset.m_pressure     = m_pressure.getValue();
+  preset.m_assistants  = m_assistants.getValue();
   preset.m_modifierSize = m_modifierSize.getValue();
 
   // Pass the preset to the manager
@@ -2093,6 +2110,7 @@ void ToonzRasterBrushTool::loadLastBrush() {
   m_hardness.setValue(RasterBrushHardness);
 
   m_pressure.setValue(BrushPressureSensitivity ? 1 : 0);
+  m_assistants.setValue(BrushAssistants ? 1 : 0);
   m_smooth.setValue(BrushSmooth);
   m_modifierSize.setValue(RasterBrushModifierSize);
 }
@@ -2196,7 +2214,8 @@ BrushData::BrushData()
     , m_modifierSize(0.0)
     , m_modifierOpacity(0.0)
     , m_modifierEraser(0.0)
-    , m_modifierLockAlpha(0.0) {}
+    , m_modifierLockAlpha(0.0)
+    , m_assistants(false) {}
 
 //----------------------------------------------------------------------------------------------------------
 
@@ -2214,7 +2233,8 @@ BrushData::BrushData(const std::wstring &name)
     , m_modifierSize(0.0)
     , m_modifierOpacity(0.0)
     , m_modifierEraser(0.0)
-    , m_modifierLockAlpha(0.0) {}
+    , m_modifierLockAlpha(0.0)
+    , m_assistants(false) {}
 
 //----------------------------------------------------------------------------------------------------------
 
@@ -2255,6 +2275,9 @@ void BrushData::saveData(TOStream &os) {
   os.openChild("Modifier_LockAlpha");
   os << (int)m_modifierLockAlpha;
   os.closeChild();
+  os.openChild("Assistants");
+  os << (int)m_assistants;
+  os.closeChild();
 }
 
 //----------------------------------------------------------------------------------------------------------
@@ -2290,6 +2313,8 @@ void BrushData::loadData(TIStream &is) {
       is >> val, m_modifierEraser = val, is.matchEndTag();
     else if (tagName == "Modifier_LockAlpha")
       is >> val, m_modifierLockAlpha = val, is.matchEndTag();
+    else if (tagName == "Assistants")
+      is >> val, m_assistants = val, is.matchEndTag();
     else
       is.skipCurrentTag();
   }

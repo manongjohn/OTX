@@ -57,6 +57,7 @@ void TFilmstripSelection::enableCommands() {
 
   bool doEnable =
       (type == PLI_XSHLEVEL || type == TZP_XSHLEVEL || type == MESH_XSHLEVEL ||
+       type == META_XSHLEVEL ||
        (type == OVL_XSHLEVEL && path.getType() != "psd" &&
         path.getType() != "gif" && path.getType() != "mp4" &&
         path.getType() != "webm"));

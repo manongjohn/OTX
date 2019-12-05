@@ -62,9 +62,15 @@ public:
 //-----------------------------------------------------------------------------
 
 class SceneViewer final : public GLWidgetForHighDpi,
-                          public TTool::Viewer,
+                          public TToolViewer,
                           public Previewer::Listener {
   Q_OBJECT
+
+  class Modifiers;
+
+  TInputManager *m_inputManager;
+  Modifiers *m_modifiers;
+  std::vector<TPointD> m_hovers;
 
   double m_pressure;
   QPointF m_lastMousePos;
@@ -127,8 +133,6 @@ class SceneViewer final : public GLWidgetForHighDpi,
   // and leves)
   std::array<TAffine, 2> m_viewAff;
   int m_viewMode;
-
-  TPointD m_dpiScale;
 
   int m_tableDLId;  // To compute table DisplayList only if necessary.
 
@@ -199,6 +203,9 @@ public:
   SceneViewer(ImageUtils::FullScreenWidget *parent);
   ~SceneViewer();
 
+  TInputManager* getInputManager() const override
+    { return m_inputManager; }
+
   double getPixelSize() const override { return m_pixelSize; }
 
   // Previewer::Listener
@@ -225,6 +232,8 @@ public:
   //! The view matrix is a matrix contained in \b m_viewAff
   TAffine getSceneMatrix() const;
 
+  TAffine4 get3dViewMatrix() const override;
+
   void setViewMatrix(const TAffine &aff, int viewMode);
 
   int getFPS() { return m_FPS; }
@@ -247,7 +256,7 @@ public:
 
   double projectToZ(const TPointD &delta) override;
 
-  TPointD getDpiScale() const override { return m_dpiScale; }
+  TPointD getDpiScale() const override;
   void zoomQt(bool forward, bool reset);
   TAffine getNormalZoomScale();
 
@@ -291,6 +300,9 @@ public:
 
   TPointD worldToPos(const TPointD &worldPos) const override;
 
+  TDimensionI getWindowSize() const override
+    { return TDimensionI(width(), height()); }
+
 protected:
   // Paint vars
   TAffine m_drawCameraAff;
@@ -314,8 +326,6 @@ protected:
   void drawToolGadgets();
 
 protected:
-  void mult3DMatrix();
-
   void initializeGL() override;
   void resizeGL(int width, int height) override;
 
@@ -323,6 +333,9 @@ protected:
 
   void showEvent(QShowEvent *) override;
   void hideEvent(QHideEvent *) override;
+
+  void rebuildModifiers();
+  void updateModifiers();
 
   void gestureEvent(QGestureEvent *e);
   void touchEvent(QTouchEvent *e, int type);
@@ -414,7 +427,7 @@ public slots:
   void onToolSwitched();
   void onSceneChanged();
   void onLevelChanged();
-  // when level is switched, update m_dpiScale in order to show white background
+  // when level is switched, update dpiScale in order to show white background
   // for Ink&Paint work properly
   void onLevelSwitched();
   void onFrameSwitched();
