@@ -454,6 +454,9 @@ bool LevelCreatePopup::apply() {
     return false;
   }
 
+  if (isReservedFileName_message(QString::fromStdWString(levelName)))
+    return false;
+
   if (from > to) {
     error(tr("Invalid frame range"));
     return false;

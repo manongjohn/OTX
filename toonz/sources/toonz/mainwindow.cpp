@@ -1164,7 +1164,7 @@ void MainWindow::onMenuCheckboxChanged() {
 #endif
   else if (cm->getAction(MI_RasterizePli) == action) {
     if (!QGLPixelBuffer::hasOpenGLPbuffers()) isChecked = 0;
-    RasterizePliToggleAction                            = isChecked;
+    RasterizePliToggleAction = isChecked;
   } else if (cm->getAction(MI_SafeArea) == action)
     SafeAreaToggleAction = isChecked;
   else if (cm->getAction(MI_ViewColorcard) == action)
@@ -1251,7 +1251,7 @@ void MainWindow::onUpdateCheckerDone(bool error) {
         Qt::Checked);
     int ret = dialog->exec();
     if (dialog->getChecked() == Qt::Unchecked)
-      Preferences::instance()->enableLatestVersionCheck(false);
+      Preferences::instance()->setValue(latestVersionCheckEnabled, false);
     dialog->deleteLater();
     if (ret == 1) {
       // Write the new last date to file
@@ -1766,8 +1766,6 @@ void MainWindow::defineActions() {
       createMenuXsheetAction(MI_NewOutputFx, tr("&New Output"), "Alt+O");
   newOutputAction->setIcon(createQIconOnOff("output", false));
 
-  createRightClickMenuAction(MI_FxParamEditor, tr("&Edit FX..."), "Ctrl+K");
-
   createMenuXsheetAction(MI_InsertSceneFrame, tr("Insert Frame"), "");
   createMenuXsheetAction(MI_RemoveSceneFrame, tr("Remove Frame"), "");
   createMenuXsheetAction(MI_InsertGlobalKeyframe, tr("Insert Multiple Keys"),
@@ -1805,6 +1803,8 @@ void MainWindow::defineActions() {
   QAction *timeStretchAction =
       createMenuCellsAction(MI_TimeStretch, tr("&Time Stretch..."), "");
   timeStretchAction->setIcon(QIcon(":Resources/timestretch.svg"));
+  createMenuCellsAction(MI_CreateBlankDrawing, tr("&Create Blank Drawing"),
+                        "Alt+D");
   createMenuCellsAction(MI_Duplicate, tr("&Duplicate Drawing  "), "D");
   createMenuCellsAction(MI_Autorenumber, tr("&Autorenumber"), "");
   createMenuCellsAction(MI_CloneLevel, tr("&Clone"), "");
@@ -1964,6 +1964,7 @@ void MainWindow::defineActions() {
   createMenuWindowsAction(MI_OpenColorModel, tr("&Color Model"), "");
   createMenuWindowsAction(MI_OpenStudioPalette, tr("&Studio Palette"), "");
   createMenuWindowsAction(MI_OpenSchematic, tr("&Schematic"), "");
+  createMenuWindowsAction(MI_FxParamEditor, tr("&FX Editor"), "Ctrl+K");
   createMenuWindowsAction(MI_OpenCleanupSettings, tr("&Cleanup Settings"), "");
 
   createMenuWindowsAction(MI_OpenFileBrowser2, tr("&Scene Cast"), "");
@@ -2340,27 +2341,27 @@ void MainWindow::togglePickStyleLines() {
 
 void MainWindow::onNewVectorLevelButtonPressed() {
   int defaultLevelType = Preferences::instance()->getDefLevelType();
-  Preferences::instance()->setDefLevelType(PLI_XSHLEVEL);
+  Preferences::instance()->setValue(DefLevelType, PLI_XSHLEVEL);
   CommandManager::instance()->execute("MI_NewLevel");
-  Preferences::instance()->setDefLevelType(defaultLevelType);
+  Preferences::instance()->setValue(DefLevelType, defaultLevelType);
 }
 
 //-----------------------------------------------------------------------------
 
 void MainWindow::onNewToonzRasterLevelButtonPressed() {
   int defaultLevelType = Preferences::instance()->getDefLevelType();
-  Preferences::instance()->setDefLevelType(TZP_XSHLEVEL);
+  Preferences::instance()->setValue(DefLevelType, TZP_XSHLEVEL);
   CommandManager::instance()->execute("MI_NewLevel");
-  Preferences::instance()->setDefLevelType(defaultLevelType);
+  Preferences::instance()->setValue(DefLevelType, defaultLevelType);
 }
 
 //-----------------------------------------------------------------------------
 
 void MainWindow::onNewRasterLevelButtonPressed() {
   int defaultLevelType = Preferences::instance()->getDefLevelType();
-  Preferences::instance()->setDefLevelType(OVL_XSHLEVEL);
+  Preferences::instance()->setValue(DefLevelType, OVL_XSHLEVEL);
   CommandManager::instance()->execute("MI_NewLevel");
-  Preferences::instance()->setDefLevelType(defaultLevelType);
+  Preferences::instance()->setValue(DefLevelType, defaultLevelType);
 }
 
 //-----------------------------------------------------------------------------
@@ -2379,7 +2380,7 @@ void MainWindow::clearCacheFolder() {
   // 1. $CACHE/[Current ProcessID]
   // 2. $CACHE/temp/[Current scene folder] if the current scene is untitled
 
-  TFilePath cacheRoot                = ToonzFolder::getCacheRootFolder();
+  TFilePath cacheRoot = ToonzFolder::getCacheRootFolder();
   if (cacheRoot.isEmpty()) cacheRoot = TEnv::getStuffDir() + "cache";
 
   TFilePathSet filesToBeRemoved;
@@ -2457,9 +2458,9 @@ void MainWindow::clearCacheFolder() {
 
 void MainWindow::onNewAssistantLevelButtonPressed() {
   int defaultLevelType = Preferences::instance()->getDefLevelType();
-  Preferences::instance()->setDefLevelType(META_XSHLEVEL);
+  Preferences::instance()->setValue(DefLevelType, META_XSHLEVEL);
   CommandManager::instance()->execute("MI_NewLevel");
-  Preferences::instance()->setDefLevelType(defaultLevelType);
+  Preferences::instance()->setValue(DefLevelType, defaultLevelType);
 }
 
 //-----------------------------------------------------------------------------
@@ -2502,9 +2503,9 @@ RecentFiles::~RecentFiles() {}
 void RecentFiles::addFilePath(QString path, FileType fileType,
                               QString projectName) {
   QList<QString> files =
-      (fileType == Scene) ? m_recentScenes : (fileType == Level)
-                                                 ? m_recentLevels
-                                                 : m_recentFlipbookImages;
+      (fileType == Scene)
+          ? m_recentScenes
+          : (fileType == Level) ? m_recentLevels : m_recentFlipbookImages;
   int i;
   for (i = 0; i < files.size(); i++)
     if (files.at(i) == path) {
@@ -2671,9 +2672,9 @@ void RecentFiles::saveRecentFiles() {
 
 QList<QString> RecentFiles::getFilesNameList(FileType fileType) {
   QList<QString> files =
-      (fileType == Scene) ? m_recentScenes : (fileType == Level)
-                                                 ? m_recentLevels
-                                                 : m_recentFlipbookImages;
+      (fileType == Scene)
+          ? m_recentScenes
+          : (fileType == Level) ? m_recentLevels : m_recentFlipbookImages;
   QList<QString> names;
   int i;
   for (i = 0; i < files.size(); i++) {
@@ -2700,9 +2701,9 @@ void RecentFiles::refreshRecentFilesMenu(FileType fileType) {
     menu->setEnabled(false);
   else {
     CommandId clearActionId =
-        (fileType == Scene) ? MI_ClearRecentScene : (fileType == Level)
-                                                        ? MI_ClearRecentLevel
-                                                        : MI_ClearRecentImage;
+        (fileType == Scene)
+            ? MI_ClearRecentScene
+            : (fileType == Level) ? MI_ClearRecentLevel : MI_ClearRecentImage;
     menu->setActions(names);
     menu->addSeparator();
     QAction *clearAction = CommandManager::instance()->getAction(clearActionId);

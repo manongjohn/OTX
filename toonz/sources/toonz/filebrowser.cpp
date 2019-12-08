@@ -1636,6 +1636,7 @@ void RenameAsToonzPopup::onOk() {
            "characters:(new line)  \\ / : * ? \"  |"));
     return;
   }
+  if (isReservedFileName_message(m_name->text())) return;
   accept();
 }
 

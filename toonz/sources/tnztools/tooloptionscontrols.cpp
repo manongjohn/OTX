@@ -135,7 +135,7 @@ void ToolOptionCheckbox::doClick(bool checked) {
   notifyTool();
 
   // for updating a cursor without any effect to the tool options
-  m_toolHandle->notifyToolCursorTypeChanged();
+  if(m_toolHandle) m_toolHandle->notifyToolCursorTypeChanged();
 }
 
 //=============================================================================
@@ -678,7 +678,7 @@ void ToolOptionCombo::doOnActivated(int index) {
     onActivated(index);
     setCurrentIndex(index);
     // for updating the cursor
-    m_toolHandle->notifyToolChanged();
+    if (m_toolHandle) m_toolHandle->notifyToolChanged();
     return;
   }
 
@@ -694,7 +694,7 @@ void ToolOptionCombo::doOnActivated(int index) {
   }
 
   // for updating a cursor without any effect to the tool options
-  m_toolHandle->notifyToolCursorTypeChanged();
+  if (m_toolHandle) m_toolHandle->notifyToolCursorTypeChanged();
 }
 
 //=============================================================================
@@ -1646,7 +1646,8 @@ void SelectionScaleField::onChange(TMeasuredValue *fld, bool addToUndo) {
 //-----------------------------------------------------------------------------
 
 void SelectionScaleField::updateStatus() {
-  if (!m_tool || (m_tool->isSelectionEmpty() && !m_tool->isLevelType())) {
+  if (!m_tool || !m_tool->isSelectionEditable() ||
+      (m_tool->isSelectionEmpty() && !m_tool->isLevelType())) {
     setValue(0);
     setDisabled(true);
     return;
@@ -1699,7 +1700,8 @@ void SelectionRotationField::onChange(TMeasuredValue *fld, bool addToUndo) {
 //-----------------------------------------------------------------------------
 
 void SelectionRotationField::updateStatus() {
-  if (!m_tool || (m_tool->isSelectionEmpty() && !m_tool->isLevelType())) {
+  if (!m_tool || !m_tool->isSelectionEditable() ||
+      (m_tool->isSelectionEmpty() && !m_tool->isLevelType())) {
     setValue(0);
     setDisabled(true);
     return;
@@ -1760,7 +1762,8 @@ void SelectionMoveField::onChange(TMeasuredValue *fld, bool addToUndo) {
 //-----------------------------------------------------------------------------
 
 void SelectionMoveField::updateStatus() {
-  if (!m_tool || (m_tool->isSelectionEmpty() && !m_tool->isLevelType())) {
+  if (!m_tool || !m_tool->isSelectionEditable() ||
+      (m_tool->isSelectionEmpty() && !m_tool->isLevelType())) {
     setValue(0);
     setDisabled(true);
     return;
@@ -1821,7 +1824,8 @@ void ThickChangeField::onChange(TMeasuredValue *fld, bool addToUndo) {
 //-----------------------------------------------------------------------------
 
 void ThickChangeField::updateStatus() {
-  if (!m_tool || m_tool->m_deformValues.m_isSelectionModified ||
+  if (!m_tool || !m_tool->isSelectionEditable() ||
+      m_tool->m_deformValues.m_isSelectionModified ||
       (m_tool->isSelectionEmpty() && !m_tool->isLevelType())) {
     setValue(0);
     setDisabled(true);
