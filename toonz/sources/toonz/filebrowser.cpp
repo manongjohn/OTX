@@ -240,6 +240,8 @@ FileBrowser::FileBrowser(QWidget *parent, Qt::WFlags flags, bool noContextMenu,
 
   ret = ret && connect(m_itemViewer, SIGNAL(clickedItem(int)), this,
                        SLOT(onClickedItem(int)));
+  ret = ret && connect(m_itemViewer, SIGNAL(doubleClickedItem(int)), this,
+                       SLOT(onDoubleClickedItem(int)));
   ret =
       ret && connect(m_itemViewer, SIGNAL(selectedItems(const std::set<int> &)),
                      this, SLOT(onSelectedItems(const std::set<int> &)));
@@ -297,7 +299,7 @@ FileBrowser::~FileBrowser() {}
 
 //-----------------------------------------------------------------------------
 /*! when the m_folderName is edited, move the current folder accordingly
-*/
+ */
 void FileBrowser::onFolderEdited() {
   TFilePath inputPath(m_folderName->text().toStdWString());
   QModelIndex index = DvDirModel::instance()->getIndexByPath(inputPath);
@@ -397,18 +399,18 @@ void FileBrowser::onFwdButtonPushed() {
 
 //-----------------------------------------------------------------------------
 /*! clear the history when the tree date is replaced
-*/
+ */
 void FileBrowser::clearHistory() {
   int size = m_indexHistoryList.size();
   // leave the last item
-  for (int i        = 1; i < size; i++) m_indexHistoryList.removeLast();
+  for (int i = 1; i < size; i++) m_indexHistoryList.removeLast();
   m_currentPosition = 0;
   refreshHistoryButtons();
 }
 
 //-----------------------------------------------------------------------------
 /*! update the current folder when changes detected from QFileSystemWatcher
-*/
+ */
 void FileBrowser::onFileSystemChanged(const QString &folderPath) {
   if (folderPath != m_folder.getQString()) return;
   // changes may create/delete of folder, so update the DvDirModel
@@ -809,7 +811,7 @@ void FileBrowser::setHistoryDay(std::string dayDateString) {
 //-----------------------------------------------------------------------------
 /*! for all items in the folder, retrieve the file names(m_name) from the
  * paths(m_path)
-*/
+ */
 void FileBrowser::refreshData() {
   std::vector<Item>::iterator it;
   for (it = m_items.begin(); it != m_items.end(); ++it) {
@@ -1145,7 +1147,7 @@ QMenu *FileBrowser::getContextMenu(QWidget *parent, int index) {
   for (i = 0; i < (int)files.size(); i++) {
     TFileType::Type type = TFileType::getInfo(files[i]);
     if (areResources && !TFileType::isResource(type)) areResources = false;
-    if (!areScenes && TFileType::isScene(type)) areScenes          = true;
+    if (!areScenes && TFileType::isScene(type)) areScenes = true;
   }
 
   bool areFullcolor = true;
@@ -1166,7 +1168,7 @@ QMenu *FileBrowser::getContextMenu(QWidget *parent, int index) {
     if (clickedFile != TFilePath() && clickedFile.getType() == "tnz")
       title = tr("Load As Sub-xsheet");
     else
-      title         = tr("Load");
+      title = tr("Load");
     QAction *action = new QAction(title, menu);
     ret             = ret &&
           connect(action, SIGNAL(triggered()), this, SLOT(loadResources()));
@@ -1691,7 +1693,7 @@ namespace {
 
 bool parsePathName(const QString &fullpath, QString &parentPath, QString &name,
                    QString &format) {
-  int index              = fullpath.lastIndexOf('\\');
+  int index = fullpath.lastIndexOf('\\');
   if (index == -1) index = fullpath.lastIndexOf('/');
 
   QString filename;
@@ -2057,13 +2059,16 @@ void FileBrowser::convertToPaintedTlv() {
 //-----------------------------------------------------------------------------
 
 void FileBrowser::onSelectedItems(const std::set<int> &indexes) {
-  if (indexes.empty()) return;
-
   std::set<TFilePath> filePaths;
   std::set<int>::const_iterator it;
 
   // pass the frameId list for reuse
   std::list<std::vector<TFrameId>> frameIDs;
+
+  if (indexes.empty()) {  // inform selection is released
+    emit filePathsSelected(filePaths, frameIDs);
+    return;
+  }
 
   for (it = indexes.begin(); it != indexes.end(); ++it) {
     filePaths.insert(m_items[*it].m_path);
@@ -2087,6 +2092,22 @@ void FileBrowser::onClickedItem(int index) {
       if (index.isValid()) m_folderTreeView->scrollTo(index);
     } else
       emit filePathClicked(fp);
+  }
+}
+
+//-----------------------------------------------------------------------------
+
+void FileBrowser::onDoubleClickedItem(int index) {
+  // TODO: Avoid duplicate code with onClickedItem().
+  if (0 <= index && index < (int)m_items.size()) {
+    // if the folder is clicked, then move the current folder
+    TFilePath fp = m_items[index].m_path;
+    if (m_items[index].m_isFolder) {
+      setFolder(fp, true);
+      QModelIndex index = m_folderTreeView->currentIndex();
+      if (index.isValid()) m_folderTreeView->scrollTo(index);
+    } else
+      emit filePathDoubleClicked(fp);
   }
 }
 

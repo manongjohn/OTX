@@ -3,6 +3,9 @@
 #ifndef TOOLVIEWER_INCLUDED
 #define TOOLVIEWER_INCLUDED
 
+// TnzTools includes
+#include "tools/cursors.h"
+
 // TnzLib includes
 #include "toonz/imagepainter.h"
 
@@ -43,6 +46,10 @@ class TToolViewer {
 protected:
   ImagePainter::VisualSettings
       m_visualSettings;  //!< Settings used by the Viewer to draw scene contents
+
+  int guidedStrokePickMode = 0;
+  int m_guidedFrontStroke  = -1;
+  int m_guidedBackStroke   = -1;
 
 public:
   TToolViewer() {}
@@ -139,6 +146,33 @@ public:
 
   virtual void bindFBO() {}
   virtual void releaseFBO() {}
+
+  int getGuidedStrokePickerMode() { return guidedStrokePickMode; }
+  void setGuidedStrokePickerMode(int mode) { guidedStrokePickMode = mode; }
+
+  int getGuidedStrokePickerCursor() {
+    if (guidedStrokePickMode < 0)
+      return ToolCursor::PickPrevCursor;
+    else if (guidedStrokePickMode > 0)
+      return ToolCursor::PickNextCursor;
+    else
+      return ToolCursor::PointingHandCursor;
+  }
+
+  int getGuidedFrontStroke() { return m_guidedFrontStroke; }
+  void setGuidedFrontStroke(int strokeIdx) {
+    m_guidedFrontStroke = strokeIdx;
+    invalidateAll();
+  }
+
+  int getGuidedBackStroke() { return m_guidedBackStroke; }
+  void setGuidedBackStroke(int strokeIdx) {
+    m_guidedBackStroke = strokeIdx;
+    invalidateAll();
+  }
+
+  void getGuidedFrameIdx(int *backIdx, int *frontIdx);
+  void doPickGuideStroke(const TPointD &pos);
 };
 
 #endif

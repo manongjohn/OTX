@@ -908,6 +908,7 @@ void TXshSimpleLevel::loadData(TIStream &is) {
         int doPremultiply                    = 0;
         int whiteTransp                      = 0;
         int antialiasSoftness                = 0;
+        int isStopMotionLevel                = 0;
         LevelProperties::DpiPolicy dpiPolicy = LevelProperties::DP_ImageDpi;
         if (is.getTagParam("dpix", v)) xdpi = std::stod(v);
         if (is.getTagParam("dpiy", v)) ydpi = std::stod(v);
@@ -919,6 +920,9 @@ void TXshSimpleLevel::loadData(TIStream &is) {
         if (is.getTagParam("premultiply", v)) doPremultiply   = std::stoi(v);
         if (is.getTagParam("antialias", v)) antialiasSoftness = std::stoi(v);
         if (is.getTagParam("whiteTransp", v)) whiteTransp     = std::stoi(v);
+        if (is.getTagParam("isStopMotionLevel", v))
+          isStopMotionLevel = std::stoi(v);
+
 
         m_properties->setDpiPolicy(dpiPolicy);
         m_properties->setDpi(TPointD(xdpi, ydpi));
@@ -926,6 +930,8 @@ void TXshSimpleLevel::loadData(TIStream &is) {
         m_properties->setDoPremultiply(doPremultiply);
         m_properties->setDoAntialias(antialiasSoftness);
         m_properties->setWhiteTransp(whiteTransp);
+        m_properties->setIsStopMotion(isStopMotionLevel);
+        if (isStopMotionLevel == 1) setIsReadOnly(true);
       } else
         throw TException("unexpected tag " + tagName);
     } else {
@@ -1369,6 +1375,9 @@ void TXshSimpleLevel::saveData(TOStream &os) {
     attr["premultiply"] = std::to_string(getProperties()->doPremultiply());
   } else if (getProperties()->whiteTransp()) {
     attr["whiteTransp"] = std::to_string(getProperties()->whiteTransp());
+  } else if (getProperties()->isStopMotionLevel()) {
+    attr["isStopMotionLevel"] =
+        std::to_string(getProperties()->isStopMotionLevel());
   }
 
   if (m_type == TZI_XSHLEVEL) attr["type"] = "s";
@@ -2325,6 +2334,7 @@ bool TXshSimpleLevel::isFrameReadOnly(TFrameId fid) {
   // the OS level
   if (getType() == OVL_XSHLEVEL || getType() == TZI_XSHLEVEL ||
       getType() == MESH_XSHLEVEL) {
+    if (getProperties()->isStopMotionLevel()) return true;
     TFilePath fullPath   = getScene()->decodeFilePath(m_path);
     std::string fileType = fullPath.getType();
     if (fileType == "psd" || fileType == "gif" || fileType == "mp4" ||
