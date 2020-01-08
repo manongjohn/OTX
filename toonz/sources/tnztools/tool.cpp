@@ -1032,6 +1032,8 @@ void TTool::setSelectedFrames(const std::set<TFrameId> &selectedFrames) {
 //-------------------------------------------------------------------------------------------------------------
 
 void TTool::Viewer::getGuidedFrameIdx(int *backIdx, int *frontIdx) {
+	if (!Preferences::instance()->isGuidedDrawingEnabled()) return;
+
   OnionSkinMask osMask =
       m_application->getCurrentOnionSkin()->getOnionSkinMask();
 
@@ -1048,7 +1050,7 @@ void TTool::Viewer::getGuidedFrameIdx(int *backIdx, int *frontIdx) {
   int fosCount = osMask.getFosCount();
 
   // Find onion-skinned drawing that is being used for guided auto inbetween
-  if (Preferences::instance()->getGuidedDrawing() == 1) {
+  if (Preferences::instance()->getGuidedDrawingType() == 1) {
     // Get closest moving unionskin
     for (int i = 0; i < mosCount; i++) {
       int cmos = osMask.getMos(i);
@@ -1075,7 +1077,7 @@ void TTool::Viewer::getGuidedFrameIdx(int *backIdx, int *frontIdx) {
       *frontIdx = fosFront;
     else if (fosFront != -1)
       *frontIdx = std::min(*frontIdx, fosFront);
-  } else if (Preferences::instance()->getGuidedDrawing() ==
+  } else if (Preferences::instance()->getGuidedDrawingType() ==
              2) {  // Furthest drawing
                    // Get moving unionskin
     for (int i = 0; i < mosCount; i++) {

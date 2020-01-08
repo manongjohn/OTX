@@ -172,6 +172,7 @@ enum PreferencesItemId {
   // Shortcut popup settings
   shortcutPreset,
   // Viewer context menu
+  guidedDrawingEnabled,
   guidedDrawingType,
   guidedAutoInbetween,
   guidedInterpolationType,

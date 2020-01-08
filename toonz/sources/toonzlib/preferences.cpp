@@ -574,7 +574,9 @@ void Preferences::definePreferenceItems() {
   // Shortcut popup settings
   define(shortcutPreset, "shortcutPreset", QMetaType::QString, "defopentoonz");
   // Viewer context menu
-  define(guidedDrawingType, "guidedDrawingType", QMetaType::Int, 0);  // Off
+  define(guidedDrawingEnabled, "guidedDrawingEnabled", QMetaType::Bool,
+         false);                                                      // Off
+  define(guidedDrawingType, "guidedDrawingType", QMetaType::Int, 1);  // Closest
   define(guidedAutoInbetween, "guidedAutoInbetween", QMetaType::Bool,
          false);  // Off
   define(guidedInterpolationType, "guidedInterpolationType", QMetaType::Int,

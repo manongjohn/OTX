@@ -31,15 +31,6 @@ public slots:
 
   void enterVectorImageGroup();
   void exitVectorImageGroup();
-  void setGuidedDrawingOff();
-  void setGuidedDrawingClosest();
-  void setGuidedDrawingFarthest();
-  void setGuidedDrawingAll();
-  void setGuidedAutoInbetween();
-  void setGuidedInterpolationLinear();
-  void setGuidedInterpolationEaseIn();
-  void setGuidedInterpolationEaseOut();
-  void setGuidedInterpolationEaseInOut();
 
   void onShowHide();
   void onSetCurrent();
