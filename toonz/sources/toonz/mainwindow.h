@@ -96,6 +96,9 @@ public:
   void onUpgradeTabPro();
   void onAbout();
   void onOpenOnlineManual();
+  void onOpenWhatsNew();
+  void onOpenCommunityForum();
+  void onOpenReportABug();
   void checkForUpdates();
   int getRoomCount() const;
   Room *getRoom(int index) const;

@@ -80,8 +80,12 @@ enum PreferencesItemId {
   DefLevelWidth,
   DefLevelHeight,
   DefLevelDpi,
-  AutocreationType,
+  // AutocreationType,// deprecated
+  EnableAutocreation,
+  NumberingSystem,
   EnableAutoStretch,
+  EnableCreationInHoldCells,
+  EnableAutoRenumber,
   vectorSnappingTarget,
   saveUnpaintedInCleanup,
   minimizeSaveboxAfterEditing,
@@ -132,6 +136,7 @@ enum PreferencesItemId {
   previewAlwaysOpenNewFlip,
   fitToFlipbook,
   generatedMovieViewEnabled,
+  shortPlayFrameCount,
 
   //----------
   // Onion Skin

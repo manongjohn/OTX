@@ -1765,7 +1765,7 @@ void TCellSelection::pasteCells() {
     }
     TKeyframeSelection selection;
     if (isEmpty() && TApp::instance()->getCurrentObject()->getObjectId() ==
-            TStageObjectId::CameraId(xsh->getCameraColumnIndex()))
+                         TStageObjectId::CameraId(xsh->getCameraColumnIndex()))
     // Se la selezione e' vuota e l'objectId e' quello della camera sono nella
     // colonna di camera quindi devo selezionare la row corrente e -1.
     {
@@ -1977,7 +1977,7 @@ void TCellSelection::pasteKeyframesInto() {
 
     TKeyframeSelection selection;
     if (isEmpty() && TApp::instance()->getCurrentObject()->getObjectId() ==
-            TStageObjectId::CameraId(xsh->getCameraColumnIndex()))
+                         TStageObjectId::CameraId(xsh->getCameraColumnIndex()))
     // Se la selezione e' vuota e l'objectId e' quello della camera sono nella
     // colonna di camera quindi devo selezionare la row corrente e -1.
     {
@@ -2056,7 +2056,12 @@ void TCellSelection::createBlankDrawing(int row, int col, bool multiple) {
   // If autocreate disabled, let's turn it on temporarily
   bool isAutoCreateEnabled = Preferences::instance()->isAutoCreateEnabled();
   if (!isAutoCreateEnabled)
-    Preferences::instance()->setValue(AutocreationType, 1, false);
+    Preferences::instance()->setValue(EnableAutocreation, true, false);
+  // Enable inserting in the hold cells temporarily too.
+  bool isCreationInHoldCellsEnabled =
+      Preferences::instance()->isCreationInHoldCellsEnabled();
+  if (!isCreationInHoldCellsEnabled)
+    Preferences::instance()->setValue(EnableCreationInHoldCells, true, false);
 
   TImage *img = toolHandle->getTool()->touchImage();
 
@@ -2065,7 +2070,10 @@ void TCellSelection::createBlankDrawing(int row, int col, bool multiple) {
 
   if (!img || !sl) {
     if (!isAutoCreateEnabled)
-      Preferences::instance()->setValue(AutocreationType, 0, false);
+      Preferences::instance()->setValue(EnableAutocreation, false, false);
+    if (!isCreationInHoldCellsEnabled)
+      Preferences::instance()->setValue(EnableCreationInHoldCells, false,
+                                        false);
     if (!multiple)
       DVGui::warning(QObject::tr(
           "Unable to create a blank drawing on the current column"));
@@ -2090,7 +2098,9 @@ void TCellSelection::createBlankDrawing(int row, int col, bool multiple) {
 
   // Reset back to what these were
   if (!isAutoCreateEnabled)
-    Preferences::instance()->setValue(AutocreationType, 0, false);
+    Preferences::instance()->setValue(EnableAutocreation, false, false);
+  if (!isCreationInHoldCellsEnabled)
+    Preferences::instance()->setValue(EnableCreationInHoldCells, false, false);
 }
 
 //-----------------------------------------------------------------------------
@@ -2190,12 +2200,20 @@ void TCellSelection::duplicateFrame(int row, int col, bool multiple) {
   // If autocreate disabled, let's turn it on temporarily
   bool isAutoCreateEnabled = Preferences::instance()->isAutoCreateEnabled();
   if (!isAutoCreateEnabled)
-    Preferences::instance()->setValue(AutocreationType, 1, false);
+    Preferences::instance()->setValue(EnableAutocreation, true, false);
+  // Enable inserting in the hold cells temporarily too.
+  bool isCreationInHoldCellsEnabled =
+      Preferences::instance()->isCreationInHoldCellsEnabled();
+  if (!isCreationInHoldCellsEnabled)
+    Preferences::instance()->setValue(EnableCreationInHoldCells, true, false);
 
   TImage *img = toolHandle->getTool()->touchImage();
   if (!img) {
     if (!isAutoCreateEnabled)
-      Preferences::instance()->setValue(AutocreationType, 0, false);
+      Preferences::instance()->setValue(EnableAutocreation, false, false);
+    if (!isCreationInHoldCellsEnabled)
+      Preferences::instance()->setValue(EnableCreationInHoldCells, false,
+                                        false);
     if (!multiple)
       DVGui::warning(
           QObject::tr("Unable to duplicate a drawing on the current column"));
@@ -2205,8 +2223,9 @@ void TCellSelection::duplicateFrame(int row, int col, bool multiple) {
   bool frameCreated = toolHandle->getTool()->m_isFrameCreated;
   if (!frameCreated) {
     if (!multiple)
-      DVGui::warning(QObject::tr(
-          "Unable to replace the current or next drawing with a duplicate drawing"));
+      DVGui::warning(
+          QObject::tr("Unable to replace the current or next drawing with a "
+                      "duplicate drawing"));
     return;
   }
 
@@ -2225,7 +2244,9 @@ void TCellSelection::duplicateFrame(int row, int col, bool multiple) {
   TUndoManager::manager()->add(undo);
 
   if (!isAutoCreateEnabled)
-    Preferences::instance()->setValue(AutocreationType, 0, false);
+    Preferences::instance()->setValue(EnableAutocreation, false, false);
+  if (!isCreationInHoldCellsEnabled)
+    Preferences::instance()->setValue(EnableCreationInHoldCells, false, false);
 }
 
 //-----------------------------------------------------------------------------

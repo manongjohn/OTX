@@ -689,8 +689,13 @@ ColorFieldEditorController::ColorFieldEditorController() {
 //-----------------------------------------------------------------------------
 
 void ColorFieldEditorController::edit(DVGui::ColorField *colorField) {
-  if (m_currentColorField && m_currentColorField->isEditing())
-    m_currentColorField->setIsEditing(false);
+  if (m_currentColorField) {
+    if (m_currentColorField->isEditing())
+      m_currentColorField->setIsEditing(false);
+    disconnect(m_currentColorField,
+               SIGNAL(colorChanged(const TPixel32 &, bool)), this,
+               SLOT(onColorChanged(const TPixel32 &, bool)));
+  }
 
   m_currentColorField = colorField;
   m_currentColorField->setIsEditing(true);
@@ -1091,6 +1096,7 @@ public:
     TFilePath currentProjectFolder =
         TProjectManager::instance()->getCurrentProjectPath().getParentDir();
     browser->setFolder(currentProjectFolder, true);
+    browser->enableDoubleClickToOpenScenes();
   }
 } browserFactory;
 

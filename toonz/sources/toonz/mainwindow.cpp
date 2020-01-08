@@ -452,6 +452,11 @@ centralWidget->setLayout(centralWidgetLayout);*/
 
   setCommandHandler(MI_About, this, &MainWindow::onAbout);
   setCommandHandler(MI_OpenOnlineManual, this, &MainWindow::onOpenOnlineManual);
+  setCommandHandler(MI_OpenWhatsNew, this, &MainWindow::onOpenWhatsNew);
+  setCommandHandler(MI_OpenCommunityForum, this,
+                    &MainWindow::onOpenCommunityForum);
+  setCommandHandler(MI_OpenReportABug, this, &MainWindow::onOpenReportABug);
+
   setCommandHandler(MI_MaximizePanel, this, &MainWindow::maximizePanel);
   setCommandHandler(MI_FullScreenWindow, this, &MainWindow::fullScreenWindow);
   setCommandHandler("MI_NewVectorLevel", this,
@@ -997,6 +1002,35 @@ void MainWindow::onOpenOnlineManual() {
   QDesktopServices::openUrl(QUrl(tr("http://opentoonz.readthedocs.io")));
 }
 
+//-----------------------------------------------------------------------------
+
+void MainWindow::onOpenWhatsNew() {
+  QDesktopServices::openUrl(
+      QUrl(tr("https://github.com/opentoonz/opentoonz/releases/latest")));
+}
+
+//-----------------------------------------------------------------------------
+
+void MainWindow::onOpenCommunityForum() {
+  QDesktopServices::openUrl(
+      QUrl(tr("https://groups.google.com/forum/#!forum/opentoonz_en")));
+}
+
+//-----------------------------------------------------------------------------
+
+void MainWindow::onOpenReportABug() {
+  QString str = QString(
+      tr("To report a bug, click on the button below to open a web browser "
+         "window for OpenToonz's Issues page on https://github.com.  Click on "
+         "the 'New issue' button and fill out the form."));
+
+  std::vector<QString> buttons = {QObject::tr("Report a Bug"),
+                                  QObject::tr("Close")};
+  int ret = DVGui::MsgBox(DVGui::INFORMATION, str, buttons, 1);
+  if (ret == 1)
+    QDesktopServices::openUrl(
+        QUrl("https://github.com/opentoonz/opentoonz/issues"));
+}
 //-----------------------------------------------------------------------------
 
 void MainWindow::autofillToggle() {
@@ -1604,6 +1638,8 @@ void MainWindow::defineActions() {
   preferencesAction->setIcon(QIcon(":Resources/preferences.svg"));
   createMenuFileAction(MI_ShortcutPopup, tr("&Configure Shortcuts..."), "");
   createMenuFileAction(MI_PrintXsheet, tr("&Print Xsheet"), "");
+  createMenuFileAction(MI_ExportXDTS,
+                       tr("Export Exchange Digital Time Sheet (XDTS)"), "");
   createMenuFileAction("MI_RunScript", tr("Run Script..."), "");
   createMenuFileAction("MI_OpenScriptConsole", tr("Open Script Console..."),
                        "");
@@ -1915,6 +1951,7 @@ void MainWindow::defineActions() {
                MenuPlayCommandType);
 
   createMenuPlayAction(MI_Play, tr("Play"), "P");
+  createMenuPlayAction(MI_ShortPlay, tr("Short Play"), "Alt+P");
   createMenuPlayAction(MI_Loop, tr("Loop"), "L");
   createMenuPlayAction(MI_Pause, tr("Pause"), "");
   createMenuPlayAction(MI_FirstFrame, tr("First Frame"), "Alt+,");
@@ -2003,7 +2040,11 @@ void MainWindow::defineActions() {
                           "Ctrl+`");
   createMenuHelpAction(MI_About, tr("&About OpenToonz..."), "");
   createMenuWindowsAction(MI_StartupPopup, tr("&Startup Popup..."), "Alt+S");
+
   createMenuHelpAction(MI_OpenOnlineManual, tr("&Online Manual..."), "F1");
+  createMenuHelpAction(MI_OpenWhatsNew, tr("&What's New..."), "");
+  createMenuHelpAction(MI_OpenCommunityForum, tr("&Community Forum..."), "");
+  createMenuHelpAction(MI_OpenReportABug, tr("&Report a Bug..."), "");
 
   createMenuWindowsAction(MI_OpenGuidedDrawingControls,
                           tr("Guided Drawing Controls"), "");
@@ -2323,7 +2364,7 @@ void MainWindow::defineActions() {
 
   createMiscAction("A_FxSchematicToggle", tr("Toggle FX/Stage schematic"), "");
 #ifdef WITH_STOPMOTION
-  createAction(MI_StopMotionCapture, tr("Capture Stop Motion Frame"), "Enter");
+  createAction(MI_StopMotionCapture, tr("Capture Stop Motion Frame"), "");
   createAction(MI_StopMotionRaiseOpacity, tr("Raise Stop Motion Opacity"), "");
   createAction(MI_StopMotionLowerOpacity, tr("Lower Stop Motion Opacity"), "");
   createAction(MI_StopMotionToggleLiveView, tr("Toggle Stop Motion Live View"),

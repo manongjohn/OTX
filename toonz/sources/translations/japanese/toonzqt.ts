@@ -695,6 +695,30 @@ Possibly the preset file has been corrupted</source>
         <source>&amp;Locator</source>
         <translation>ロケーター (&amp;L)</translation>
     </message>
+    <message>
+        <source>Viewer Controls</source>
+        <translation>表示コントロール</translation>
+    </message>
+    <message>
+        <source>&amp;Zoom In</source>
+        <translation>ズームイン (&amp;Z)</translation>
+    </message>
+    <message>
+        <source>&amp;Zoom Out</source>
+        <translation>ズームアウト (&amp;Z)</translation>
+    </message>
+    <message>
+        <source>&amp;Flip Horizontally</source>
+        <translation>水平方向に反転 (&amp;F)</translation>
+    </message>
+    <message>
+        <source>&amp;Flip Vertically</source>
+        <translation>垂直方向に反転 (&amp;F)</translation>
+    </message>
+    <message>
+        <source>&amp;Reset View</source>
+        <translation>表示をリセット (&amp;R)</translation>
+    </message>
 </context>
 <context>
     <name>FontParamField</name>
@@ -1005,19 +1029,19 @@ Possibly the preset file has been corrupted</source>
     </message>
     <message>
         <source>Step 1</source>
-        <translation>ステップ1</translation>
+        <translation type="vanished">ステップ1</translation>
     </message>
     <message>
         <source>Step 2</source>
-        <translation>ステップ2</translation>
+        <translation type="vanished">ステップ2</translation>
     </message>
     <message>
         <source>Step 3</source>
-        <translation>ステップ3</translation>
+        <translation type="vanished">ステップ3</translation>
     </message>
     <message>
         <source>Step 4</source>
-        <translation>ステップ4</translation>
+        <translation type="vanished">ステップ4</translation>
     </message>
     <message>
         <source>Activate Cycle</source>
@@ -1042,6 +1066,10 @@ Possibly the preset file has been corrupted</source>
     <message>
         <source>Change Step</source>
         <translation>ステップを変更</translation>
+    </message>
+    <message>
+        <source>Similar Shape Interpolation</source>
+        <translation>相似形補間</translation>
     </message>
 </context>
 <context>
@@ -1099,6 +1127,10 @@ Possibly the preset file has been corrupted</source>
     <message>
         <source>Table</source>
         <translation>テーブル</translation>
+    </message>
+    <message>
+        <source>Hide Selected</source>
+        <translation>選択したパラメータを隠す</translation>
     </message>
 </context>
 <context>
@@ -2220,6 +2252,10 @@ The second line should be &quot;Mesh [Input bit depth] [Output bit depth]&quot;<
         <source>OK</source>
         <translation>OK</translation>
     </message>
+    <message>
+        <source>That is a reserved file name and cannot be used.</source>
+        <translation>システムの予約語のため、使用できません。</translation>
+    </message>
 </context>
 <context>
     <name>QPushButton</name>
@@ -2233,6 +2269,17 @@ The second line should be &quot;Mesh [Input bit depth] [Output bit depth]&quot;<
     <message>
         <source>Toonz</source>
         <translation type="vanished">TOONZ</translation>
+    </message>
+</context>
+<context>
+    <name>RgbLinkButtons</name>
+    <message>
+        <source>Copy RGB : %1 &gt; %2</source>
+        <translation>RGB値をコピー ： %1 &gt; %2</translation>
+    </message>
+    <message>
+        <source>Swap %1 and %2</source>
+        <translation>%1 と %2 を入れ替える</translation>
     </message>
 </context>
 <context>
@@ -2284,6 +2331,18 @@ The second line should be &quot;Mesh [Input bit depth] [Output bit depth]&quot;<
     <message>
         <source>&amp;Toggle node icons</source>
         <translation>アイコン表示切り替え （&amp;T）</translation>
+    </message>
+    <message>
+        <source>&amp;Selection Mode</source>
+        <translation>選択モード (&amp;S)</translation>
+    </message>
+    <message>
+        <source>&amp;Zoom Mode</source>
+        <translation>ズームモード (&amp;Z)</translation>
+    </message>
+    <message>
+        <source>&amp;Hand Mode</source>
+        <translation>手のひらモード (&amp;H)</translation>
     </message>
 </context>
 <context>
@@ -2363,6 +2422,17 @@ The second line should be &quot;Mesh [Input bit depth] [Output bit depth]&quot;<
     <message>
         <source>&amp;Load Motion Path...</source>
         <translation>モーションパスを読み込み (&amp;L)...</translation>
+    </message>
+</context>
+<context>
+    <name>StageSchematicNode</name>
+    <message>
+        <source>Toggle Autorotate Along Motion Path</source>
+        <translation>モーションパスに沿って自動回転　の切り替え</translation>
+    </message>
+    <message>
+        <source>Toggle Link Motion Path to Control Points</source>
+        <translation>モーションパスをコントロールポイントにリンク の切り替え</translation>
     </message>
 </context>
 <context>
