@@ -13,6 +13,7 @@
 #include "toonz/txsheet.h"
 #include "toonz/imagepainter.h"
 #include "toonz/tapplication.h"
+#include "tools/cursors.h"
 
 // TnzCore includes
 #include "tcommon.h"
@@ -601,20 +602,35 @@ transformation.
   // Tools.
   virtual bool isPencilModeActive() { return false; }
 
+  // return true if the tool is busy with a mouse drag operation
+  virtual bool isDragging() const { return false; };
+
   void setSelectedFrames(const std::set<TFrameId> &selectedFrames);
   static const std::set<TFrameId> &getSelectedFrames() {
     return m_selectedFrames;
   }
 
+  void tweenSelectedGuideStrokes();
+  void tweenGuideStrokeToSelected();
+
 public:
-  static std::vector<int> m_cellsData;  //!< \deprecated  brutto brutto. fix
-                                        //! quick & dirty del baco #6213 (undo
+  struct CellOps {
+    int r0;
+    int r1;
+    enum Type { ExistingToNew = 0, BlankToExisting, BlankToNew } type;
+  };
+  static std::vector<CellOps>
+      m_cellsData;  //!< \deprecated  brutto brutto. fix
+                    //! quick & dirty del baco #6213 (undo
   //! con animation sheet) spiegazioni in
   //! tool.cpp
   static bool m_isLevelCreated;  //!< \deprecated  Shouldn't expose global
                                  //! static variables.
   static bool m_isFrameCreated;  //!< \deprecated  Shouldn't expose global
                                  //! static variables.
+  static std::vector<TFrameId> m_oldFids;
+  static std::vector<TFrameId> m_newFids;
+  static bool m_isLevelRenumbererd;
 
 protected:
   std::string m_name;  //!< The tool's name.

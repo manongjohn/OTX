@@ -1412,6 +1412,7 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   addMenuItem(windowsMenu, MI_OpenTimelineView);
   addMenuItem(windowsMenu, MI_OpenFunctionEditor);
   addMenuItem(windowsMenu, MI_OpenSchematic);
+  addMenuItem(windowsMenu, MI_FxParamEditor);
   addMenuItem(windowsMenu, MI_OpenFilmStrip);
   windowsMenu->addSeparator();
   addMenuItem(windowsMenu, MI_OpenFileBrowser);
@@ -1423,6 +1424,9 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   addMenuItem(windowsMenu, MI_OpenTMessage);
   addMenuItem(windowsMenu, MI_OpenHistoryPanel);
   addMenuItem(windowsMenu, MI_AudioRecording);
+#ifdef WITH_STOPMOTION
+  addMenuItem(windowsMenu, MI_OpenStopMotionPanel);
+#endif
   addMenuItem(windowsMenu, MI_StartupPopup);
 #ifdef LINETEST
   windowsMenu->addSeparator();
@@ -1437,6 +1441,10 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   // Menu' HELP
   QMenu *helpMenu = addMenu(tr("Help"), fullMenuBar);
   addMenuItem(helpMenu, MI_OpenOnlineManual);
+  addMenuItem(helpMenu, MI_OpenWhatsNew);
+  addMenuItem(helpMenu, MI_OpenCommunityForum);
+  helpMenu->addSeparator();
+  addMenuItem(helpMenu, MI_OpenReportABug);
   helpMenu->addSeparator();
   addMenuItem(helpMenu, MI_About);
 

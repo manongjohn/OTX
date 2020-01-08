@@ -210,7 +210,7 @@
     </message>
     <message>
         <source>Explode Macro Fx  : %1</source>
-        <translation>Explotar macro efecto: %1</translation>
+        <translation>Disolver macro efecto: %1</translation>
     </message>
     <message>
         <source>Create Output Fx</source>
@@ -435,6 +435,12 @@
     <message>
         <source>Timeline</source>
         <translation>Línea de T.</translation>
+    </message>
+    <message>
+        <source>Failed to save the following resources:
+</source>
+        <translation>Falla al guardar los siguientes recursos:
+</translation>
     </message>
 </context>
 <context>

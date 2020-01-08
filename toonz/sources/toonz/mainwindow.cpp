@@ -452,6 +452,11 @@ centralWidget->setLayout(centralWidgetLayout);*/
 
   setCommandHandler(MI_About, this, &MainWindow::onAbout);
   setCommandHandler(MI_OpenOnlineManual, this, &MainWindow::onOpenOnlineManual);
+  setCommandHandler(MI_OpenWhatsNew, this, &MainWindow::onOpenWhatsNew);
+  setCommandHandler(MI_OpenCommunityForum, this,
+                    &MainWindow::onOpenCommunityForum);
+  setCommandHandler(MI_OpenReportABug, this, &MainWindow::onOpenReportABug);
+
   setCommandHandler(MI_MaximizePanel, this, &MainWindow::maximizePanel);
   setCommandHandler(MI_FullScreenWindow, this, &MainWindow::fullScreenWindow);
   setCommandHandler("MI_NewVectorLevel", this,
@@ -998,6 +1003,35 @@ void MainWindow::onOpenOnlineManual() {
   QDesktopServices::openUrl(QUrl(tr("http://opentoonz.readthedocs.io")));
 }
 
+//-----------------------------------------------------------------------------
+
+void MainWindow::onOpenWhatsNew() {
+  QDesktopServices::openUrl(
+      QUrl(tr("https://github.com/opentoonz/opentoonz/releases/latest")));
+}
+
+//-----------------------------------------------------------------------------
+
+void MainWindow::onOpenCommunityForum() {
+  QDesktopServices::openUrl(
+      QUrl(tr("https://groups.google.com/forum/#!forum/opentoonz_en")));
+}
+
+//-----------------------------------------------------------------------------
+
+void MainWindow::onOpenReportABug() {
+  QString str = QString(
+      tr("To report a bug, click on the button below to open a web browser "
+         "window for OpenToonz's Issues page on https://github.com.  Click on "
+         "the 'New issue' button and fill out the form."));
+
+  std::vector<QString> buttons = {QObject::tr("Report a Bug"),
+                                  QObject::tr("Close")};
+  int ret = DVGui::MsgBox(DVGui::INFORMATION, str, buttons, 1);
+  if (ret == 1)
+    QDesktopServices::openUrl(
+        QUrl("https://github.com/opentoonz/opentoonz/issues"));
+}
 //-----------------------------------------------------------------------------
 
 void MainWindow::autofillToggle() {
@@ -1606,6 +1640,8 @@ void MainWindow::defineActions() {
   preferencesAction->setIcon(QIcon(":Resources/preferences.svg"));
   createMenuFileAction(MI_ShortcutPopup, tr("&Configure Shortcuts..."), "");
   createMenuFileAction(MI_PrintXsheet, tr("&Print Xsheet"), "");
+  createMenuFileAction(MI_ExportXDTS,
+                       tr("Export Exchange Digital Time Sheet (XDTS)"), "");
   createMenuFileAction("MI_RunScript", tr("Run Script..."), "");
   createMenuFileAction("MI_OpenScriptConsole", tr("Open Script Console..."),
                        "");
@@ -1766,8 +1802,6 @@ void MainWindow::defineActions() {
       createMenuXsheetAction(MI_NewOutputFx, tr("&New Output"), "Alt+O");
   newOutputAction->setIcon(createQIconOnOff("output", false));
 
-  createRightClickMenuAction(MI_FxParamEditor, tr("&Edit FX..."), "Ctrl+K");
-
   createMenuXsheetAction(MI_InsertSceneFrame, tr("Insert Frame"), "");
   createMenuXsheetAction(MI_RemoveSceneFrame, tr("Remove Frame"), "");
   createMenuXsheetAction(MI_InsertGlobalKeyframe, tr("Insert Multiple Keys"),
@@ -1839,6 +1873,9 @@ void MainWindow::defineActions() {
   createMenuCellsAction(MI_FillEmptyCell, tr("&Fill In Empty Cells"), "");
 
   createRightClickMenuAction(MI_SetKeyframes, tr("&Set Key"), "Z");
+  createRightClickMenuAction(MI_ShiftKeyframesDown, tr("&Shift Keys Down"), "");
+  createRightClickMenuAction(MI_ShiftKeyframesUp, tr("&Shift Keys Up"), "");
+
   createRightClickMenuAction(MI_PasteNumbers, tr("&Paste Numbers"), "");
 
   createToggle(MI_ViewCamera, tr("&Camera Box"), "",
@@ -1967,6 +2004,7 @@ void MainWindow::defineActions() {
   createMenuWindowsAction(MI_OpenColorModel, tr("&Color Model"), "");
   createMenuWindowsAction(MI_OpenStudioPalette, tr("&Studio Palette"), "");
   createMenuWindowsAction(MI_OpenSchematic, tr("&Schematic"), "");
+  createMenuWindowsAction(MI_FxParamEditor, tr("&FX Editor"), "Ctrl+K");
   createMenuWindowsAction(MI_OpenCleanupSettings, tr("&Cleanup Settings"), "");
 
   createMenuWindowsAction(MI_OpenFileBrowser2, tr("&Scene Cast"), "");
@@ -1974,6 +2012,11 @@ void MainWindow::defineActions() {
   createMenuWindowsAction(MI_OpenToolbar, tr("&Toolbar"), "");
   createMenuWindowsAction(MI_OpenToolOptionBar, tr("&Tool Option Bar"), "");
   createMenuWindowsAction(MI_OpenCommandToolbar, tr("&Command Bar"), "");
+#ifdef WITH_STOPMOTION
+  createMenuWindowsAction(MI_OpenStopMotionPanel, tr("&Stop Motion Controls"),
+                          "");
+
+#endif
   createMenuWindowsAction(MI_OpenLevelView, tr("&Viewer"), "");
 #ifdef LINETEST
   createMenuWindowsAction(MI_OpenLineTestCapture, tr("&LineTest Capture"), "");
@@ -1997,7 +2040,11 @@ void MainWindow::defineActions() {
                           "Ctrl+`");
   createMenuHelpAction(MI_About, tr("&About OpenToonz..."), "");
   createMenuWindowsAction(MI_StartupPopup, tr("&Startup Popup..."), "Alt+S");
+
   createMenuHelpAction(MI_OpenOnlineManual, tr("&Online Manual..."), "F1");
+  createMenuHelpAction(MI_OpenWhatsNew, tr("&What's New..."), "");
+  createMenuHelpAction(MI_OpenCommunityForum, tr("&Community Forum..."), "");
+  createMenuHelpAction(MI_OpenReportABug, tr("&Report a Bug..."), "");
 
   createRightClickMenuAction(MI_BlendColors, tr("&Blend colors"), "");
 
@@ -2161,6 +2208,20 @@ void MainWindow::defineActions() {
   CommandManager::instance()->setToggleTexts(V_ShowHideFullScreen,
                                              tr("Full Screen Mode"),
                                              tr("Exit Full Screen Mode"));
+  createRightClickMenuAction(MI_SelectNextGuideStroke,
+                             tr("Select Next Frame Guide Stroke"), "");
+  createRightClickMenuAction(MI_SelectPrevGuideStroke,
+                             tr("Select Previous Frame Guide Stroke"), "");
+  createRightClickMenuAction(MI_SelectBothGuideStrokes,
+                             tr("Select Prev && Next Frame Guide Strokes"), "");
+  createRightClickMenuAction(MI_SelectGuideStrokeReset,
+                             tr("Reset Guide Stroke Selections"), "");
+  createRightClickMenuAction(MI_TweenGuideStrokes,
+                             tr("Tween Selected Guide Strokes"), "");
+  createRightClickMenuAction(MI_TweenGuideStrokeToSelected,
+                             tr("Tween Guide Strokes to Selected"), "");
+  createRightClickMenuAction(MI_SelectGuidesAndTweenMode,
+                             tr("Select Guide Strokes && Tween Mode"), "");
 
   // Following actions are for adding "Visualization" menu items to the command
   // bar. They are separated from the original actions in order to avoid
@@ -2297,6 +2358,20 @@ void MainWindow::defineActions() {
                ToolCommandType);
 
   createMiscAction("A_FxSchematicToggle", tr("Toggle FX/Stage schematic"), "");
+#ifdef WITH_STOPMOTION
+  createAction(MI_StopMotionCapture, tr("Capture Stop Motion Frame"), "");
+  createAction(MI_StopMotionRaiseOpacity, tr("Raise Stop Motion Opacity"), "");
+  createAction(MI_StopMotionLowerOpacity, tr("Lower Stop Motion Opacity"), "");
+  createAction(MI_StopMotionToggleLiveView, tr("Toggle Stop Motion Live View"),
+               "");
+  createAction(MI_StopMotionToggleZoom, tr("Toggle Stop Motion Zoom"), "");
+  createAction(MI_StopMotionLowerSubsampling,
+               tr("Lower Stop Motion Level Subsampling"), "");
+  createAction(MI_StopMotionRaiseSubsampling,
+               tr("Raise Stop Motion Level Subsampling"), "");
+  createAction(MI_StopMotionJumpToCamera, tr("Go to Stop Motion Insert Frame"),
+               "");
+#endif
 }
 
 //-----------------------------------------------------------------------------

@@ -109,8 +109,6 @@ private:
   QWidget* createVersionControlPage();
   QWidget* createTouchTabletPage();
 
-  DVGui::IntLineEdit *m_shortPlayFrameCount;
-
   //--- callbacks ---
   // General
   void onAutoSaveChanged();
@@ -124,7 +122,6 @@ private:
   void beforeRoomChoiceChanged();
   // Drawing
   void onDefLevelTypeChanged();
-  void onAutocreationTypeChanged();
   void onUseNumpadForSwitchingStylesClicked();
   // Tools
   void onLevelBasedToolsDisplayChanged();
@@ -150,8 +147,6 @@ private slots:
 
   void onAutoSaveExternallyChanged();
   void onAutoSavePeriodExternallyChanged();
-  void onShortPlayFrameCountChanged();
-
   void onProjectRootChanged();
   void onPixelUnitExternallySelected(bool on);
   void onInterfaceFontChanged(const QString& text);

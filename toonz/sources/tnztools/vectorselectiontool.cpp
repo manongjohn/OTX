@@ -841,7 +841,7 @@ void DragSelectionTool::VectorMoveSelectionTool::leftButtonDrag(
 //-----------------------------------------------------------------------------
 
 DragSelectionTool::VectorScaleTool::VectorScaleTool(VectorSelectionTool *tool,
-                                                    int type)
+                                                    ScaleType type)
     : VectorDeformTool(tool), m_scale(new Scale(this, type)) {}
 
 //-----------------------------------------------------------------------------
@@ -1617,6 +1617,18 @@ void VectorSelectionTool::leftButtonDrag(const TPointD &pos,
 
 //-----------------------------------------------------------------------------
 
+void VectorSelectionTool::leftButtonDown(const TPointD &pos,
+                                         const TMouseEvent &e) {
+  if (getViewer() && getViewer()->getGuidedStrokePickerMode()) {
+    getViewer()->doPickGuideStroke(pos);
+    return;
+  }
+
+  SelectionTool::leftButtonDown(pos, e);
+}
+
+//-----------------------------------------------------------------------------
+
 void VectorSelectionTool::leftButtonUp(const TPointD &pos,
                                        const TMouseEvent &e) {
   m_leftButtonMousePressed = false;
@@ -1974,6 +1986,12 @@ void VectorSelectionTool::onImageChanged() {
   }
 
   finalizeSelection();
+}
+
+//-----------------------------------------------------------------------------
+
+bool VectorSelectionTool::isDragging() const {
+  return m_enabled && m_leftButtonMousePressed;
 }
 
 //-----------------------------------------------------------------------------

@@ -138,12 +138,12 @@ public:
 
   void execute() override {
     int row = TApp::instance()->getCurrentFrame()->getFrame();
+    int shortPlayFrameCount = Preferences::instance()->getShortPlayFrameCount();
     int count =
         TApp::instance()->getCurrentXsheet()->getXsheet()->getFrameCount();
-    if (count > 8) {
-      TApp::instance()->getCurrentFrame()->setFrame(std::max(
-          0, count - Preferences::instance()->getShortPlayFrameCount()));
-    }
+    int newFrame = std::max(
+      0, count - shortPlayFrameCount);
+    TApp::instance()->getCurrentFrame()->setFrame(newFrame);
     CommandManager::instance()->execute(MI_Play);
   }
 };
