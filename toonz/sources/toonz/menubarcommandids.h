@@ -375,4 +375,6 @@
 #define MI_SelectBothGuideStrokes "MI_SelectBothGuideStrokes"
 #define MI_SelectGuidesAndTweenMode "MI_SelectGuidesAndTweenMode"
 
+#define MI_FlipNextGuideStroke "MI_FlipNextGuideStroke"
+#define MI_FlipPrevGuideStroke "MI_FlipPrevGuideStroke"
 #endif

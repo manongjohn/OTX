@@ -1487,7 +1487,7 @@ public:
     TPanel *panel = new VectorGuidedDrawingPanel(parent);
     panel->setObjectName(getPanelType());
     panel->setWindowTitle(QObject::tr("Vector Guided Drawing Controls"));
-    panel->setMinimumSize(387, 244);
+    panel->setMinimumSize(387, 265);
 
     return panel;
   }

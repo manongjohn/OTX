@@ -22,7 +22,8 @@ class VectorGuidedDrawingPane final : public QFrame {
   QCheckBox *m_autoInbetween;
   QPushButton *m_selectPrevGuideBtn, *m_selectNextGuideBtn,
       *m_selectBothGuideBtn, *m_resetGuidesBtn, *m_tweenSelectedGuidesBtn,
-      *m_tweenToSelectedStrokeBtn, *m_SelectAndTweenBtn;
+      *m_tweenToSelectedStrokeBtn, *m_SelectAndTweenBtn,
+      *m_FlipNextDirectionBtn, *m_FlipPrevDirectionBtn;
 
 public:
 #if QT_VERSION >= 0x050500

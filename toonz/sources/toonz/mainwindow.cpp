@@ -2182,6 +2182,10 @@ void MainWindow::defineActions() {
                    tr("Tween Guide Strokes to Selected"), "");
   createMiscAction(MI_SelectGuidesAndTweenMode,
                    tr("Select Guide Strokes && Tween Mode"), "");
+  createMiscAction(MI_FlipNextGuideStroke,
+                   tr("Flip Next Guide Stroke Direction"), "");
+  createMiscAction(MI_FlipPrevGuideStroke,
+                   tr("Flip Previous Guide Stroke Direction"), "");
 
   // Following actions are for adding "Visualization" menu items to the command
   // bar. They are separated from the original actions in order to avoid

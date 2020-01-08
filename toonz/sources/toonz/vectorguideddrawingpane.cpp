@@ -99,6 +99,16 @@ VectorGuidedDrawingPane::VectorGuidedDrawingPane(QWidget *parent,
   m_SelectAndTweenBtn->addAction(action);
   connect(m_SelectAndTweenBtn, SIGNAL(clicked()), action, SLOT(trigger()));
 
+  m_FlipNextDirectionBtn = new QPushButton(tr("Next"), this);
+  action = CommandManager::instance()->getAction(MI_FlipNextGuideStroke);
+  m_FlipNextDirectionBtn->addAction(action);
+  connect(m_FlipNextDirectionBtn, SIGNAL(clicked()), action, SLOT(trigger()));
+
+  m_FlipPrevDirectionBtn = new QPushButton(tr("Previous"), this);
+  action = CommandManager::instance()->getAction(MI_FlipPrevGuideStroke);
+  m_FlipPrevDirectionBtn->addAction(action);
+  connect(m_FlipPrevDirectionBtn, SIGNAL(clicked()), action, SLOT(trigger()));
+
   QGridLayout *mainlayout = new QGridLayout();
   mainlayout->setMargin(5);
   mainlayout->setSpacing(2);
@@ -111,31 +121,43 @@ VectorGuidedDrawingPane::VectorGuidedDrawingPane(QWidget *parent,
     QLabel *selectGuideStrokeLabel = new QLabel(this);
     selectGuideStrokeLabel->setText(tr("Select Guide Stroke:"));
     mainlayout->addWidget(selectGuideStrokeLabel, 1, 0, Qt::AlignRight);
-    QHBoxLayout *buttonlayout = new QHBoxLayout();
-    buttonlayout->setMargin(0);
-    buttonlayout->setSpacing(2);
+    QHBoxLayout *selectBtnLayout = new QHBoxLayout();
+    selectBtnLayout->setMargin(0);
+    selectBtnLayout->setSpacing(2);
     {
-      buttonlayout->addWidget(m_selectPrevGuideBtn, 0);
-      buttonlayout->addWidget(m_selectNextGuideBtn, 0);
-      buttonlayout->addWidget(m_selectBothGuideBtn, 0);
-      buttonlayout->addWidget(m_resetGuidesBtn, 0);
+      selectBtnLayout->addWidget(m_selectPrevGuideBtn, 0);
+      selectBtnLayout->addWidget(m_selectNextGuideBtn, 0);
+      selectBtnLayout->addWidget(m_selectBothGuideBtn, 0);
+      selectBtnLayout->addWidget(m_resetGuidesBtn, 0);
     }
-    mainlayout->addLayout(buttonlayout, 1, 1);
+    mainlayout->addLayout(selectBtnLayout, 1, 1);
 
-    mainlayout->addWidget(new DVGui::Separator("", this, true), 2, 0, 1, 2);
+    QLabel *flipGuideStrokeLabel = new QLabel(this);
+    flipGuideStrokeLabel->setText(tr("Flip Guide Stroke:"));
+    mainlayout->addWidget(flipGuideStrokeLabel, 2, 0, Qt::AlignRight);
+    QHBoxLayout *flipBtnLayout = new QHBoxLayout();
+    flipBtnLayout->setMargin(0);
+    flipBtnLayout->setSpacing(2);
+    {
+      flipBtnLayout->addWidget(m_FlipPrevDirectionBtn, 0);
+      flipBtnLayout->addWidget(m_FlipNextDirectionBtn, 0);
+    }
+    mainlayout->addLayout(flipBtnLayout, 2, 1);
 
-    mainlayout->addWidget(m_autoInbetween, 3, 1);
+    mainlayout->addWidget(new DVGui::Separator("", this, true), 3, 0, 1, 2);
+
+    mainlayout->addWidget(m_autoInbetween, 4, 1);
 
     QLabel *interpolationLabel = new QLabel(this);
     interpolationLabel->setText(tr("Interpolation:"));
-    mainlayout->addWidget(interpolationLabel, 4, 0, Qt::AlignRight);
-    mainlayout->addWidget(m_interpolationTypeCB, 4, 1);
+    mainlayout->addWidget(interpolationLabel, 5, 0, Qt::AlignRight);
+    mainlayout->addWidget(m_interpolationTypeCB, 5, 1);
 
-    mainlayout->addWidget(new DVGui::Separator("", this, true), 5, 0, 1, 2);
+    mainlayout->addWidget(new DVGui::Separator("", this, true), 6, 0, 1, 2);
 
-    mainlayout->addWidget(m_tweenSelectedGuidesBtn, 6, 0, 1, 2);
-    mainlayout->addWidget(m_tweenToSelectedStrokeBtn, 7, 0, 1, 2);
-    mainlayout->addWidget(m_SelectAndTweenBtn, 8, 0, 1, 2);
+    mainlayout->addWidget(m_tweenSelectedGuidesBtn, 7, 0, 1, 2);
+    mainlayout->addWidget(m_tweenToSelectedStrokeBtn, 8, 0, 1, 2);
+    mainlayout->addWidget(m_SelectAndTweenBtn, 9, 0, 1, 2);
   }
 
   setLayout(mainlayout);
@@ -156,6 +178,8 @@ void VectorGuidedDrawingPane::updateStatus() {
     m_tweenSelectedGuidesBtn->setDisabled(true);
     m_tweenToSelectedStrokeBtn->setDisabled(true);
     m_SelectAndTweenBtn->setDisabled(true);
+    m_FlipNextDirectionBtn->setDisabled(true);
+    m_FlipPrevDirectionBtn->setDisabled(true);
   } else {  // Closest/Farthest
     m_selectPrevGuideBtn->setDisabled(false);
     m_selectNextGuideBtn->setDisabled(false);
@@ -163,6 +187,8 @@ void VectorGuidedDrawingPane::updateStatus() {
     m_tweenSelectedGuidesBtn->setDisabled(false);
     m_tweenToSelectedStrokeBtn->setDisabled(false);
     m_SelectAndTweenBtn->setDisabled(false);
+    m_FlipNextDirectionBtn->setDisabled(false);
+    m_FlipPrevDirectionBtn->setDisabled(false);
   }
 }
 

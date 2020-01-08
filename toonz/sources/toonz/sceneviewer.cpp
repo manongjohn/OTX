@@ -692,6 +692,46 @@ public:
   }
 } selectGuidesAndTweenCommand;
 
+class TFlipNextStrokeDirectionCommand final : public MenuItemHandler {
+public:
+  TFlipNextStrokeDirectionCommand() : MenuItemHandler(MI_FlipNextGuideStroke) {}
+  void execute() override {
+    TVectorImageP vi = (TVectorImageP)TTool::getImage(false);
+    if (!vi) return;
+
+    Preferences *pref = Preferences::instance();
+    if (!pref->isOnionSkinEnabled() || !pref->isGuidedDrawingEnabled() ||
+        (pref->getGuidedDrawingType() != 1 &&
+         pref->getGuidedDrawingType() != 2))
+      return;
+
+    TTool *tool = TApp::instance()->getCurrentTool()->getTool();
+    if (!tool) return;
+
+    tool->flipGuideStrokeDirection(1);
+  }
+} flipNextStrokeDirectionCommand;
+
+class TFlipPrevStrokeDirectionCommand final : public MenuItemHandler {
+public:
+  TFlipPrevStrokeDirectionCommand() : MenuItemHandler(MI_FlipPrevGuideStroke) {}
+  void execute() override {
+    TVectorImageP vi = (TVectorImageP)TTool::getImage(false);
+    if (!vi) return;
+
+    Preferences *pref = Preferences::instance();
+    if (!pref->isOnionSkinEnabled() || !pref->isGuidedDrawingEnabled() ||
+        (pref->getGuidedDrawingType() != 1 &&
+         pref->getGuidedDrawingType() != 2))
+      return;
+
+    TTool *tool = TApp::instance()->getCurrentTool()->getTool();
+    if (!tool) return;
+
+    tool->flipGuideStrokeDirection(-1);
+  }
+} flipPrevStrokeDirectionCommand;
+
 //=============================================================================
 // SceneViewer
 //-----------------------------------------------------------------------------

@@ -520,6 +520,7 @@ transformation.
 
   void tweenSelectedGuideStrokes();
   void tweenGuideStrokeToSelected();
+  void flipGuideStrokeDirection(int mode);
 
 public:
   static std::vector<int> m_cellsData;  //!< \deprecated  brutto brutto. fix
