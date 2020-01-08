@@ -398,6 +398,9 @@ public:
     return getBoolValue(generatedMovieViewEnabled);
   }
 
+  void setShortPlayFrameCount(int frames);
+  int getShortPlayFrameCount() const { return m_shortPlayFrameCount; }
+
   // Onion Skin  tab
   bool isOnionSkinEnabled() const { return getBoolValue(onionSkinEnabled); }
   int getOnionPaperThickness() const {
@@ -496,6 +499,8 @@ private:
 
   std::vector<LevelFormat> m_levelFormats;
 
+  int m_shortPlayFrameCount;
+  
   bool m_precompute = true;
   int m_textureSize = 0;
 

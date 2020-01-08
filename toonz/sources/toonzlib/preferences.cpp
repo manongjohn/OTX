@@ -663,6 +663,13 @@ void Preferences::define(PreferencesItemId id, QString idString,
 
 //-----------------------------------------------------------------
 
+void Preferences::setShortPlayFrameCount(int frames) {
+  m_shortPlayFrameCount = frames;
+  m_settings->setValue("shortPlayFrameCount", QString::number(frames));
+}
+
+//-----------------------------------------------------------------
+
 void Preferences::setCallBack(const PreferencesItemId id, OnEditedFunc func) {
   getItem(id).onEditedFunc = func;
 }

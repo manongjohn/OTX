@@ -456,6 +456,14 @@ void PreferencesPopup::onAutocreationTypeChanged() {
 
 //-----------------------------------------------------------------------------
 
+//-----------------------------------------------------------------------------
+
+void PreferencesPopup::onShortPlayFrameCountChanged() {
+	m_pref->setShortPlayFrameCount(m_shortPlayFrameCount->getValue());
+}
+
+//-----------------------------------------------------------------------------
+
 void PreferencesPopup::onUseNumpadForSwitchingStylesClicked() {
   bool checked = m_pref->getBoolValue(useNumpadForSwitchingStyles);
   if (checked) {
