@@ -531,17 +531,14 @@ public:
 } positionResetCommand;
 
 class TVectorGuidedDrawingToggleCommand final : public MenuItemHandler {
-  CommandId m_cmdId;
-
 public:
-  TVectorGuidedDrawingToggleCommand(CommandId cmdId)
-      : MenuItemHandler(cmdId), m_cmdId(cmdId) {}
+  TVectorGuidedDrawingToggleCommand()
+      : MenuItemHandler(MI_VectorGuidedDrawing) {}
   void execute() override {
     CommandManager *cm = CommandManager::instance();
-    QAction *action    = cm->getAction(m_cmdId);
-    bool checked       = action->isChecked();
-    cm->enable(MI_OpenGuidedDrawingControls, checked);
-    Preferences::instance()->setValue(guidedDrawingEnabled, checked);
+    QAction *action    = cm->getAction(MI_VectorGuidedDrawing);
+    Preferences::instance()->setValue(guidedDrawingEnabled,
+                                      action->isChecked());
     updateVectorGuidedDrawingStatus();
   }
 
@@ -552,10 +549,7 @@ public:
   void updateVectorGuidedDrawingStatus() {
     TApp::instance()->getCurrentXsheet()->notifyXsheetChanged();
   }
-};
-
-TVectorGuidedDrawingToggleCommand vectorGuidedDrawingToggleCommand(
-    MI_VectorGuidedDrawing);
+} vectorGuidedDrawingToggleCommand;
 
 class TSelectGuideStrokeResetCommand final : public MenuItemHandler {
 public:
