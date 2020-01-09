@@ -612,6 +612,7 @@ transformation.
 
   void tweenSelectedGuideStrokes();
   void tweenGuideStrokeToSelected();
+  void flipGuideStrokeDirection(int mode);
 
 public:
   struct CellOps {
