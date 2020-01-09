@@ -531,40 +531,37 @@ TImage *TTool::touchImage() {
     }
   }
 
-    // animation sheet disabled or empty column. autoCreate is enabled: we must
-    // create a new level
+  // - - - - empty column case starts here - - - -
+  // autoCreate is enabled: we must create a new level
+  
+  int levelType    = pref->getDefLevelType();
+  int toolLevelType = UNKNOWN_XSHLEVEL;
+  bool found        = false;
 
-    // select one from supported level types
-    // default level type is preffered
+  if (m_targetType & MetaImage) {
+    toolLevelType = META_XSHLEVEL;
+    found         = found || toolLevelType == levelType;
+  }
+  if (m_targetType & RasterImage) {
+    toolLevelType = OVL_XSHLEVEL;
+    found         = found || toolLevelType == levelType;
+  }
+  if (m_targetType & ToonzImage) {
+    toolLevelType = TZP_XSHLEVEL;
+    found         = found || toolLevelType == levelType;
+  }
+  if (m_targetType & VectorImage) {
+    toolLevelType = PLI_XSHLEVEL;
+    found         = found || toolLevelType == levelType;
+  }
 
-    int levelType     = pref->getDefLevelType();
-    int toolLevelType = UNKNOWN_XSHLEVEL;
-    bool found        = false;
+  if (toolLevelType == UNKNOWN_XSHLEVEL) return 0;
+  if (!found) levelType = toolLevelType;
 
-    if (m_targetType & MetaImage) {
-      toolLevelType = META_XSHLEVEL;
-      found         = found || toolLevelType == levelType;
-    }
-    if (m_targetType & RasterImage) {
-      toolLevelType = OVL_XSHLEVEL;
-      found         = found || toolLevelType == levelType;
-    }
-    if (m_targetType & ToonzImage) {
-      toolLevelType = TZP_XSHLEVEL;
-      found         = found || toolLevelType == levelType;
-    }
-    if (m_targetType & VectorImage) {
-      toolLevelType = PLI_XSHLEVEL;
-      found         = found || toolLevelType == levelType;
-    }
-
-    if (toolLevelType == UNKNOWN_XSHLEVEL) return 0;
-    if (!found) levelType = toolLevelType;
-
-    TXshLevel *xl    = scene->createNewLevel(levelType);
-    sl               = xl->getSimpleLevel();
-    m_isLevelCreated = true;
-
+  TXshLevel *xl    = scene->createNewLevel(levelType);
+  sl               = xl->getSimpleLevel();
+  m_isLevelCreated = true;
+  
   // create the drawing
   TFrameId fid = animationSheetEnabled ? getNewFrameId(sl, row) : TFrameId(1);
   TImageP img  = sl->createEmptyFrame();
@@ -1314,7 +1311,7 @@ void TToolViewer::getGuidedFrameIdx(int *backIdx, int *frontIdx) {
   if (!Preferences::instance()->isGuidedDrawingEnabled()) return;
 
   OnionSkinMask osMask =
-	  TTool::getApplication()->getCurrentOnionSkin()->getOnionSkinMask();
+      TTool::getApplication()->getCurrentOnionSkin()->getOnionSkinMask();
 
   if (!osMask.isEnabled() || osMask.isEmpty()) return;
 
@@ -1410,7 +1407,7 @@ void TToolViewer::doPickGuideStroke(const TPointD &pos) {
   TFrameId fid;
   TFrameHandle *currentFrame = TTool::getApplication()->getCurrentFrame();
   TXshSimpleLevel *sl =
-	  TTool::getApplication()->getCurrentLevel()->getLevel()->getSimpleLevel();
+      TTool::getApplication()->getCurrentLevel()->getLevel()->getSimpleLevel();
   if (!sl) return;
 
   if (currentFrame->isEditingScene()) {

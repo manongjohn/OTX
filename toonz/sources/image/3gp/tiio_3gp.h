@@ -7,6 +7,12 @@
 #include "tiio_3gp_proxy.h"
 #else
 
+// Toonz includes
+#include "tlevel_io.h"
+#include "tthreadmessage.h"
+#include "tcommon.h"
+
+// Windows include
 #include <windows.h>
 
 #include "tlevel_io.h"
