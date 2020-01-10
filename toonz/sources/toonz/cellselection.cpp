@@ -2164,7 +2164,7 @@ void TCellSelection::duplicateFrame(int row, int col, bool multiple) {
     int levelType = level->getType();
     if (levelType == ZERARYFX_XSHLEVEL || levelType == PLT_XSHLEVEL ||
         levelType == SND_XSHLEVEL || levelType == SND_TXT_XSHLEVEL ||
-        levelType == MESH_XSHLEVEL) {
+        levelType == MESH_XSHLEVEL || levelType == META_XSHLEVEL) {
       if (!multiple)
         DVGui::warning(
             QObject::tr("Cannot duplicate a drawing in the current column"));
