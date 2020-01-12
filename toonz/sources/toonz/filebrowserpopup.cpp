@@ -75,6 +75,7 @@ FileBrowserPopup::FileBrowserPopup(const QString &title, Options options,
     : QDialog(TApp::instance()->getMainWindow())
     , m_isDirectoryOnly(false)
     , m_multiSelectionEnabled(options & MULTISELECTION)
+    , m_forSaving(options & FOR_SAVING)
     , m_dialogSize(800, 600)
     , m_customWidget(customWidget) {
   setWindowTitle(title);
@@ -326,6 +327,8 @@ void FileBrowserPopup::onFilePathClicked(const TFilePath &fp) {
 void FileBrowserPopup::onFilePathsSelected(
     const std::set<TFilePath> &paths,
     const std::list<std::vector<TFrameId>> &fIds) {
+  if (paths.size() == 0 && m_forSaving) return;
+
   m_selectedPaths  = paths;
   m_currentFIdsSet = fIds;
 
@@ -352,6 +355,8 @@ void FileBrowserPopup::onFilePathDoubleClicked(const TFilePath &) {
 
 void FileBrowserPopup::setOkText(const QString &text) {
   m_okButton->setText(text);
+  // if the button label is "Save" then the browser is assumed as for saving
+  if (text == QObject::tr("Save")) m_forSaving = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -444,7 +449,7 @@ TFilePath GenericLoadFilePopup::getPath() {
 //***********************************************************************************
 
 GenericSaveFilePopup::GenericSaveFilePopup(const QString &title)
-    : FileBrowserPopup(title) {
+    : FileBrowserPopup(title, Options(FOR_SAVING)) {
   connect(m_nameField, SIGNAL(returnPressedNow()), m_okButton,
           SLOT(animateClick()));
 }
@@ -590,7 +595,8 @@ void LoadSubScenePopup::showEvent(QShowEvent *e) {
 //=============================================================================
 // SaveSceneAsPopup
 
-SaveSceneAsPopup::SaveSceneAsPopup() : FileBrowserPopup(tr("Save Scene")) {
+SaveSceneAsPopup::SaveSceneAsPopup()
+    : FileBrowserPopup(tr("Save Scene"), Options(FOR_SAVING)) {
   setOkText(tr("Save"));
   addFilterType("tnz");
   connect(m_nameField, SIGNAL(returnPressedNow()), m_okButton,
@@ -622,7 +628,7 @@ void SaveSceneAsPopup::initFolder() {
 // SaveSubSceneAsPopup
 
 SaveSubSceneAsPopup::SaveSubSceneAsPopup()
-    : FileBrowserPopup(tr("Sub-xsheet")) {
+    : FileBrowserPopup(tr("Sub-xsheet"), Options(FOR_SAVING)) {
   setOkText(tr("Save"));
   connect(m_nameField, SIGNAL(returnPressedNow()), m_okButton,
           SLOT(animateClick()));
@@ -1526,7 +1532,8 @@ void LoadLevelPopup::onWhiteTranspClicked() {
 //=============================================================================
 // SaveLevelAsPopup
 
-SaveLevelAsPopup::SaveLevelAsPopup() : FileBrowserPopup(tr("Save Level")) {
+SaveLevelAsPopup::SaveLevelAsPopup()
+    : FileBrowserPopup(tr("Save Level"), Options(FOR_SAVING)) {
   setOkText(tr("Save"));
   connect(m_nameField, SIGNAL(returnPressedNow()), m_okButton,
           SLOT(animateClick()));
@@ -1845,7 +1852,7 @@ void ReplaceLevelPopup::onSelectionChanged(TSelection *sel) {
 // SavePaletteAsPopup
 
 SavePaletteAsPopup::SavePaletteAsPopup()
-    : FileBrowserPopup(tr("Save Palette")) {
+    : FileBrowserPopup(tr("Save Palette"), Options(FOR_SAVING)) {
   setOkText(tr("Save"));
   addFilterType("tpl");
   connect(m_nameField, SIGNAL(returnPressedNow()), m_okButton,
@@ -2258,13 +2265,15 @@ void BrowserPopupController::openPopup(QStringList filters,
   m_browserPopup->initFolder(TFilePath(lastSelectedPath.toStdWString()));
   m_browserPopup->setFileMode(isDirectoryOnly);
 
+  Qt::WindowFlags flags = m_browserPopup->windowFlags();
+  bool parentSet        = false;
   if (parentWidget) {
     for (QWidget *pwidget : QApplication::topLevelWidgets()) {
       if (pwidget->isWindow() && pwidget->isVisible() &&
           pwidget->isAncestorOf(parentWidget)) {
-        Qt::WindowFlags flags = m_browserPopup->windowFlags();
         m_browserPopup->setParent(pwidget);
         m_browserPopup->setWindowFlags(flags);
+        parentSet = true;
         break;
       }
     }
@@ -2277,6 +2286,13 @@ void BrowserPopupController::openPopup(QStringList filters,
     m_isExecute = true;
   else
     m_isExecute = false;
+
+  // set back the parent to the main window in order to prevent to be
+  // deleted along with the parent widget
+  if (parentSet) {
+    m_browserPopup->setParent(TApp::instance()->getMainWindow());
+    m_browserPopup->setWindowFlags(flags);
+  }
 }
 
 // codePath is set to true by default
