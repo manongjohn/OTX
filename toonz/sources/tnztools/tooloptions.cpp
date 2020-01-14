@@ -2721,8 +2721,16 @@ ToolOptions::~ToolOptions() {}
 
 void ToolOptions::showEvent(QShowEvent *) {
   TTool::Application *app = TTool::getApplication();
-  ToolHandle *currTool    = app->getCurrentTool();
-  if (currTool) {
+
+  if (ToolHandle *currTool = app->getCurrentTool())
+    currTool->disconnect(this);
+  if (TObjectHandle *currObject = app->getCurrentObject())
+    currObject->disconnect(this);
+  if (TXshLevelHandle *currLevel = app->getCurrentLevel())
+    currLevel->disconnect(this);
+  
+  if (ToolHandle *currTool = app->getCurrentTool()) {
+    currTool->disconnect(this);
     onToolSwitched();
     connect(currTool, SIGNAL(toolSwitched()), SLOT(onToolSwitched()));
     connect(currTool, SIGNAL(toolOptionsBoxChanged()),
@@ -2730,19 +2738,18 @@ void ToolOptions::showEvent(QShowEvent *) {
     connect(currTool, SIGNAL(toolChanged()), SLOT(onToolChanged()));
   }
 
-  TObjectHandle *currObject = app->getCurrentObject();
-  if (currObject) {
+  if (TObjectHandle *currObject = app->getCurrentObject()) {
+    currObject->disconnect(this);
     onStageObjectChange();
     connect(currObject, SIGNAL(objectSwitched()), SLOT(onStageObjectChange()));
     connect(currObject, SIGNAL(objectChanged(bool)),
             SLOT(onStageObjectChange()));
   }
 
-  TXshLevelHandle *currLevel = app->getCurrentLevel();
-
-  if (currLevel)
+  if (TXshLevelHandle *currLevel = app->getCurrentLevel()) {
     connect(currLevel, SIGNAL(xshLevelSwitched(TXshLevel *)), this,
             SLOT(onStageObjectChange()));
+  }
 }
 
 //-----------------------------------------------------------------------------
