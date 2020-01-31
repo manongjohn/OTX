@@ -34,16 +34,17 @@ public:
   class TrackHandler : public TTrackToolHandler {
   public:
     MyPaintToonzBrush brush;
+    double overridePressure;
 
     TrackHandler(const TRaster32P &ras, RasterController &controller,
-                 const mypaint::Brush &brush)
-        : brush(ras, controller, brush) {}
+                 const mypaint::Brush &brush, double overridePressure = -1.0)
+        : brush(ras, controller, brush), overridePressure(overridePressure) {}
   };
 
 private:
   void updateCurrentStyle();
   void applyClassicToonzBrushSettings(mypaint::Brush &mypaintBrush);
-  void applyToonzBrushSettings(mypaint::Brush &mypaintBrush);
+  bool applyToonzBrushSettings(mypaint::Brush &mypaintBrush);
 
 public:
   FullColorBrushTool(std::string name);
