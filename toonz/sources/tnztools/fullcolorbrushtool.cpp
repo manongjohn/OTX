@@ -412,8 +412,16 @@ void FullColorBrushTool::paintTrackPoint(const TTrackPoint &point,
   TrackHandler *handler;
   if (track.size() == track.pointsAdded && !track.toolHandler && m_workRaster) {
     mypaint::Brush mypaintBrush;
-    applyToonzBrushSettings(mypaintBrush);
-    handler = new TrackHandler(m_workRaster, *this, mypaintBrush);
+    bool mypaintStyle = applyToonzBrushSettings(mypaintBrush);
+    double overridePressure = -1.0;
+    if (!m_enabledPressure && mypaintStyle) 
+      overridePressure = 0.5;
+    if (!m_enabledPressure && !mypaintStyle)
+      overridePressure = 1.0;
+    if (!track.hasPressure && !mypaintStyle)
+      overridePressure = 1.0;
+
+    handler = new TrackHandler(m_workRaster, *this, mypaintBrush, overridePressure);
     handler->brush.beginStroke();
     track.toolHandler = handler;
   }
@@ -423,7 +431,8 @@ void FullColorBrushTool::paintTrackPoint(const TTrackPoint &point,
   // paint stroke
   m_strokeSegmentRect.empty();
   handler->brush.strokeTo(point.position + rasCenter,
-                          m_enabledPressure ? point.pressure : 0.5, point.tilt,
+                          handler->overridePressure >= 0.0 ? handler->overridePressure : point.pressure,
+                          point.tilt,
                           point.time - track.previous().time);
   if (track.pointsAdded == 1 && track.finished()) handler->brush.endStroke();
 
@@ -835,7 +844,7 @@ void FullColorBrushTool::applyClassicToonzBrushSettings(
   }
 }
 
-void FullColorBrushTool::applyToonzBrushSettings(mypaint::Brush &mypaintBrush) {
+bool FullColorBrushTool::applyToonzBrushSettings(mypaint::Brush &mypaintBrush) {
   TMyPaintBrushStyle *mypaintStyle = getBrushStyle();
 
   if (mypaintStyle) {
@@ -873,9 +882,12 @@ void FullColorBrushTool::applyToonzBrushSettings(mypaint::Brush &mypaintBrush) {
       // lock-alpha already disables eraser
       mypaintBrush.setBaseValue(MYPAINT_BRUSH_SETTING_LOCK_ALPHA, 1.0);
     }
-  } else {
-    applyClassicToonzBrushSettings(mypaintBrush);
+    
+    return true;
   }
+
+  applyClassicToonzBrushSettings(mypaintBrush);
+  return false;
 }
 
 //==========================================================================================================
