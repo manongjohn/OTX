@@ -319,7 +319,7 @@ public:
 
   // Tools Tab
   bool getDropdownShortcutsCycleOptions() {
-    return getBoolValue(dropdownShortcutsCycleOptions);
+    return getIntValue(dropdownShortcutsCycleOptions) == 1;
   }
   bool getFillOnlySavebox() const { return getBoolValue(FillOnlysavebox); }
   bool isMultiLayerStylePickerEnabled() const {
@@ -463,7 +463,7 @@ public:
   // Shortcut popup settings
   QString getShortcutPreset() { return getStringValue(shortcutPreset); }
   // Viewer context menu
-  bool isGuidedDrawingEnabled() { return getBoolValue(guidedDrawingEnabled); }
+  bool isGuidedDrawingEnabled() { return getIntValue(guidedDrawingType) > 0; }
   int getGuidedDrawingType() { return getIntValue(guidedDrawingType); }
   bool getGuidedAutoInbetween() { return getBoolValue(guidedAutoInbetween); }
   int getGuidedInterpolation() { return getIntValue(guidedInterpolationType); }

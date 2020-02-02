@@ -2117,8 +2117,7 @@ void FileBrowser::refreshFolder(const TFilePath &folderPath) {
   std::set<FileBrowser *>::iterator it;
   for (it = activeBrowsers.begin(); it != activeBrowsers.end(); ++it) {
     FileBrowser *browser = *it;
-    DvDirModel::instance()->refreshFolder(
-        folderPath, DvDirModel::instance()->getIndexByPath(folderPath));
+    DvDirModel::instance()->refreshFolder(folderPath);
     if (browser->getFolder() == folderPath) {
       browser->setFolder(folderPath, false, true);
     }

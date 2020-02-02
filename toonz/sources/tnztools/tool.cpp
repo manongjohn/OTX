@@ -1535,6 +1535,8 @@ void TTool::tweenSelectedGuideStrokes() {
   TTool *tool = TTool::getTool(T_Brush, TTool::ToolTargetType::VectorImage);
   ToonzVectorBrushTool *vbTool = (ToonzVectorBrushTool *)tool;
   if (vbTool) {
+    m_isFrameCreated = false;
+    m_isLevelCreated = false;
     vbTool->setViewer(m_viewer);
     vbTool->doFrameRangeStrokes(
         bFid, bStroke, fFid, fStroke,
@@ -1634,6 +1636,8 @@ void TTool::tweenGuideStrokeToSelected() {
   TTool *tool = TTool::getTool(T_Brush, TTool::ToolTargetType::VectorImage);
   ToonzVectorBrushTool *vbTool = (ToonzVectorBrushTool *)tool;
   if (vbTool) {
+    m_isFrameCreated = false;
+    m_isLevelCreated = false;
     vbTool->setViewer(m_viewer);
     TUndoManager::manager()->beginBlock();
     if (bStroke)
@@ -1713,5 +1717,7 @@ void TTool::flipGuideStrokeDirection(int mode) {
   if (!stroke) return;
 
   stroke->changeDirection();
+  sl->setDirtyFlag(true);
   getViewer()->invalidateAll();
+  m_application->getCurrentLevel()->notifyLevelChange();
 }
