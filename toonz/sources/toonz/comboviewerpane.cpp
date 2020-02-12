@@ -124,11 +124,9 @@ ComboViewerPanel::ComboViewerPanel(QWidget *parent, Qt::WFlags flags)
   m_keyFrameButton->setXsheetHandle(app->getCurrentXsheet());
 
   // FlipConsole
-  int buttons = FlipConsole::cFullConsole;
-  // buttons &= (~FlipConsole::eSound);
-  buttons &= (~FlipConsole::eFilledRaster);
-  buttons &= (~FlipConsole::eDefineLoadBox);
-  buttons &= (~FlipConsole::eUseLoadBox);
+  std::vector<int> buttonMask = {FlipConsole::eFilledRaster,
+                                 FlipConsole::eDefineLoadBox,
+                                 FlipConsole::eUseLoadBox};
 
   /* --- layout --- */
   QVBoxLayout *mainLayout = new QVBoxLayout();
@@ -148,7 +146,7 @@ ComboViewerPanel::ComboViewerPanel(QWidget *parent, Qt::WFlags flags)
     }
     mainLayout->addLayout(viewerL, 1);
     m_flipConsole =
-        new FlipConsole(mainLayout, buttons, false, m_keyFrameButton,
+        new FlipConsole(mainLayout, buttonMask, false, m_keyFrameButton,
                         "SceneViewerConsole", this, true);
   }
   setLayout(mainLayout);
@@ -189,6 +187,10 @@ ComboViewerPanel::ComboViewerPanel(QWidget *parent, Qt::WFlags flags)
                 m_sceneViewer, SLOT(onButtonPressed(FlipConsole::EGadget)));
   ret = ret && connect(m_sceneViewer, SIGNAL(previewStatusChanged()), this,
                        SLOT(update()));
+  ret = ret && connect(m_sceneViewer, SIGNAL(onFlipHChanged(bool)), this,
+                       SLOT(setFlipHButtonChecked(bool)));
+  ret = ret && connect(m_sceneViewer, SIGNAL(onFlipVChanged(bool)), this,
+                       SLOT(setFlipVButtonChecked(bool)));
   ret = ret && connect(app->getCurrentScene(), SIGNAL(sceneSwitched()), this,
                        SLOT(onSceneSwitched()));
 
@@ -206,7 +208,7 @@ ComboViewerPanel::ComboViewerPanel(QWidget *parent, Qt::WFlags flags)
 
 //-----------------------------------------------------------------------------
 /*! toggle show/hide of the widgets according to m_visibleFlag
-*/
+ */
 
 void ComboViewerPanel::updateShowHide() {
   // toolbar
@@ -220,7 +222,7 @@ void ComboViewerPanel::updateShowHide() {
 
 //-----------------------------------------------------------------------------
 /*! showing the show/hide commands
-*/
+ */
 
 void ComboViewerPanel::contextMenuEvent(QContextMenuEvent *event) {
   QMenu *menu = new QMenu(this);
@@ -271,7 +273,7 @@ void ComboViewerPanel::addShowHideContextMenu(QMenu *menu) {
 
 //-----------------------------------------------------------------------------
 /*! slot function for show/hide the parts
-*/
+ */
 
 void ComboViewerPanel::onShowHideActionTriggered(QAction *act) {
   CV_Parts part = (CV_Parts)act->data().toUInt();
@@ -601,6 +603,7 @@ void ComboViewerPanel::onPlayingStatusChanged(bool playing) {
       TApp::instance()->getCurrentOnionSkin()->notifyOnionSkinMaskChanged();
     }
   }
+  m_sceneViewer->invalidateToolStatus();
 }
 
 //-----------------------------------------------------------------------------
@@ -617,13 +620,12 @@ void ComboViewerPanel::changeWindowTitle() {
 
   // if the frame type is "scene editing"
   if (app->getCurrentFrame()->isEditingScene()) {
-    TProject *project   = scene->getProject();
-    QString projectName = QString::fromStdString(project->getName().getName());
-    QString sceneName   = QString::fromStdWString(scene->getSceneName());
+    TProject *project = scene->getProject();
+    QString sceneName = QString::fromStdWString(scene->getSceneName());
     if (sceneName.isEmpty()) sceneName = tr("Untitled");
 
     if (app->getCurrentScene()->getDirtyFlag()) sceneName += QString("*");
-    name = tr("Scene: ") + sceneName + tr("   ::   Project: ") + projectName;
+    name = tr("[SCENE]: ") + sceneName;
     if (frame >= 0)
       name =
           name + tr("   ::   Frame: ") + tr(std::to_string(frame + 1).c_str());
@@ -652,11 +654,11 @@ void ComboViewerPanel::changeWindowTitle() {
         QString::fromStdWString(fp.withFrame(cell.m_frameId).getWideString());
     name = name + tr("   ::   Level: ") + imageName;
 
-    if (m_sceneViewer->isPreviewEnabled() && !m_sceneViewer->is3DView()) {
-      TAffine aff                             = m_sceneViewer->getViewMatrix();
+    if (!m_sceneViewer->is3DView()) {
+      TAffine aff = m_sceneViewer->getViewMatrix();
       if (m_sceneViewer->getIsFlippedX()) aff = aff * TScale(-1, 1);
       if (m_sceneViewer->getIsFlippedY()) aff = aff * TScale(1, -1);
-      name                                    = name + "  ::  Zoom : " +
+      name = name + "  ::  Zoom : " +
              QString::number((int)(100.0 * sqrt(aff.det()) *
                                    m_sceneViewer->getDpiFactor())) +
              "%";
@@ -668,16 +670,15 @@ void ComboViewerPanel::changeWindowTitle() {
                  ->isActualPixelViewOnSceneEditingModeEnabled() &&
              TApp::instance()->getCurrentLevel()->getSimpleLevel() &&
              !CleanupPreviewCheck::instance()
-                  ->isEnabled()  // cleanup preview must be OFF
-             &&
-             !CameraTestCheck::instance()  // camera test mode must be OFF
-                                           // neither
-                  ->isEnabled() &&
+                  ->isEnabled()               // cleanup preview must be OFF
+             && !CameraTestCheck::instance()  // camera test mode must be OFF
+                                              // neither
+                     ->isEnabled() &&
              !m_sceneViewer->is3DView()) {
-      TAffine aff                             = m_sceneViewer->getViewMatrix();
+      TAffine aff = m_sceneViewer->getViewMatrix();
       if (m_sceneViewer->getIsFlippedX()) aff = aff * TScale(-1, 1);
       if (m_sceneViewer->getIsFlippedY()) aff = aff * TScale(1, -1);
-      name                                    = name + "  ::  Zoom : " +
+      name = name + "  ::  Zoom : " +
              QString::number((int)(100.0 * sqrt(aff.det()) *
                                    m_sceneViewer->getDpiFactor())) +
              "%";
@@ -692,12 +693,12 @@ void ComboViewerPanel::changeWindowTitle() {
       QString imageName = QString::fromStdWString(
           fp.withFrame(app->getCurrentFrame()->getFid()).getWideString());
 
-      name = name + tr("Level: ") + imageName;
+      name = name + tr("[LEVEL]: ") + imageName;
       if (!m_sceneViewer->is3DView()) {
         TAffine aff = m_sceneViewer->getViewMatrix();
         if (m_sceneViewer->getIsFlippedX()) aff = aff * TScale(-1, 1);
         if (m_sceneViewer->getIsFlippedY()) aff = aff * TScale(1, -1);
-        name                                    = name + "  ::  Zoom : " +
+        name = name + "  ::  Zoom : " +
                QString::number((int)(100.0 * sqrt(aff.det()) *
                                      m_sceneViewer->getDpiFactor())) +
                "%";
@@ -713,7 +714,7 @@ void ComboViewerPanel::changeWindowTitle() {
 
 //-----------------------------------------------------------------------------
 /*! update the frame range according to the current frame type
-*/
+ */
 void ComboViewerPanel::updateFrameRange() {
   TFrameHandle *fh  = TApp::instance()->getCurrentFrame();
   int frameIndex    = fh->getFrameIndex();
@@ -788,7 +789,7 @@ void ComboViewerPanel::onFrameChanged() {
 
 //-----------------------------------------------------------------------------
 /*! reset the marker positions in the flip console
-*/
+ */
 void ComboViewerPanel::onFrameTypeChanged() {
   if (TApp::instance()->getCurrentFrame()->getFrameType() ==
           TFrameHandle::LevelFrame &&
@@ -864,6 +865,14 @@ void ComboViewerPanel::onButtonPressed(FlipConsole::EGadget button) {
   if (button == FlipConsole::eSound) {
     m_playSound = !m_playSound;
   }
+}
+
+void ComboViewerPanel::setFlipHButtonChecked(bool checked) {
+  m_flipConsole->setChecked(FlipConsole::eFlipHorizontal, checked);
+}
+
+void ComboViewerPanel::setFlipVButtonChecked(bool checked) {
+  m_flipConsole->setChecked(FlipConsole::eFlipVertical, checked);
 }
 
 //-----------------------------------------------------------------------------

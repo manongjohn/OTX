@@ -8,6 +8,7 @@
 // TnzTools includes
 #include "tools/strokeselection.h"
 #include "tools/levelselection.h"
+#include "tools/cursors.h"
 
 // TnzCore includes
 #include "tstroke.h"
@@ -222,7 +223,7 @@ class VectorScaleTool final : public VectorDeformTool {
   std::unique_ptr<Scale> m_scale;
 
 public:
-  VectorScaleTool(VectorSelectionTool *tool, int type);
+  VectorScaleTool(VectorSelectionTool *tool, ScaleType type);
 
   TPointD transform(int index,
                     TPointD newPos) override;  //!< Returns scale value.
@@ -306,11 +307,19 @@ public:
 
   TPropertyGroup *getProperties(int targetType) override;
 
+  bool m_resetCenter;
+
+  void setResetCenter(bool update) { m_resetCenter = update; }
+  bool canResetCenter() { return m_resetCenter; }
+
+  bool isSelectionEditable() { return m_strokeSelection.isEditable(); }
+
 protected:
   void onActivate() override;
   void onDeactivate() override;
 
   void leftButtonDrag(const TPointD &pos, const TMouseEvent &) override;
+  void leftButtonDown(const TPointD &pos, const TMouseEvent &) override;
   void leftButtonUp(const TPointD &pos, const TMouseEvent &) override;
   void leftButtonDoubleClick(const TPointD &, const TMouseEvent &e) override;
   void addContextMenuItems(QMenu *menu) override;
@@ -322,6 +331,14 @@ protected:
 
   bool onPropertyChanged(std::string propertyName) override;
   void onImageChanged() override;
+
+  int getCursorId() const override {
+    if (m_viewer && m_viewer->getGuidedStrokePickerMode())
+      return m_viewer->getGuidedStrokePickerCursor();
+    return m_cursorId;
+  }
+
+  bool isDragging() const override;
 
 private:
   class AttachedLevelSelection final : public LevelSelection {

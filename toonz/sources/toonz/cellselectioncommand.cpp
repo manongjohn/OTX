@@ -1,6 +1,9 @@
 #include <memory>
 
 #include "cellselection.h"
+#include "cellkeyframeselection.h"
+#include "keyframeselection.h"
+#include "keyframedata.h"
 
 // Tnz6 includes
 #include "tapp.h"
@@ -599,7 +602,7 @@ ReframeUndo::ReframeUndo(int r0, int r1, std::vector<int> columnIndeces,
   assert(m_cells);
   int k = 0;
   for (int r = r0; r <= r1; r++)
-    for (int c = 0; c < (int)m_columnIndeces.size(); c++)
+    for (int c     = 0; c < (int)m_columnIndeces.size(); c++)
       m_cells[k++] = TApp::instance()->getCurrentXsheet()->getXsheet()->getCell(
           r, m_columnIndeces[c]);
 
@@ -719,7 +722,7 @@ void TCellSelection::reframeWithEmptyInbetweens() {
 
   // destruction of m_reframePopup will be done along with the main window
   if (!m_reframePopup) m_reframePopup = new ReframePopup();
-  int ret = m_reframePopup->exec();
+  int ret                             = m_reframePopup->exec();
   if (ret == QDialog::Rejected) return;
 
   int step, blank;
@@ -762,7 +765,7 @@ void TColumnSelection::reframeWithEmptyInbetweens() {
     colIndeces.push_back(*it);
 
   if (!m_reframePopup) m_reframePopup = new ReframePopup();
-  int ret = m_reframePopup->exec();
+  int ret                             = m_reframePopup->exec();
   if (ret == QDialog::Rejected) return;
 
   int step, blank;
@@ -1296,8 +1299,9 @@ public:
   void undo() const override;
 
   int getSize() const override {
-    return sizeof *this + (sizeof(TXshLevelP) + sizeof(TXshSimpleLevel *)) *
-                              m_insertedLevels.size();
+    return sizeof *this +
+           (sizeof(TXshLevelP) + sizeof(TXshSimpleLevel *)) *
+               m_insertedLevels.size();
   }
 
   QString getHistoryString() override {
@@ -1450,7 +1454,8 @@ bool CloneLevelUndo::chooseLevelName(TFilePath &fp) const {
   if (levelNamePopup->exec() == QDialog::Accepted) {
     const QString &levelName = levelNamePopup->getName();
 
-    if (isValidFileName_message(levelName)) {
+    if (isValidFileName_message(levelName) &&
+        !isReservedFileName_message(levelName)) {
       fp = fp.withName(levelName.toStdWString());
       return true;
     }
@@ -1526,7 +1531,11 @@ void CloneLevelUndo::cloneLevels() const {
       assert(lt->first && !lt->second.empty());
 
       TXshSimpleLevel *srcSl = lt->first;
-      if (srcSl->getPath().getType() == "psd") continue;
+      if (srcSl->getPath().getType() == "psd" ||
+          srcSl->getPath().getType() == "gif" ||
+          srcSl->getPath().getType() == "mp4" ||
+          srcSl->getPath().getType() == "webm")
+        continue;
 
       const TFilePath &srcPath = srcSl->getPath();
 
@@ -1669,4 +1678,48 @@ void TCellSelection::cloneLevel() {
   std::unique_ptr<CloneLevelUndo> undo(new CloneLevelUndo(m_range));
 
   if (undo->redo(), undo->m_ok) TUndoManager::manager()->add(undo.release());
+}
+
+//=============================================================================
+
+void TCellSelection::shiftKeyframes(int direction) {
+  if (isEmpty() || areAllColSelectedLocked()) return;
+
+  int shift = m_range.getRowCount() * direction;
+  if (!shift) return;
+
+  TXsheetHandle *xsheet = TApp::instance()->getCurrentXsheet();
+  TXsheet *xsh          = xsheet->getXsheet();
+  TCellKeyframeSelection *cellKeyframeSelection = new TCellKeyframeSelection(
+      new TCellSelection(), new TKeyframeSelection());
+
+  cellKeyframeSelection->setXsheetHandle(xsheet);
+
+  TUndoManager::manager()->beginBlock();
+  for (int col = m_range.m_c0; col <= m_range.m_c1; col++) {
+    TXshColumn *column = xsh->getColumn(col);
+    if (!column || column->isLocked()) continue;
+
+    TStageObjectId colId =
+        col < 0 ? TStageObjectId::ColumnId(xsh->getCameraColumnIndex())
+                : TStageObjectId::ColumnId(col);
+    TStageObject *colObj = xsh->getStageObject(colId);
+    TStageObject::KeyframeMap keyframes;
+    colObj->getKeyframes(keyframes);
+    if (!keyframes.size()) continue;
+    int row = m_range.m_r0;
+    for (TStageObject::KeyframeMap::iterator it = keyframes.begin();
+         it != keyframes.end(); it++) {
+      if (it->first < m_range.m_r0) continue;
+      row = it->first;
+      cellKeyframeSelection->selectCellsKeyframes(row, col,
+                                                  xsh->getFrameCount(), col);
+      cellKeyframeSelection->getKeyframeSelection()->shiftKeyframes(
+          row, row + shift, col, col);
+      break;
+    }
+  }
+  TUndoManager::manager()->endBlock();
+
+  delete cellKeyframeSelection;
 }

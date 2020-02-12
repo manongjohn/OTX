@@ -38,13 +38,14 @@
   <Gradient>
     STD_diamondGradientFx
     STD_fourPointsGradientFx 
-    STD_linearGradientFx
+    STD_iwa_LinearGradientFx
     STD_multiLinearGradientFx 
     STD_multiRadialGradientFx   
     STD_radialGradientFx
     STD_spiralFx 
     STD_squareGradientFx 
     STD_iwa_CorridorGradientFx 
+    STD_iwa_SpinGradientFx 
   </Gradient>
   <Image_Adjust>
     STD_iwa_AdjustExposureFx

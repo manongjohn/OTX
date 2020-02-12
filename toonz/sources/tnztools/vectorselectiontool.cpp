@@ -587,11 +587,10 @@ void DragSelectionTool::VectorDeformTool::applyTransform(FourPoints bbox) {
   VectorFreeDeformer *freeDeformer =
       static_cast<VectorFreeDeformer *>(tool->getFreeDeformer());
 
-  const bool stayedTheSame =
-      bbox.getP00() == freeDeformer->getPoint(0) &&
-      bbox.getP10() == freeDeformer->getPoint(1) &&
-      bbox.getP11() == freeDeformer->getPoint(2) &&
-      bbox.getP01() == freeDeformer->getPoint(3);
+  const bool stayedTheSame = bbox.getP00() == freeDeformer->getPoint(0) &&
+                             bbox.getP10() == freeDeformer->getPoint(1) &&
+                             bbox.getP11() == freeDeformer->getPoint(2) &&
+                             bbox.getP01() == freeDeformer->getPoint(3);
 
   freeDeformer->setPoints(bbox.getP00(), bbox.getP10(), bbox.getP11(),
                           bbox.getP01());
@@ -738,6 +737,10 @@ void DragSelectionTool::VectorDeformTool::leftButtonUp(const TPointD &pos,
   m_isDragging = false;
 
   tool->notifyImageChanged();
+
+  VectorSelectionTool *selectionTool =
+      dynamic_cast<VectorSelectionTool *>(m_tool);
+  selectionTool->setResetCenter(true);
 }
 
 //=============================================================================
@@ -767,6 +770,8 @@ void DragSelectionTool::VectorRotationTool::transform(TAffine aff,
 
 void DragSelectionTool::VectorRotationTool::leftButtonDrag(
     const TPointD &pos, const TMouseEvent &e) {
+  VectorSelectionTool *tool = dynamic_cast<VectorSelectionTool *>(m_tool);
+  tool->setResetCenter(false);
   m_rotation->leftButtonDrag(pos, e);
 }
 
@@ -786,6 +791,8 @@ DragSelectionTool::VectorFreeDeformTool::VectorFreeDeformTool(
 
 void DragSelectionTool::VectorFreeDeformTool::leftButtonDrag(
     const TPointD &pos, const TMouseEvent &e) {
+  VectorSelectionTool *tool = dynamic_cast<VectorSelectionTool *>(m_tool);
+  tool->setResetCenter(false);
   m_freeDeform->leftButtonDrag(pos, e);
 }
 
@@ -820,6 +827,8 @@ void DragSelectionTool::VectorMoveSelectionTool::leftButtonDown(
 
 void DragSelectionTool::VectorMoveSelectionTool::leftButtonDrag(
     const TPointD &pos, const TMouseEvent &e) {
+  VectorSelectionTool *tool = dynamic_cast<VectorSelectionTool *>(m_tool);
+  tool->setResetCenter(false);
   if (e.isCtrlPressed() ||
       norm2(pos - getStartPos()) > l_dragThreshold * getTool()->getPixelSize())
     m_moveSelection->leftButtonDrag(pos, e);
@@ -832,7 +841,7 @@ void DragSelectionTool::VectorMoveSelectionTool::leftButtonDrag(
 //-----------------------------------------------------------------------------
 
 DragSelectionTool::VectorScaleTool::VectorScaleTool(VectorSelectionTool *tool,
-                                                    int type)
+                                                    ScaleType type)
     : VectorDeformTool(tool), m_scale(new Scale(this, type)) {}
 
 //-----------------------------------------------------------------------------
@@ -886,6 +895,8 @@ void DragSelectionTool::VectorScaleTool::leftButtonDown(const TPointD &pos,
 
 void DragSelectionTool::VectorScaleTool::leftButtonDrag(const TPointD &pos,
                                                         const TMouseEvent &e) {
+  VectorSelectionTool *tool = dynamic_cast<VectorSelectionTool *>(m_tool);
+  tool->setResetCenter(false);
   m_scale->leftButtonDrag(pos, e);
 }
 
@@ -1100,6 +1111,8 @@ void DragSelectionTool::VectorChangeThicknessTool::leftButtonDrag(
   TPointD delta    = pos - m_curPos;
   TVectorImageP vi = getTool()->getImage(true);
   if (!vi) return;
+  VectorSelectionTool *tool = dynamic_cast<VectorSelectionTool *>(m_tool);
+  tool->setResetCenter(false);
   m_thicknessChange = (pos.y - m_firstPos.y) * 0.2;
   changeImageThickness(*vi, m_thicknessChange);
   getTool()->m_deformValues.m_maxSelectionThickness = m_thicknessChange;
@@ -1197,7 +1210,8 @@ VectorSelectionTool::VectorSelectionTool(int targetType)
     , m_joinStyle("Join")
     , m_miterJoinLimit("Miter:", 0, 100, 4)
     , m_selectionCount(0)
-    , m_canEnterGroup(true) {
+    , m_canEnterGroup(true)
+    , m_resetCenter(true) {
   assert(targetType == TTool::Vectors);
   m_prop.bind(m_selectionTarget);
   m_prop.bind(m_constantThickness);
@@ -1438,7 +1452,6 @@ void VectorSelectionTool::clearSelectedStrokes() {
   m_strokeSelection.selectNone();
   m_levelSelection.styles().clear();
   m_deformValues.reset();
-  m_centers.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -1543,6 +1556,8 @@ void VectorSelectionTool::leftButtonDoubleClick(const TPointD &pos,
 void VectorSelectionTool::leftButtonDrag(const TPointD &pos,
                                          const TMouseEvent &e) {
   if (m_dragTool) {
+    if (!m_strokeSelection.isEditable()) return;
+
     m_dragTool->leftButtonDrag(pos, e);
     return;
   }
@@ -1602,12 +1617,30 @@ void VectorSelectionTool::leftButtonDrag(const TPointD &pos,
 
 //-----------------------------------------------------------------------------
 
+void VectorSelectionTool::leftButtonDown(const TPointD &pos,
+                                         const TMouseEvent &e) {
+  if (getViewer() && getViewer()->getGuidedStrokePickerMode()) {
+    getViewer()->doPickGuideStroke(pos);
+    return;
+  }
+
+  SelectionTool::leftButtonDown(pos, e);
+}
+
+//-----------------------------------------------------------------------------
+
 void VectorSelectionTool::leftButtonUp(const TPointD &pos,
                                        const TMouseEvent &e) {
   m_leftButtonMousePressed = false;
   m_shiftPressed           = false;
 
   if (m_dragTool) {
+    if (!m_strokeSelection.isEditable()) {
+      delete m_dragTool;
+      m_dragTool = 0;
+      return;
+    }
+
     m_dragTool->leftButtonUp(pos, e);
     delete m_dragTool;
     m_dragTool = 0;
@@ -1779,6 +1812,7 @@ bool VectorSelectionTool::isSelectionEmpty() {
 
 void VectorSelectionTool::computeBBox() {
   m_bboxs.clear();
+  if (canResetCenter()) m_centers.clear();
 
   TVectorImageP vi = getImage(false);
   if (!vi) return;
@@ -1838,7 +1872,7 @@ void VectorSelectionTool::computeBBox() {
     FourPoints bbox;
     bbox = newBbox;
     m_bboxs.push_back(bbox);
-    if (getCenter() == TPointD())
+    if (canResetCenter())
       m_centers.push_back(0.5 * (bbox.getP11() + bbox.getP00()));
   }
 
@@ -1956,6 +1990,12 @@ void VectorSelectionTool::onImageChanged() {
 
 //-----------------------------------------------------------------------------
 
+bool VectorSelectionTool::isDragging() const {
+  return m_enabled && m_leftButtonMousePressed;
+}
+
+//-----------------------------------------------------------------------------
+
 void VectorSelectionTool::doOnDeactivate() {
   m_strokeSelection.selectNone();
   m_levelSelection.selectNone();
@@ -1984,6 +2024,8 @@ TPropertyGroup *VectorSelectionTool::getProperties(int idx) {
 //-----------------------------------------------------------------------------
 
 bool VectorSelectionTool::onPropertyChanged(std::string propertyName) {
+  if (!m_strokeSelection.isEditable()) return false;
+
   if (SelectionTool::onPropertyChanged(propertyName)) return true;
 
   if (propertyName == m_constantThickness.getName())
@@ -2165,6 +2207,8 @@ void VectorSelectionTool::updateAction(TPointD pos, const TMouseEvent &e) {
 
   SelectionTool::updateAction(pos, e);
   if (m_what != Outside || m_cursorId != ToolCursor::StrokeSelectCursor) return;
+
+  if (!m_strokeSelection.isEditable()) return;
 
   FourPoints bbox = getBBox();
   UINT index      = 0;

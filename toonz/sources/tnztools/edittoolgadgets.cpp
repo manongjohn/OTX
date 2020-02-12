@@ -110,6 +110,7 @@ public:
 class GadgetDragTool final : public DragTool {
   FxGadgetController *m_controller;
   FxGadget *m_gadget;
+  TPointD m_firstPos;
 
 public:
   GadgetDragTool(FxGadgetController *controller, FxGadget *gadget)
@@ -120,14 +121,25 @@ public:
   void leftButtonDown(const TPointD &pos, const TMouseEvent &e) override {
     m_gadget->createUndo();
     m_gadget->leftButtonDown(getMatrix() * pos, e);
+    m_firstPos = pos;
   }
 
   void leftButtonDrag(const TPointD &pos, const TMouseEvent &e) override {
-    m_gadget->leftButtonDrag(getMatrix() * pos, e);
+    // precise control with pressing Alt key
+    if (e.isAltPressed()) {
+      TPointD precisePos = m_firstPos + (pos - m_firstPos) * 0.1;
+      m_gadget->leftButtonDrag(getMatrix() * precisePos, e);
+    } else
+      m_gadget->leftButtonDrag(getMatrix() * pos, e);
   }
 
   void leftButtonUp(const TPointD &pos, const TMouseEvent &e) override {
-    m_gadget->leftButtonUp(getMatrix() * pos, e);
+    // precise control with pressing Alt key
+    if (e.isAltPressed()) {
+      TPointD precisePos = m_firstPos + (pos - m_firstPos) * 0.1;
+      m_gadget->leftButtonUp(getMatrix() * precisePos, e);
+    } else
+      m_gadget->leftButtonUp(getMatrix() * pos, e);
     m_gadget->commitUndo();
   }
 };
@@ -538,6 +550,171 @@ void AngleFxGadget::leftButtonDrag(const TPointD &pos, const TMouseEvent &) {
 //---------------------------------------------------------------------------
 
 void AngleFxGadget::leftButtonUp(const TPointD &pos, const TMouseEvent &) {}
+
+//=============================================================================
+
+class AngleRangeFxGadget final : public FxGadget {
+  TDoubleParamP m_startAngle, m_endAngle;
+  TPointParamP m_center;
+
+  enum HANDLE { StartAngle = 0, EndAngle, None } m_handle = None;
+
+  double m_clickedAngle;
+  double m_targetAngle, m_anotherAngle;
+
+public:
+  AngleRangeFxGadget(FxGadgetController *controller,
+                     const TDoubleParamP &startAngle,
+                     const TDoubleParamP &endAngle, const TPointParamP &center);
+
+  void draw(bool picking) override;
+
+  void leftButtonDown(const TPointD &pos, const TMouseEvent &) override;
+  void leftButtonDrag(const TPointD &pos, const TMouseEvent &) override;
+  void leftButtonUp(const TPointD &pos, const TMouseEvent &) override;
+};
+
+//---------------------------------------------------------------------------
+
+AngleRangeFxGadget::AngleRangeFxGadget(FxGadgetController *controller,
+                                       const TDoubleParamP &startAngle,
+                                       const TDoubleParamP &endAngle,
+                                       const TPointParamP &center)
+    : FxGadget(controller, 2)
+    , m_startAngle(startAngle)
+    , m_endAngle(endAngle)
+    , m_center(center) {
+  addParam(startAngle);
+  addParam(endAngle);
+  addParam(center->getX());
+  addParam(center->getY());
+}
+
+//---------------------------------------------------------------------------
+
+void AngleRangeFxGadget::draw(bool picking) {
+  auto setColorById = [&](int id) {
+    if (isSelected(id))
+      glColor3dv(m_selectedColor);
+    else
+      glColor3d(0, 0, 1);
+  };
+
+  double pixelSize = sqrt(tglGetPixelSize2()) * getDevPixRatio();
+  double r         = pixelSize * 200;
+  double a         = pixelSize * 30;
+
+  TPointD center = getValue(m_center);
+  double start   = getValue(m_startAngle);
+  double end     = getValue(m_endAngle);
+
+  glPushMatrix();
+  glTranslated(center.x, center.y, 0);
+
+  setColorById(StartAngle);
+  glPushMatrix();
+  glPushName(getId() + StartAngle);
+  glRotated(start, 0, 0, 1);
+  glBegin(GL_LINE_STRIP);
+  glVertex2d(0, 0);
+  glVertex2d(r, 0);
+  // expand handle while dragging
+  if (m_handle == StartAngle) glVertex2d(r * 5.0, 0);
+  glEnd();
+  glPopName();
+
+  glPushMatrix();
+  glTranslated(r * 1.05, 0, 0.0);
+  glScaled(pixelSize * 1.6, pixelSize * 1.6, 1);
+  glRotated(-start, 0, 0, 1);
+  tglDrawText(TPointD(0, 0), "Start Angle");
+  glPopMatrix();
+
+  glPopMatrix();
+
+  setColorById(EndAngle);
+  glPushMatrix();
+  glPushName(getId() + EndAngle);
+  glRotated(end, 0, 0, 1);
+  glBegin(GL_LINE_STRIP);
+  glVertex2d(0, 0);
+  glVertex2d(r, 0);
+  // expand handle while dragging
+  if (m_handle == EndAngle) glVertex2d(r * 5.0, 0);
+  glEnd();
+
+  glPopName();
+  glPushMatrix();
+  glTranslated(r * 1.05, 0, 0.0);
+  glScaled(pixelSize * 1.6, pixelSize * 1.6, 1);
+  glRotated(-end, 0, 0, 1);
+  tglDrawText(TPointD(0, 0), "End Angle");
+  glPopMatrix();
+
+  glPopMatrix();
+
+  // draw arc
+  while (end <= start) end += 360.0;
+
+  glColor3d(0, 0, 1);
+  glBegin(GL_LINE_STRIP);
+  double angle  = start;
+  double dAngle = 5.0;
+  while (angle <= end) {
+    double rad = angle / M_180_PI;
+    glVertex2d(a * std::cos(rad), a * std::sin(rad));
+    angle += dAngle;
+  }
+  if (angle != end)
+    glVertex2d(a * std::cos(end / M_180_PI), a * std::sin(end / M_180_PI));
+  glEnd();
+
+  glPopMatrix();
+}
+
+//---------------------------------------------------------------------------
+
+void AngleRangeFxGadget::leftButtonDown(const TPointD &pos,
+                                        const TMouseEvent &) {
+  m_handle = (HANDLE)m_selected;
+  if (m_handle == None) return;
+  TPointD d             = pos - getValue(m_center);
+  m_clickedAngle        = atan2(d.y, d.x) * M_180_PI;
+  TDoubleParamP target  = (m_handle == StartAngle) ? m_startAngle : m_endAngle;
+  TDoubleParamP another = (m_handle == StartAngle) ? m_endAngle : m_startAngle;
+  m_targetAngle         = getValue(target);
+  m_anotherAngle        = getValue(another);
+}
+
+//---------------------------------------------------------------------------
+
+void AngleRangeFxGadget::leftButtonDrag(const TPointD &pos,
+                                        const TMouseEvent &e) {
+  if (m_handle == None) return;
+  TDoubleParamP target = (m_handle == StartAngle) ? m_startAngle : m_endAngle;
+  TPointD d            = pos - getValue(m_center);
+  double angle         = atan2(d.y, d.x) * M_180_PI;
+  double targetAngle   = m_targetAngle + angle - m_clickedAngle;
+  // move every 10 degrees when pressing Shift key
+  if (e.isShiftPressed()) targetAngle = std::round(targetAngle / 10.0) * 10.0;
+  setValue(target, targetAngle);
+
+  // move both angles when pressing Ctrl key
+  if (e.isCtrlPressed()) {
+    TDoubleParamP another =
+        (m_handle == StartAngle) ? m_endAngle : m_startAngle;
+    double anotherAngle = m_anotherAngle + angle - m_clickedAngle;
+    if (e.isShiftPressed())
+      anotherAngle = std::round(anotherAngle / 10.0) * 10.0;
+    setValue(another, anotherAngle);
+  }
+}
+
+//---------------------------------------------------------------------------
+
+void AngleRangeFxGadget::leftButtonUp(const TPointD &pos, const TMouseEvent &) {
+  m_handle = None;
+}
 
 //=============================================================================
 
@@ -1165,6 +1342,193 @@ void QuadFxGadget::leftButtonUp(const TPointD &pos, const TMouseEvent &) {
   m_handle = None;
 }
 
+//=============================================================================
+
+class LinearRangeFxGadget final : public FxGadget {
+  TPointParamP m_start, m_end;
+
+  enum HANDLE { Body = 0, Start, End, None } m_handle = None;
+
+  TPointD m_clickedPos;
+  TPointD m_targetPos, m_anotherPos;
+
+public:
+  LinearRangeFxGadget(FxGadgetController *controller,
+                      const TPointParamP &startPoint,
+                      const TPointParamP &endPoint);
+
+  void draw(bool picking) override;
+
+  void leftButtonDown(const TPointD &pos, const TMouseEvent &) override;
+  void leftButtonDrag(const TPointD &pos, const TMouseEvent &) override;
+  void leftButtonUp(const TPointD &pos, const TMouseEvent &) override;
+};
+
+//---------------------------------------------------------------------------
+
+LinearRangeFxGadget::LinearRangeFxGadget(FxGadgetController *controller,
+                                         const TPointParamP &startPoint,
+                                         const TPointParamP &endPoint)
+    : FxGadget(controller, 3), m_start(startPoint), m_end(endPoint) {
+  addParam(startPoint->getX());
+  addParam(startPoint->getY());
+  addParam(endPoint->getX());
+  addParam(endPoint->getY());
+}
+
+//---------------------------------------------------------------------------
+
+void LinearRangeFxGadget::draw(bool picking) {
+  auto setColorById = [&](int id) {
+    if (isSelected(id))
+      glColor3dv(m_selectedColor);
+    else
+      glColor3d(0, 0, 1);
+  };
+
+  auto drawPoint = [&]() {
+    double r = getPixelSize() * 3;
+    double d = getPixelSize() * 6;
+    glBegin(GL_LINES);
+    glVertex2d(-d, 0);
+    glVertex2d(-r, 0);
+    glVertex2d(d, 0);
+    glVertex2d(r, 0);
+    glVertex2d(0, -d);
+    glVertex2d(0, -r);
+    glVertex2d(0, d);
+    glVertex2d(0, r);
+    glEnd();
+    tglDrawRect(-r, -r, r, r);
+  };
+
+  setPixelSize();
+  double r = getPixelSize() * 200;
+  double a = getPixelSize() * 5;
+
+  TPointD start = getValue(m_start);
+  TPointD end   = getValue(m_end);
+
+  glPushMatrix();
+
+  if (start != end) {
+    // draw lines perpendicular to the line between ends
+    double angle = std::atan2(start.x - end.x, end.y - start.y) * M_180_PI;
+    // start
+    setColorById(Start);
+    glPushMatrix();
+    glTranslated(start.x, start.y, 0);
+    glRotated(angle, 0, 0, 1);
+    if (m_handle == Start) glScaled(5.0, 1.0, 1.0);
+    glBegin(GL_LINES);
+    glVertex2d(-r, 0);
+    glVertex2d(r, 0);
+    glEnd();
+    glPopMatrix();
+    // end
+    setColorById(End);
+    glPushMatrix();
+    glTranslated(end.x, end.y, 0);
+    glRotated(angle, 0, 0, 1);
+    if (m_handle == End) glScaled(5.0, 1.0, 1.0);
+    glBegin(GL_LINE_STRIP);
+    glVertex2d(-r, 0);
+    glVertex2d(r, 0);
+    glEnd();
+    glPopMatrix();
+
+    // line body
+    setColorById(Body);
+    glPushName(getId() + Body);
+    glBegin(GL_LINES);
+    glVertex2d(start.x, start.y);
+    glVertex2d(end.x, end.y);
+    glEnd();
+    // small dash at the center
+    glPushMatrix();
+    glTranslated((start.x + end.x) / 2.0, (start.y + end.y) / 2.0, 0);
+    glRotated(angle, 0, 0, 1);
+    glBegin(GL_LINES);
+    glVertex2d(-a, 0);
+    glVertex2d(a, 0);
+    glEnd();
+    glPopMatrix();
+    glPopName();
+  }
+
+  // start point
+  setColorById(Start);
+  glPushName(getId() + Start);
+  glPushMatrix();
+  glTranslated(start.x, start.y, 0);
+  drawPoint();
+  glPopMatrix();
+  glPopName();
+  drawTooltip(start + TPointD(7, 3) * getPixelSize(), "Start");
+
+  // end point
+  setColorById(End);
+  glPushName(getId() + End);
+  glPushMatrix();
+  glTranslated(end.x, end.y, 0);
+  drawPoint();
+  glPopMatrix();
+  glPopName();
+  drawTooltip(end + TPointD(7, 3) * getPixelSize(), "End");
+
+  glPopMatrix();
+}
+
+//---------------------------------------------------------------------------
+
+void LinearRangeFxGadget::leftButtonDown(const TPointD &pos,
+                                         const TMouseEvent &) {
+  m_handle = (HANDLE)m_selected;
+  if (m_handle == None) return;
+  m_clickedPos = pos;
+  m_targetPos  = (m_handle == Start || m_handle == Body) ? getValue(m_start)
+                                                        : getValue(m_end);
+  m_anotherPos = (m_handle == Start || m_handle == Body) ? getValue(m_end)
+                                                         : getValue(m_start);
+}
+
+//---------------------------------------------------------------------------
+
+void LinearRangeFxGadget::leftButtonDrag(const TPointD &pos,
+                                         const TMouseEvent &e) {
+  if (m_handle == None) return;
+  TPointD d = pos - m_clickedPos;
+
+  if (m_handle == Body) {
+    setValue(m_start, m_targetPos + d);
+    setValue(m_end, m_anotherPos + d);
+    return;
+  }
+
+  TPointParamP target = (m_handle == Start) ? m_start : m_end;
+
+  if (m_targetPos != m_anotherPos && e.isShiftPressed()) {
+    TPointD vecA = m_targetPos - m_anotherPos;
+    TPointD vecB = m_targetPos + d - m_anotherPos;
+    d            = vecA * ((vecA.x * vecB.x + vecA.y * vecB.y) /
+                    (vecA.x * vecA.x + vecA.y * vecA.y) -
+                1.0);
+  }
+
+  setValue(target, m_targetPos + d);
+
+  if (e.isCtrlPressed()) {
+    TPointParamP another = (m_handle == Start) ? m_end : m_start;
+    setValue(another, m_anotherPos - d);
+  }
+}
+
+//---------------------------------------------------------------------------
+
+void LinearRangeFxGadget::leftButtonUp(const TPointD &pos,
+                                       const TMouseEvent &) {
+  m_handle = None;
+}
 //*************************************************************************************
 //    FxGadgetController  implementation
 //*************************************************************************************
@@ -1272,6 +1636,14 @@ FxGadget *FxGadgetController::allocateGadget(const TParamUIConcept &uiConcept) {
     break;
   }
 
+  case TParamUIConcept::ANGLE_2: {
+    assert(uiConcept.m_params.size() == 3);
+    gadget =
+        new AngleRangeFxGadget(this, uiConcept.m_params[0],
+                               uiConcept.m_params[1], uiConcept.m_params[2]);
+    break;
+  }
+
   case TParamUIConcept::POINT: {
     assert(uiConcept.m_params.size() == 1);
     gadget = new PointFxGadget(this, uiConcept.m_params[0]);
@@ -1332,6 +1704,13 @@ FxGadget *FxGadgetController::allocateGadget(const TParamUIConcept &uiConcept) {
   case TParamUIConcept::DIAMOND: {
     assert(uiConcept.m_params.size() == 1);
     gadget = new DiamondFxGadget(this, uiConcept.m_params[0]);
+    break;
+  }
+
+  case TParamUIConcept::LINEAR_RANGE: {
+    assert(uiConcept.m_params.size() == 2);
+    gadget = new LinearRangeFxGadget(this, uiConcept.m_params[0],
+                                     uiConcept.m_params[1]);
     break;
   }
   }

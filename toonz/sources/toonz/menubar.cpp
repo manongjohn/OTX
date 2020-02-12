@@ -1102,7 +1102,10 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   QMenu *importMenu = fileMenu->addMenu(tr("Import"));
   { addMenuItem(importMenu, MI_ImportMagpieFile); }
   QMenu *exportMenu = fileMenu->addMenu(tr("Export"));
-  { addMenuItem(exportMenu, MI_SoundTrack); }
+  {
+    addMenuItem(exportMenu, MI_SoundTrack);
+    addMenuItem(exportMenu, MI_ExportXDTS);
+  }
   fileMenu->addSeparator();
   addMenuItem(fileMenu, MI_PrintXsheet);
   addMenuItem(fileMenu, MI_Print);
@@ -1315,6 +1318,7 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   }
   cellsMenu->addSeparator();
   addMenuItem(cellsMenu, MI_Autorenumber);
+  addMenuItem(cellsMenu, MI_CreateBlankDrawing);
   addMenuItem(cellsMenu, MI_Duplicate);
   addMenuItem(cellsMenu, MI_MergeFrames);
   addMenuItem(cellsMenu, MI_CloneLevel);
@@ -1379,6 +1383,8 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   addMenuItem(viewMenu, MI_NoShift);
   addMenuItem(viewMenu, MI_ResetShift);
   viewMenu->addSeparator();
+  addMenuItem(viewMenu, MI_VectorGuidedDrawing);
+  viewMenu->addSeparator();
   addMenuItem(viewMenu, MI_RasterizePli);
 #ifdef LINETEST
   viewMenu->addSeparator();
@@ -1410,6 +1416,7 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   addMenuItem(windowsMenu, MI_OpenTimelineView);
   addMenuItem(windowsMenu, MI_OpenFunctionEditor);
   addMenuItem(windowsMenu, MI_OpenSchematic);
+  addMenuItem(windowsMenu, MI_FxParamEditor);
   addMenuItem(windowsMenu, MI_OpenFilmStrip);
   windowsMenu->addSeparator();
   addMenuItem(windowsMenu, MI_OpenFileBrowser);
@@ -1422,7 +1429,11 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   addMenuItem(windowsMenu, MI_OpenTMessage);
   addMenuItem(windowsMenu, MI_OpenHistoryPanel);
   addMenuItem(windowsMenu, MI_AudioRecording);
+#ifdef WITH_STOPMOTION
+  addMenuItem(windowsMenu, MI_OpenStopMotionPanel);
+#endif
   addMenuItem(windowsMenu, MI_StartupPopup);
+  addMenuItem(windowsMenu, MI_OpenGuidedDrawingControls);
 #ifdef LINETEST
   windowsMenu->addSeparator();
   addMenuItem(windowsMenu, MI_OpenExport);
@@ -1436,6 +1447,10 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   // Menu' HELP
   QMenu *helpMenu = addMenu(tr("Help"), fullMenuBar);
   addMenuItem(helpMenu, MI_OpenOnlineManual);
+  addMenuItem(helpMenu, MI_OpenWhatsNew);
+  addMenuItem(helpMenu, MI_OpenCommunityForum);
+  helpMenu->addSeparator();
+  addMenuItem(helpMenu, MI_OpenReportABug);
   helpMenu->addSeparator();
   addMenuItem(helpMenu, MI_About);
 

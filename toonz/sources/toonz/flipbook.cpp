@@ -3,7 +3,6 @@
 // System includes
 #include "tsystem.h"
 #include "timagecache.h"
-#include "ttimer.h"
 
 // Geometry
 #include "tgeometry.h"
@@ -162,7 +161,7 @@ inline TRectD getImageBoundsD(const TImageP &img) {
     \sa FlipBookPool class.
 */
 FlipBook::FlipBook(QWidget *parent, QString viewerTitle,
-                   UINT flipConsoleButtonMask, UCHAR flags,
+                   std::vector<int> flipConsoleButtonMask, UCHAR flags,
                    bool isColorModel)  //, bool showOnlyPlayBackgroundButton)
     : QWidget(parent),
       m_viewerTitle(viewerTitle),
@@ -201,7 +200,9 @@ FlipBook::FlipBook(QWidget *parent, QString viewerTitle,
       new ImageUtils::FullScreenWidget(this);
 
   m_imageViewer = new ImageViewer(
-      fsWidget, this, flipConsoleButtonMask == FlipConsole::cFullConsole);
+      fsWidget, this,
+      std::find(flipConsoleButtonMask.begin(), flipConsoleButtonMask.end(),
+                FlipConsole::eHisto) == flipConsoleButtonMask.end());
   fsWidget->setWidget(m_imageViewer);
 
   setFocusProxy(m_imageViewer);
@@ -1760,7 +1761,8 @@ void ImageViewer::showHistogram() {
 
 void FlipBook::dragEnterEvent(QDragEnterEvent *e) {
   const QMimeData *mimeData = e->mimeData();
-  if (!acceptResourceDrop(mimeData->urls()) &&
+  bool isResourceDrop       = acceptResourceDrop(mimeData->urls());
+  if (!isResourceDrop &&
       !mimeData->hasFormat("application/vnd.toonz.drawings") &&
       !mimeData->hasFormat(CastItems::getMimeFormat()))
     return;
@@ -1784,18 +1786,31 @@ void FlipBook::dragEnterEvent(QDragEnterEvent *e) {
     }
   }
 
-  e->acceptProposedAction();
+  if (isResourceDrop) {
+    // Force CopyAction
+    e->setDropAction(Qt::CopyAction);
+    // For files, don't accept original proposed action in case it's a move
+    e->accept();
+  } else
+    e->acceptProposedAction();
 }
 
 //-----------------------------------------------------------------------------
 
 void FlipBook::dropEvent(QDropEvent *e) {
   const QMimeData *mimeData = e->mimeData();
+  bool isResourceDrop       = acceptResourceDrop(mimeData->urls());
   if (mimeData->hasUrls()) {
     for (const QUrl &url : mimeData->urls()) {
       TFilePath fp(url.toLocalFile().toStdWString());
       if (TFileType::getInfo(fp) != TFileType::UNKNOW_FILE) setLevel(fp);
-      e->acceptProposedAction();
+      if (isResourceDrop) {
+        // Force CopyAction
+        e->setDropAction(Qt::CopyAction);
+        // For files, don't accept original proposed action in case it's a move
+        e->accept();
+      } else
+        e->acceptProposedAction();
       return;
     }
   } else if (mimeData->hasFormat(

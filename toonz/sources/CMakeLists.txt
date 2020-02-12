@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.11)
+﻿cmake_minimum_required(VERSION 2.8.11)
 
 set(CMAKE_BUILD_TYPE_INIT Release)
 
@@ -101,6 +101,7 @@ endif()
 
 option(WITH_SYSTEM_LZO "Use the system LZO library instead of 'thirdpary'" ${_init_SYSTEM_LZO})
 option(WITH_SYSTEM_SUPERLU "Use the system SuperLU library instead of 'thirdpary'" ${_init_SYSTEM_SUPERLU})
+option(WITH_STOPMOTION "Build with Stop Motion features - Requires Canon SDK" OFF)
 
 # avoid using again
 option_defaults_clear()
@@ -258,12 +259,28 @@ if(Qt5Core_VERSION VERSION_LESS QT_MINIMUM_VERSION)
 endif()
 unset(QT_MINIMUM_VERSION)
 
-if(BUILD_ENV_MSVC)
+if(BUILD_ENV_MSVC AND NOT WITH_STOPMOTION)
     include_directories(
         SYSTEM
         ${SDKROOT}/glut/3.7.6/include
         ${SDKROOT}/zlib-1.2.8
         ${SDKROOT}/LibJPEG/jpeg-9
+    )
+    add_definitions(
+        -DGLUT_NO_LIB_PRAGMA
+    )
+endif()
+
+if(BUILD_ENV_MSVC AND WITH_STOPMOTION)
+    find_package(OpenCV 4.1 REQUIRED)
+    include_directories(
+        SYSTEM
+        ${SDKROOT}/glut/3.7.6/include
+        ${SDKROOT}/zlib-1.2.8
+        ${SDKROOT}/LibJPEG/jpeg-9
+        ${SDKROOT}/canon/Header
+        ${SDKROOT}/libjpeg-turbo64/include
+        ${OpenCV_INCLUDE_DIRS}
     )
     add_definitions(
         -DGLUT_NO_LIB_PRAGMA
@@ -330,6 +347,10 @@ if(BUILD_ENV_MSVC)
     set(SUPERLU_LIB ${SDKROOT}/superlu/SuperLU_${MSVC_LIB_VERSION}_${PLATFORM}.lib)
     set(OPENBLAS_LIB ${SDKROOT}/openblas/libopenblas_${PLATFORM}.lib)
     set(USB_LIB)  # unused
+    if (WITH_STOPMOTION)
+        set(CANON_LIB ${SDKROOT}/canon/library/EDSDK.lib)
+        set(TURBOJPEG_LIB ${SDKROOT}/libjpeg-turbo64/lib/turbojpeg.lib)
+    endif()
     if(PLATFORM EQUAL 32)
         set(QT_LIB ${SDKROOT}/quicktime/QT73SDK/Libraries/QTMLClient.lib)
     endif()
@@ -385,9 +406,6 @@ elseif(BUILD_ENV_APPLE)
     pkg_check_modules(MYPAINT_LIB REQUIRED libmypaint)
 elseif(BUILD_ENV_UNIXLIKE)
     if(BUILD_TARGET_WIN)
-        if(PLATFORM EQUAL 32)
-            set(QT_LIB ${SDKROOT}/quicktime/QT73SDK/Libraries/QTMLClient.lib)
-        endif()
         find_library(GL_LIB opengl32)
         find_library(GLU_LIB glu32)
         find_library(GLUT_LIB NAMES glut freeglut)
@@ -443,7 +461,6 @@ elseif(BUILD_ENV_UNIXLIKE)
     if(NOT BUILD_TARGET_WIN)
         pkg_check_modules(USB_LIB REQUIRED libusb-1.0)
         pkg_check_modules(FREETYPE REQUIRED freetype2)
-        pkg_check_modules(SDL_LIB REQUIRED sdl2)
     endif()
     # Can be 'libmypaint' or 'libmypaint-1.x'
     pkg_search_module(MYPAINT_LIB REQUIRED libmypaint libmypaint-1.3>=1.3)
@@ -594,7 +611,7 @@ if(BUILD_ENV_APPLE)
     add_subdirectory(mousedragfilter)
 endif()
 
-if((PLATFORM EQUAL 32) AND (BUILD_TARGET_WIN OR BUILD_TARGET_APPLE))
+if((PLATFORM EQUAL 32) AND ((BUILD_TARGET_WIN AND BUILD_ENV_MSVC) OR BUILD_TARGET_APPLE))
     add_subdirectory(t32bitsrv)
 endif()
 

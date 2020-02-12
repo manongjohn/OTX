@@ -28,12 +28,11 @@
 #include <QDesktopWidget>
 #include <QCheckBox>
 
-// boost includes
-#include <boost/algorithm/cxx11/any_of.hpp>
+#include <algorithm>
 
 using namespace DVGui;
 
-QString DialogTitle = "OpenToonz 1.3";
+QString DialogTitle = "OpenToonz 1.4";
 
 //=============================================================================
 namespace {
@@ -1433,7 +1432,7 @@ int DVGui::eraseStylesInDemand(TPalette *palette, std::vector<int> styleIds,
 
   // Inform the user that case 2 will not produce an undo if a raster-based
   // level is detected
-  if (boost::algorithm::any_of(levels, locals::isRasterLevel)) {
+  if (std::any_of(levels.begin(), levels.end(), locals::isRasterLevel)) {
     std::vector<QString> buttons(2);
     buttons[0] = QObject::tr("Ok"), buttons[1] = QObject::tr("Cancel");
 

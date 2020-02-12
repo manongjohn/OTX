@@ -39,6 +39,7 @@
 #include <QInputDialog>
 #include <QPushButton>
 #include <QDrag>
+#include <QApplication>
 
 #include <time.h>
 
@@ -99,7 +100,8 @@ StudioPaletteTreeViewer::StudioPaletteTreeViewer(
     , m_xsheetHandle(xsheetHandle)
     , m_folderIcon(QIcon())
     , m_levelPaletteIcon(QIcon())
-    , m_studioPaletteIcon(QIcon()) {
+    , m_studioPaletteIcon(QIcon())
+    , m_startPos() {
   setIndentation(14);
   setAlternatingRowColors(true);
 
@@ -300,7 +302,6 @@ QTreeWidgetItem *StudioPaletteTreeViewer::getFolderItem(QTreeWidgetItem *parent,
 
 void StudioPaletteTreeViewer::resetDropItem() {
   if (!m_dropItem) return;
-  m_dropItem->setTextColor(0, Qt::black);
   m_dropItem = 0;
 }
 
@@ -714,6 +715,9 @@ void StudioPaletteTreeViewer::loadInCurrentPaletteAndAdaptLevel() {
   TPalette *palette = m_levelPaletteHandle->getPalette();
   if (!palette) return;
 
+  // prevent crash when the command is applied to the palette level
+  if (!m_currentLevelHandle->getSimpleLevel()) return;
+
   TPalette *newPalette =
       StudioPalette::instance()->getPalette(getItemPath(items[0]), true);
   if (!newPalette) return;
@@ -963,10 +967,27 @@ void StudioPaletteTreeViewer::createMenuAction(QMenu &menu, const char *id,
 
 //-----------------------------------------------------------------------------
 
+void StudioPaletteTreeViewer::mousePressEvent(QMouseEvent *event) {
+  QTreeWidget::mousePressEvent(event);
+  // If left button is not pressed return
+  if (event->button() == Qt::LeftButton) m_startPos = event->pos();
+}
+
+//-----------------------------------------------------------------------------
+
 void StudioPaletteTreeViewer::mouseMoveEvent(QMouseEvent *event) {
   // If left button is not pressed return; is not drag event.
   if (!(event->buttons() & Qt::LeftButton)) return;
-  startDragDrop();
+  if (!m_startPos.isNull() && (m_startPos - event->pos()).manhattanLength() >=
+                                  QApplication::startDragDistance())
+    startDragDrop();
+}
+
+//-----------------------------------------------------------------------------
+
+void StudioPaletteTreeViewer::mouseReleaseEvent(QMouseEvent *event) {
+  QTreeWidget::mouseReleaseEvent(event);
+  if (event->button() == Qt::LeftButton) m_startPos = QPoint();
 }
 
 //-----------------------------------------------------------------------------
@@ -1014,7 +1035,7 @@ void StudioPaletteTreeViewer::dragEnterEvent(QDragEnterEvent *event) {
     for (i = 0; i < count; i++) {
       QUrl url = urls[i];
       TFilePath path(url.toLocalFile().toStdWString());
-      if (!path.isEmpty() &&
+      if (!path.isEmpty() && isInStudioPalette(path) &&
           (path.getType() == "tpl" || path.getType() == "pli" ||
            path.getType() == "tlv" || path.getType() == "tnz")) {
         isPalette = true;
@@ -1034,8 +1055,6 @@ void StudioPaletteTreeViewer::dragEnterEvent(QDragEnterEvent *event) {
 void StudioPaletteTreeViewer::dragMoveEvent(QDragMoveEvent *event) {
   QTreeWidgetItem *item = itemAt(event->pos());
   TFilePath newPath     = getItemPath(item);
-
-  if (m_dropItem) m_dropItem->setTextColor(0, Qt::black);
 
   if (item) {
     // drop will not be executed on the same item
@@ -1120,6 +1139,7 @@ void StudioPaletteTreeViewer::dropEvent(QDropEvent *event) {
   int ret = DVGui::MsgBox(question, tr("Move"), tr("Cancel"));
   if (ret == 0 || ret == 2) return;
 
+  bool paletteMoved = false;
   TUndoManager::manager()->beginBlock();
   for (int i = 0; i < palettePaths.size(); i++) {
     TFilePath path = palettePaths[i];
@@ -1129,6 +1149,7 @@ void StudioPaletteTreeViewer::dropEvent(QDropEvent *event) {
           TFilePath(path.getWideName() + ::to_wstring(path.getDottedType()));
       try {
         StudioPaletteCmd::movePalette(newPalettePath, path);
+        paletteMoved = true;
       } catch (TException &e) {
         error("Can't rename palette: " +
               QString(::to_string(e.getMessage()).c_str()));
@@ -1138,8 +1159,10 @@ void StudioPaletteTreeViewer::dropEvent(QDropEvent *event) {
     }
   }
   TUndoManager::manager()->endBlock();
-  event->setDropAction(Qt::MoveAction);
-  event->accept();
+  if (paletteMoved) {
+    event->setDropAction(Qt::MoveAction);
+    event->accept();
+  }
 }
 
 //-----------------------------------------------------------------------------

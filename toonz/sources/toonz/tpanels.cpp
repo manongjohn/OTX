@@ -24,6 +24,12 @@
 #include "historypane.h"
 #include "cleanupsettingspane.h"
 
+#include "vectorguideddrawingpane.h"
+
+#ifdef WITH_STOPMOTION
+#include "stopmotioncontroller.h"
+#endif
+
 #ifdef LINETEST
 #include "linetestpane.h"
 #include "linetestcapturepane.h"
@@ -683,8 +689,13 @@ ColorFieldEditorController::ColorFieldEditorController() {
 //-----------------------------------------------------------------------------
 
 void ColorFieldEditorController::edit(DVGui::ColorField *colorField) {
-  if (m_currentColorField && m_currentColorField->isEditing())
-    m_currentColorField->setIsEditing(false);
+  if (m_currentColorField) {
+    if (m_currentColorField->isEditing())
+      m_currentColorField->setIsEditing(false);
+    disconnect(m_currentColorField,
+               SIGNAL(colorChanged(const TPixel32 &, bool)), this,
+               SLOT(onColorChanged(const TPixel32 &, bool)));
+  }
 
   m_currentColorField = colorField;
   m_currentColorField->setIsEditing(true);
@@ -1085,6 +1096,7 @@ public:
     TFilePath currentProjectFolder =
         TProjectManager::instance()->getCurrentProjectPath().getParentDir();
     browser->setFolder(currentProjectFolder, true);
+    browser->enableDoubleClickToOpenScenes();
   }
 } browserFactory;
 
@@ -1361,6 +1373,34 @@ OpenFloatingPanel openHistoryPanelCommand(MI_OpenHistoryPanel, "HistoryPanel",
                                           QObject::tr("History"));
 //=============================================================================
 
+#ifdef WITH_STOPMOTION
+//=============================================================================
+// StopMotion Controller
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+
+class StopMotionPanelFactory final : public TPanelFactory {
+public:
+  StopMotionPanelFactory() : TPanelFactory("StopMotionController") {}
+
+  void initialize(TPanel *panel) override {
+    StopMotionController *stopMotionController =
+        new StopMotionController(panel);
+    panel->setWidget(stopMotionController);
+    panel->setWindowTitle(QObject::tr("Stop Motion Controller"));
+    panel->setIsMaximizable(false);
+  }
+} stopMotionPanelFactory;
+
+//=============================================================================
+OpenFloatingPanel openStopMotionPanelCommand(
+    MI_OpenStopMotionPanel, "StopMotionController",
+    QObject::tr("Stop Motion Controller"));
+//-----------------------------------------------------------------------------
+
+#endif
+
 //=============================================================================
 // FxSettings
 //-----------------------------------------------------------------------------
@@ -1429,3 +1469,38 @@ public:
 //=============================================================================
 OpenFloatingPanel openFxSettingsCommand(MI_FxParamEditor, "FxSettings",
                                         QObject::tr("Fx Settings"));
+
+//=========================================================
+// VectorGuidedDrawingPanel
+//---------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+VectorGuidedDrawingPanel::VectorGuidedDrawingPanel(QWidget *parent)
+    : TPanel(parent) {
+  VectorGuidedDrawingPane *pane = new VectorGuidedDrawingPane(this);
+  setWidget(pane);
+  setIsMaximizable(false);
+}
+
+//=============================================================================
+// VectorGuidedDrawingFactory
+//-----------------------------------------------------------------------------
+
+class VectorGuidedDrawingFactory final : public TPanelFactory {
+public:
+  VectorGuidedDrawingFactory() : TPanelFactory("VectorGuidedDrawingPanel") {}
+  TPanel *createPanel(QWidget *parent) override {
+    TPanel *panel = new VectorGuidedDrawingPanel(parent);
+    panel->setObjectName(getPanelType());
+    panel->setWindowTitle(QObject::tr("Vector Guided Drawing Controls"));
+    panel->setMinimumSize(387, 265);
+
+    return panel;
+  }
+  void initialize(TPanel *panel) override {}
+} VectorGuidedDrawingFactory;
+
+//=============================================================================
+OpenFloatingPanel openVectorGuidedDrawingPanelCommand(
+    MI_OpenGuidedDrawingControls, "VectorGuidedDrawingPanel",
+    QObject::tr("Vector Guided Drawing"));

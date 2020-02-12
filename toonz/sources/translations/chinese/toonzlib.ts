@@ -606,6 +606,12 @@
         <source>Timeline</source>
         <translation>时间轴</translation>
     </message>
+    <message>
+        <source>Failed to save the following resources:
+</source>
+        <translation>保存下面的资源失败:
+</translation>
+    </message>
 </context>
 <context>
     <name>Rasterizer</name>

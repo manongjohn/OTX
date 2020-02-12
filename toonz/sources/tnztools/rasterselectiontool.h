@@ -167,7 +167,7 @@ class RasterScaleTool final : public RasterDeformTool {
   Scale *m_scale;
 
 public:
-  RasterScaleTool(RasterSelectionTool *tool, int type);
+  RasterScaleTool(RasterSelectionTool *tool, ScaleType type);
   /*! Return scale value. */
   TPointD transform(int index, TPointD newPos) override;
   void leftButtonDown(const TPointD &pos, const TMouseEvent &e) override;
@@ -241,6 +241,8 @@ public:
   }
   bool onPropertyChanged(std::string propertyName) override;
   bool getNoAntialiasingValue() { return m_noAntialiasing.getValue(); }
+
+  bool isSelectionEditable() { return m_rasterSelection.isEditable(); }
 
 protected:
   void updateTranslation() override;

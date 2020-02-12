@@ -40,6 +40,7 @@
 #include <QFileDialog>
 #include <QTextStream>
 #include <qdrawutil.h>
+#include <QMimeData>
 
 #include <stdint.h>  // for uint64_t
 
@@ -1300,6 +1301,7 @@ void DvItemViewerPanel::mouseReleaseEvent(QMouseEvent *) {}
 void DvItemViewerPanel::mouseDoubleClickEvent(QMouseEvent *event) {
   int index = pos2index(event->pos());
   if (index < 0 || index >= getItemCount()) return;
+  if (m_viewer) m_viewer->notifyDoubleClick(index);
   if (!getModel()->canRenameItem(index)) return;
   QRect captionRect = getCaptionRect(index);
   if (!captionRect.contains(event->pos())) return;
@@ -1515,15 +1517,29 @@ void DvItemViewer::resetVerticalScrollBar() {
 //-----------------------------------------------------------------------------
 
 void DvItemViewer::dragEnterEvent(QDragEnterEvent *event) {
-  if (m_model && m_model->acceptDrop(event->mimeData()))
-    event->acceptProposedAction();
+  const QMimeData *mimeData = event->mimeData();
+  if (m_model && m_model->acceptDrop(mimeData)) {
+    if (acceptResourceOrFolderDrop(mimeData->urls())) {
+      // Force CopyAction
+      event->setDropAction(Qt::CopyAction);
+      event->accept();
+    } else
+      event->acceptProposedAction();
+  }
 }
 
 //-----------------------------------------------------------------------------
 
 void DvItemViewer::dropEvent(QDropEvent *event) {
-  if (m_model && m_model->drop(event->mimeData()))
-    event->acceptProposedAction();
+  const QMimeData *mimeData = event->mimeData();
+  if (m_model && m_model->drop(mimeData)) {
+    if (acceptResourceOrFolderDrop(mimeData->urls())) {
+      // Force CopyAction
+      event->setDropAction(Qt::CopyAction);
+      event->accept();
+    } else
+      event->acceptProposedAction();
+  }
 }
 
 //-----------------------------------------------------------------------------

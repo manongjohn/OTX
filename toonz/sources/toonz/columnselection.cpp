@@ -49,11 +49,6 @@ void TColumnSelection::enableCommands() {
   enableCommand(this, MI_Resequence, &TColumnSelection::resequence);
   enableCommand(this, MI_CloneChild, &TColumnSelection::cloneChild);
   enableCommand(this, MI_FoldColumns, &TColumnSelection::hideColumns);
-
-  if (Preferences::instance()->isShowKeyframesOnXsheetCellAreaEnabled())
-    enableCommand(this, MI_ToggleXsheetCameraColumn,
-                  &TColumnSelection::toggleCameraColumn);
-
   enableCommand(this, MI_Reframe1, &TColumnSelection::reframe1Cells);
   enableCommand(this, MI_Reframe2, &TColumnSelection::reframe2Cells);
   enableCommand(this, MI_Reframe3, &TColumnSelection::reframe3Cells);
@@ -184,7 +179,10 @@ static bool canMergeColumns(int column, int mColumn, bool forMatchlines) {
         return false;
       // Check level type write support. Based on TTool::updateEnabled()
       if (level->getType() == OVL_XSHLEVEL &&
-          (level->getPath().getType() == "psd" ||     // PSD files.
+          (level->getPath().getType() == "psd" ||  // PSD files.
+           level->getPath().getType() == "gif" ||
+           level->getPath().getType() == "mp4" ||
+           level->getPath().getType() == "webm" ||
            level->is16BitChannelLevel() ||            // 16bpc images.
            level->getProperties()->getBpp() == 1)) {  // Black & White images.
         return false;
@@ -269,12 +267,4 @@ void TColumnSelection::hideColumns() {
   // colonne)
   //  TApp::instance()->->notify(TColumnHeadChange());
   app->getCurrentScene()->setDirtyFlag(true);
-}
-
-//-----------------------------------------------------------------------------
-
-void TColumnSelection::toggleCameraColumn() {
-  Preferences *pref = Preferences::instance();
-  pref->enableXsheetCameraColumn(!pref->isXsheetCameraColumnVisible());
-  TApp::instance()->getCurrentXsheet()->notifyXsheetChanged();
 }

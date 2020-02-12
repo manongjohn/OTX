@@ -27,6 +27,7 @@
         </menu>
         <menu title="Export">
             <command>MI_SoundTrack</command>
+            <command>MI_ExportXDTS</command>
         </menu>
         <separator/>
         <command>MI_PrintXsheet</command>
@@ -212,6 +213,7 @@
         </menu>
         <separator/>
         <command>MI_Autorenumber</command>
+        <command>MI_CreateBlankDrawing</command>
         <command>MI_Duplicate</command>
         <command>MI_MergeFrames</command>
         <command>MI_CloneLevel</command>
@@ -272,6 +274,8 @@
         <command>MI_NoShift</command>
         <command>MI_ResetShift</command>
         <separator/>
+        <command>MI_VectorGuidedDrawing</command>
+        <separator/>
         <command>MI_RasterizePli</command>
     </menu>
     <menu title="Windows">
@@ -298,6 +302,7 @@
         <command>MI_OpenTimelineView</command>
         <command>MI_OpenFunctionEditor</command>
         <command>MI_OpenSchematic</command>
+        <command>MI_FxParamEditor</command>
         <command>MI_OpenFilmStrip</command>
         <separator/>
         <command>MI_OpenFileBrowser</command>
@@ -309,13 +314,19 @@
         <command>MI_OpenTMessage</command>
         <command>MI_OpenHistoryPanel</command>
         <command>MI_AudioRecording</command>
+        <command>MI_OpenStopMotionPanel</command>
         <command>MI_StartupPopup</command>
+        <command>MI_OpenGuidedDrawingControls</command>
         <separator/>
         <command>MI_MaximizePanel</command>
         <command>MI_FullScreenWindow</command>
     </menu>
     <menu title="Help">
         <command>MI_OpenOnlineManual</command>
+        <command>MI_OpenWhatsNew</command>
+        <command>MI_OpenCommunityForum</command>
+        <separator/>
+        <command>MI_OpenReportABug</command>
         <separator/>
         <command>MI_About</command>     
     </menu>

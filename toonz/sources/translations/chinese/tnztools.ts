@@ -100,7 +100,7 @@
     </message>
     <message>
         <source>Accuracy:</source>
-        <translation>精度:</translation>
+        <translation type="vanished">精度:</translation>
     </message>
     <message>
         <source>Selective</source>
@@ -108,7 +108,7 @@
     </message>
     <message>
         <source>Preset:</source>
-        <translation>预设:</translation>
+        <translation type="vanished">预设:</translation>
     </message>
     <message>
         <source>Break Sharp Angles</source>
@@ -124,23 +124,23 @@
     </message>
     <message>
         <source>Cap</source>
-        <translation>端点</translation>
+        <translation type="vanished">端点</translation>
     </message>
     <message>
         <source>Join</source>
-        <translation>连接</translation>
+        <translation type="vanished">连接</translation>
     </message>
     <message>
         <source>Miter:</source>
-        <translation>斜接比例:</translation>
+        <translation type="vanished">斜接比例:</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation>大小</translation>
+        <translation type="vanished">大小</translation>
     </message>
     <message>
         <source>Break</source>
-        <translation>断裂</translation>
+        <translation type="vanished">断裂</translation>
     </message>
     <message>
         <source>Pencil</source>
@@ -148,79 +148,79 @@
     </message>
     <message>
         <source>Pressure</source>
-        <translation>压感</translation>
+        <translation type="vanished">压感</translation>
     </message>
     <message>
         <source>Smooth:</source>
-        <translation>平滑:</translation>
+        <translation type="vanished">平滑:</translation>
     </message>
     <message>
         <source>Range:</source>
-        <translation>范围:</translation>
+        <translation type="vanished">范围:</translation>
     </message>
     <message>
         <source>Snap</source>
-        <translation>吸附</translation>
+        <translation type="vanished">吸附</translation>
     </message>
     <message>
         <source>&lt;custom&gt;</source>
-        <translation>&lt;定制&gt;</translation>
+        <translation type="vanished">&lt;定制&gt;</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation>关闭</translation>
+        <translation type="vanished">关闭</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation>线性</translation>
+        <translation type="vanished">线性</translation>
     </message>
     <message>
         <source>In</source>
-        <translation>内</translation>
+        <translation type="vanished">内</translation>
     </message>
     <message>
         <source>Out</source>
-        <translation>外</translation>
+        <translation type="vanished">外</translation>
     </message>
     <message>
         <source>In&amp;Out</source>
-        <translation>内&amp;外</translation>
+        <translation type="vanished">内&amp;外</translation>
     </message>
     <message>
         <source>Low</source>
-        <translation>低</translation>
+        <translation type="vanished">低</translation>
     </message>
     <message>
         <source>High</source>
-        <translation>高</translation>
+        <translation type="vanished">高</translation>
     </message>
     <message>
         <source>Butt cap</source>
-        <translation>平头</translation>
+        <translation type="vanished">平头</translation>
     </message>
     <message>
         <source>Round cap</source>
-        <translation>圆头</translation>
+        <translation type="vanished">圆头</translation>
     </message>
     <message>
         <source>Projecting cap</source>
-        <translation>方头</translation>
+        <translation type="vanished">方头</translation>
     </message>
     <message>
         <source>Miter join</source>
-        <translation>斜接连接</translation>
+        <translation type="vanished">斜接连接</translation>
     </message>
     <message>
         <source>Round join</source>
-        <translation>圆角连接</translation>
+        <translation type="vanished">圆角连接</translation>
     </message>
     <message>
         <source>Bevel join</source>
-        <translation>斜角连接</translation>
+        <translation type="vanished">斜角连接</translation>
     </message>
     <message>
         <source>Med</source>
-        <translation>中</translation>
+        <translation type="vanished">中</translation>
     </message>
     <message>
         <source>Draw Order:</source>
@@ -645,14 +645,14 @@
     <name>FullColorFillTool</name>
     <message>
         <source>Fill Depth</source>
-        <translation type="unfinished">填充深度</translation>
+        <translation>填充深度</translation>
     </message>
 </context>
 <context>
     <name>HandToolOptionsBox</name>
     <message>
         <source>Reset Position</source>
-        <translation type="unfinished"></translation>
+        <translation>重置位置</translation>
     </message>
 </context>
 <context>
@@ -1177,6 +1177,34 @@ Do you want to proceed?</source>
         <source> to Backward</source>
         <translation> 向后</translation>
     </message>
+    <message>
+        <source>The selection cannot be updated. It is not editable.</source>
+        <translation>所选择的不能被更新。它不是可编辑的。</translation>
+    </message>
+    <message>
+        <source>The selection cannot be deleted. It is not editable.</source>
+        <translation>所选择的不能被删除。它不是可编辑的。</translation>
+    </message>
+    <message>
+        <source>The selection cannot be pasted. It is not editable.</source>
+        <translation>所选择的不能被粘贴。它不是可编辑的。</translation>
+    </message>
+    <message>
+        <source>The selection cannot be grouped. It is not editable.</source>
+        <translation>所选择的不能被成组。它不是可编辑的。</translation>
+    </message>
+    <message>
+        <source>The selection cannot be entered. It is not editable.</source>
+        <translation>所选择的不能被进入。它不是可编辑的。</translation>
+    </message>
+    <message>
+        <source>The selection cannot be ungrouped. It is not editable.</source>
+        <translation>所选择的不能被取消群组。它不是可编辑的。</translation>
+    </message>
+    <message>
+        <source>The selection cannot be moved. It is not editable.</source>
+        <translation>所选择的不能被移动。它不是可编辑的。</translation>
+    </message>
 </context>
 <context>
     <name>RGBPickerTool</name>
@@ -1281,7 +1309,7 @@ Do you want to proceed?</source>
     <name>RotateToolOptionsBox</name>
     <message>
         <source>Reset Rotation</source>
-        <translation type="unfinished"></translation>
+        <translation>重置旋转</translation>
     </message>
 </context>
 <context>
@@ -1520,6 +1548,113 @@ moved to the end of the first page of the palette.</source>
     </message>
 </context>
 <context>
+    <name>ToonzVectorBrushTool</name>
+    <message>
+        <source>Size</source>
+        <translation>大小</translation>
+    </message>
+    <message>
+        <source>Accuracy:</source>
+        <translation>精度:</translation>
+    </message>
+    <message>
+        <source>Smooth:</source>
+        <translation>平滑:</translation>
+    </message>
+    <message>
+        <source>Preset:</source>
+        <translation>预设:</translation>
+    </message>
+    <message>
+        <source>&lt;custom&gt;</source>
+        <translation>&lt;定制&gt;</translation>
+    </message>
+    <message>
+        <source>Break</source>
+        <translation>断裂</translation>
+    </message>
+    <message>
+        <source>Pressure</source>
+        <translation>压感</translation>
+    </message>
+    <message>
+        <source>Cap</source>
+        <translation>端点</translation>
+    </message>
+    <message>
+        <source>Join</source>
+        <translation>连接</translation>
+    </message>
+    <message>
+        <source>Miter:</source>
+        <translation>斜接比例:</translation>
+    </message>
+    <message>
+        <source>Range:</source>
+        <translation>范围:</translation>
+    </message>
+    <message>
+        <source>Snap</source>
+        <translation>吸附</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>关闭</translation>
+    </message>
+    <message>
+        <source>Linear</source>
+        <translation>线性</translation>
+    </message>
+    <message>
+        <source>In</source>
+        <translation>内</translation>
+    </message>
+    <message>
+        <source>Out</source>
+        <translation>外</translation>
+    </message>
+    <message>
+        <source>In&amp;Out</source>
+        <translation>内&amp;外</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>低</translation>
+    </message>
+    <message>
+        <source>Med</source>
+        <translation>中</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>高</translation>
+    </message>
+    <message>
+        <source>Butt cap</source>
+        <translation>平头</translation>
+    </message>
+    <message>
+        <source>Round cap</source>
+        <translation>圆头</translation>
+    </message>
+    <message>
+        <source>Projecting cap</source>
+        <translation>方头</translation>
+    </message>
+    <message>
+        <source>Miter join</source>
+        <translation>斜接连接</translation>
+    </message>
+    <message>
+        <source>Round join</source>
+        <translation>圆角连接</translation>
+    </message>
+    <message>
+        <source>Bevel join</source>
+        <translation>斜角连接</translation>
+    </message>
+</context>
+<context>
     <name>TrackerTool</name>
     <message>
         <source>Width:</source>
@@ -1687,7 +1822,7 @@ moved to the end of the first page of the palette.</source>
     <name>ZoomToolOptionsBox</name>
     <message>
         <source>Reset Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>重置缩放</translation>
     </message>
 </context>
 </TS>

@@ -19,6 +19,7 @@
 #include "filebrowser.h"
 #include "versioncontrol.h"
 #include "cachefxcommand.h"
+#include "xdtsio.h"
 
 // TnzTools includes
 #include "tools/toolhandle.h"
@@ -81,13 +82,11 @@
 
 // boost includes
 #include <boost/optional.hpp>
-#include <boost/algorithm/cxx11/all_of.hpp>
 #include <boost/utility/in_place_factory.hpp>
 
 //#define USE_SQLITE_HDPOOL
 
 using namespace DVGui;
-namespace ba = boost::algorithm;
 
 //-----------------------------------------------------------------------------
 namespace {
@@ -166,10 +165,10 @@ public:
         return A_CANCEL;
       }
       if (ret == 1 && checked > 0) {
-        Preferences::instance()->setDefaultImportPolicy(1);
+        Preferences::instance()->setValue(importPolicy, 1);
         TApp::instance()->getCurrentScene()->notifyImportPolicyChanged(1);
       } else if (ret == 2 && checked > 0) {
-        Preferences::instance()->setDefaultImportPolicy(2);
+        Preferences::instance()->setValue(importPolicy, 2);
         TApp::instance()->getCurrentScene()->notifyImportPolicyChanged(2);
       }
       m_importEnabled = (ret == 1);
@@ -1758,8 +1757,9 @@ bool IoCmd::loadScene(const TFilePath &path, bool updateRecentFile,
   assert(!path.isEmpty());
   TFilePath scenePath = path;
   bool importScene    = false;
+  bool isXdts         = scenePath.getType() == "xdts";
   if (scenePath.getType() == "") scenePath = scenePath.withType("tnz");
-  if (scenePath.getType() != "tnz") {
+  if (scenePath.getType() != "tnz" && !isXdts) {
     QString msg;
     msg = QObject::tr("File %1 doesn't look like a TOONZ Scene")
               .arg(QString::fromStdWString(scenePath.getWideString()));
@@ -1846,8 +1846,11 @@ bool IoCmd::loadScene(const TFilePath &path, bool updateRecentFile,
   TImageStyle::setCurrentScene(scene);
   printf("%s:%s Progressing:\n", __FILE__, __FUNCTION__);
   try {
-    /*-- プログレス表示を行いながらLoad --*/
-    scene->load(scenePath);
+    if (isXdts)
+      XdtsIo::loadXdtsScene(scene, scenePath);
+    else
+      /*-- プログレス表示を行いながらLoad --*/
+      scene->load(scenePath);
     // import if needed
     TProjectManager *pm      = TProjectManager::instance();
     TProjectP currentProject = pm->getCurrentProject();
@@ -1884,6 +1887,10 @@ bool IoCmd::loadScene(const TFilePath &path, bool updateRecentFile,
   app->getCurrentScene()->notifyNameSceneChange();
   app->getCurrentFrame()->setFrame(0);
   app->getCurrentColumn()->setColumnIndex(0);
+  TPalette *palette = 0;
+  if (app->getCurrentLevel() && app->getCurrentLevel()->getSimpleLevel())
+    palette = app->getCurrentLevel()->getSimpleLevel()->getPalette();
+  app->getCurrentPalette()->setPalette(palette);
   app->getCurrentXsheet()->notifyXsheetSoundChanged();
   app->getCurrentObject()->setIsSpline(false);
 
@@ -1908,7 +1915,8 @@ bool IoCmd::loadScene(const TFilePath &path, bool updateRecentFile,
       scene->getProperties()->getFieldGuideAspectRatio());
   IconGenerator::instance()->invalidateSceneIcon();
   DvDirModel::instance()->refreshFolder(scenePath.getParentDir());
-  TApp::instance()->getCurrentScene()->setDirtyFlag(false);
+  // set dirty for xdts files since converted tnz is not yet saved
+  TApp::instance()->getCurrentScene()->setDirtyFlag(isXdts);
   History::instance()->addItem(scenePath);
   if (updateRecentFile)
     RecentFiles::instance()->addFilePath(
@@ -1953,7 +1961,7 @@ bool IoCmd::loadScene(const TFilePath &path, bool updateRecentFile,
       if (ret == 0) {
       }                     // do nothing
       else if (ret == 1) {  // Turn off pixels only mode
-        Preferences::instance()->setPixelsOnly(false);
+        Preferences::instance()->setValue(pixelsOnly, false);
         app->getCurrentScene()->notifyPixelUnitSelected(false);
       } else {  // ret = 2 : Resize the scene
         TDimensionD camSize = scene->getCurrentCamera()->getSize();
@@ -1990,11 +1998,9 @@ bool IoCmd::loadScene() {
   static LoadScenePopup *popup = 0;
   if (!popup) {
     popup = new LoadScenePopup();
-    popup->addFilterType("tnz");
   }
   int ret = popup->exec();
   if (ret == QDialog::Accepted) {
-    TApp::instance()->getCurrentScene()->setDirtyFlag(false);
     return true;
   } else {
     TApp::instance()->getCurrentSelection()->setSelection(oldSelection);
@@ -2243,10 +2249,7 @@ DVGui::ProgressDialog &LoadScopedBlock::progressDialog() const {
 //=============================================================================
 
 int IoCmd::loadResources(LoadResourceArguments &args, bool updateRecentFile,
-                         LoadScopedBlock *sb, int xFrom, int xTo,
-                         std::wstring levelName, int step, int inc,
-                         int frameCount, bool doesFileActuallyExist,
-                         CacheTlvBehavior cachingBehavior) {
+                         LoadScopedBlock *sb) {
   struct locals {
     static bool isDir(const LoadResourceArguments::ResourceData &rd) {
       return QFileInfo(rd.m_path.getQString()).isDir();
@@ -2256,8 +2259,8 @@ int IoCmd::loadResources(LoadResourceArguments &args, bool updateRecentFile,
   if (args.resourceDatas.empty()) return 0;
 
   // Redirect to resource folders loading in case they're all dirs
-  if (ba::all_of(args.resourceDatas.begin(), args.resourceDatas.end(),
-                 locals::isDir))
+  if (std::all_of(args.resourceDatas.begin(), args.resourceDatas.end(),
+                  locals::isDir))
     return loadResourceFolders(args, sb);
 
   boost::optional<LoadScopedBlock> sb_;
@@ -2278,7 +2281,7 @@ int IoCmd::loadResources(LoadResourceArguments &args, bool updateRecentFile,
   bool isSoundLevel = false;
 
   // show wait cursor in case of caching all images because it is time consuming
-  if (cachingBehavior == ALL_ICONS_AND_IMAGES)
+  if (args.cachingBehavior == LoadResourceArguments::ALL_ICONS_AND_IMAGES)
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
   // Initialize progress dialog
@@ -2437,15 +2440,15 @@ int IoCmd::loadResources(LoadResourceArguments &args, bool updateRecentFile,
       }
 
       try {
-        xl = ::loadResource(scene, rd, args.castFolder, row0, col0, row1, col1,
-                            args.expose,
+        xl = ::loadResource(
+            scene, rd, args.castFolder, row0, col0, row1, col1, args.expose,
 #if (__cplusplus > 199711L)
-                            std::move(fIds),
+            std::move(fIds),
 #else
-                            fIds,
+            fIds,
 #endif
-                            xFrom, xTo, levelName, step, inc, frameCount,
-                            doesFileActuallyExist);
+            args.xFrom, args.xTo, args.levelName, args.step, args.inc,
+            args.frameCount, args.doesFileActuallyExist);
         if (updateRecentFile) {
           RecentFiles::instance()->addFilePath(
               toQString(scene->decodeFilePath(path)), RecentFiles::Level);
@@ -2462,10 +2465,12 @@ int IoCmd::loadResources(LoadResourceArguments &args, bool updateRecentFile,
         ++loadedCount;
 
         // load the image data of all frames to cache at the beginning
-        if (cachingBehavior != ON_DEMAND) {
+        if (args.cachingBehavior != LoadResourceArguments::ON_DEMAND) {
           TXshSimpleLevel *simpleLevel = xl->getSimpleLevel();
           if (simpleLevel && simpleLevel->getType() == TZP_XSHLEVEL) {
-            bool cacheImagesAsWell = (cachingBehavior == ALL_ICONS_AND_IMAGES);
+            bool cacheImagesAsWell =
+                (args.cachingBehavior ==
+                 LoadResourceArguments::ALL_ICONS_AND_IMAGES);
             simpleLevel->loadAllIconsAndPutInCache(cacheImagesAsWell);
           }
         }
@@ -2479,7 +2484,7 @@ int IoCmd::loadResources(LoadResourceArguments &args, bool updateRecentFile,
   sb->data().m_hasSoundLevel = sb->data().m_hasSoundLevel || isSoundLevel;
 
   // revert the cursor
-  if (cachingBehavior == ALL_ICONS_AND_IMAGES)
+  if (args.cachingBehavior == LoadResourceArguments::ALL_ICONS_AND_IMAGES)
     QApplication::restoreOverrideCursor();
 
   return loadedCount;
@@ -2727,8 +2732,8 @@ bool IoCmd::takeCareSceneFolderItemsOnSaveSceneAs(
   } else if (ret == 2) {  // decode $scenefolder aliases case
     Preferences::PathAliasPriority oldPriority =
         Preferences::instance()->getPathAliasPriority();
-    Preferences::instance()->setPathAliasPriority(
-        Preferences::ProjectFolderOnly);
+    Preferences::instance()->setValue(pathAliasPriority,
+                                      Preferences::ProjectFolderOnly);
     for (int i = 0; i < sceneFolderLevels.size(); i++) {
       TXshLevel *level = sceneFolderLevels.at(i);
 
@@ -2737,7 +2742,7 @@ bool IoCmd::takeCareSceneFolderItemsOnSaveSceneAs(
           scene->codeFilePath(scene->decodeFilePath(level->getPath()));
       setPathToLevel(level, fp);
     }
-    Preferences::instance()->setPathAliasPriority(oldPriority);
+    Preferences::instance()->setValue(pathAliasPriority, oldPriority);
   }
 
   // Save the scene only case (ret == 3), do nothing
@@ -2781,8 +2786,8 @@ public:
     }
 
     // reset the undo before save level
-    // TODO: この仕様、Preferencesでオプション化する
-    TUndoManager::manager()->reset();
+    if (Preferences::instance()->getBoolValue(resetUndoOnSavingLevel))
+      TUndoManager::manager()->reset();
 
     if (!IoCmd::saveLevel()) error(QObject::tr("Save level Failed"));
   }
@@ -2978,8 +2983,8 @@ public:
     else if (pl)
       pl->getPalette()->setDirtyFlag(false);
 
-    /*- Undoをリセット。 TODO:この挙動、Preferencesでオプション化 -*/
-    TUndoManager::manager()->reset();
+    if (Preferences::instance()->getBoolValue(resetUndoOnSavingLevel))
+      TUndoManager::manager()->reset();
 
     TApp::instance()
         ->getPaletteController()

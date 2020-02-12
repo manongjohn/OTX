@@ -2,6 +2,7 @@
 
 #include "toonz/tpalettehandle.h"
 #include "tools/toolhandle.h"
+#include "tools/toolcommandids.h"
 #include "toonz/tobjecthandle.h"
 #include "toonz/txsheethandle.h"
 #include "toonz/txshlevelhandle.h"
@@ -28,6 +29,7 @@
 #include "toonz/trasterimageutils.h"
 #include "toonz/preferences.h"
 #include "historytypes.h"
+#include "toonzvectorbrushtool.h"
 
 // For Qt translation support
 #include <QCoreApplication>
@@ -850,6 +852,11 @@ public:
   }
 
   void leftButtonDown(const TPointD &p, const TMouseEvent &e) override {
+    if (getViewer() && getViewer()->getGuidedStrokePickerMode()) {
+      getViewer()->doPickGuideStroke(p);
+      return;
+    }
+
     /* m_active = getApplication()->getCurrentObject()->isSpline() ||
    (bool) getImage(true);*/
     if (!getApplication()->getCurrentObject()->isSpline())
@@ -953,7 +960,11 @@ public:
     if (m_primitive) m_primitive->draw();
   }
 
-  int getCursorId() const override { return ToolCursor::PenCursor; }
+  int getCursorId() const override {
+    if (m_viewer && m_viewer->getGuidedStrokePickerMode())
+      return m_viewer->getGuidedStrokePickerCursor();
+    return ToolCursor::PenCursor;
+  }
 
   int getColorClass() const { return 1; }
 
@@ -1106,11 +1117,26 @@ public:
             new std::vector<TFilledRegionInf>;
         ImageUtils::getFillingInformationOverlappingArea(vi, *fillInformation,
                                                          stroke->getBBox());
+
         vi->addStroke(stroke);
         TUndoManager::manager()->add(new UndoPencil(
             vi->getStroke(vi->getStrokeCount() - 1), fillInformation, sl, id,
             m_isFrameCreated, m_isLevelCreated, m_param.m_autogroup.getValue(),
             m_param.m_autofill.getValue()));
+
+        if ((Preferences::instance()->getGuidedDrawingType() == 1 ||
+             Preferences::instance()->getGuidedDrawingType() == 2) &&
+            Preferences::instance()->getGuidedAutoInbetween()) {
+          TTool *tool =
+              TTool::getTool(T_Brush, TTool::ToolTargetType::VectorImage);
+          ToonzVectorBrushTool *vbTool = (ToonzVectorBrushTool *)tool;
+          if (vbTool) {
+            vbTool->setViewer(m_viewer);
+            vbTool->doGuidedAutoInbetween(id, vi, stroke, false,
+                                          m_param.m_autogroup.getValue(),
+                                          m_param.m_autofill.getValue(), false);
+          }
+        }
       }
       if (m_param.m_autogroup.getValue() && stroke->isSelfLoop()) {
         int index = vi->getStrokeCount() - 1;

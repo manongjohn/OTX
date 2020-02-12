@@ -1,4 +1,4 @@
-set(VERSION 1.3)
+set(VERSION 1.4)
 
 set(MOC_HEADERS
     addfilmstripframespopup.h
@@ -108,6 +108,7 @@ set(MOC_HEADERS
     toolbar.h
     tpanels.h
     trackerpopup.h
+	vectorguideddrawingpane.h
     vectorizerpopup.h
     vectorizerswatch.h
     versioncontrol.h
@@ -120,7 +121,16 @@ set(MOC_HEADERS
     xshnoteviewer.h
     xshrowviewer.h
     xshtoolbar.h
+	xdtsimportpopup.h
 )
+
+if(WITH_STOPMOTION)
+set(MOC_HEADERS
+    ${MOC_HEADERS}
+    ../stopmotion/stopmotion.h
+    ../stopmotion/stopmotioncontroller.h
+)
+endif()
 
 set(HEADERS
     ${MOC_HEADERS}
@@ -165,6 +175,7 @@ set(HEADERS
     ../include/cellposition.h
     ../include/orientation.h
     ../include/saveloadqsettings.h
+    xdtsio.h
 # Tracker file
     ObjectTracker.h
     dummyprocessor.h
@@ -266,6 +277,7 @@ set(SOURCES
     kis_tablet_support_win8.cpp
     timestretchpopup.cpp
     trackerpopup.cpp
+    vectorguideddrawingpane.cpp
     vectorizerpopup.cpp
     vectorizerswatch.cpp
     versioncontrol.cpp
@@ -340,12 +352,22 @@ set(SOURCES
 	boardsettingspopup.cpp
 	separatecolorsswatch.cpp
 	separatecolorspopup.cpp
+    xdtsio.cpp
+	xdtsimportpopup.cpp
 # Tracker file
     dummyprocessor.cpp
     metnum.cpp
     ObjectTracker.cpp
     predict3d.cpp
 )
+
+if(WITH_STOPMOTION)
+set(SOURCES
+    ${SOURCES}
+    ../stopmotion/stopmotion.cpp
+    ../stopmotion/stopmotioncontroller.cpp
+)
+endif()
 
 add_translation(toonz ${HEADERS} ${SOURCES})
 
@@ -401,6 +423,11 @@ include_directories(
     ../../sources/toonzqt
 )
 
+if (WITH_STOPMOTION)
+include_directories(../../sources/stopmotion)
+    add_definitions(-DWITH_STOPMOTION)
+endif()
+
 if(BUILD_ENV_APPLE)
     include_directories(../../sources/mousedragfilter)
 endif()
@@ -418,7 +445,15 @@ endif()
 
 target_link_libraries(OpenToonz ColorWidgets-qt5)
 
-if(BUILD_ENV_MSVC)
+if(BUILD_ENV_MSVC AND WITH_STOPMOTION)
+    target_link_libraries(OpenToonz
+        Qt5::WinMain Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Svg Qt5::Xml
+        Qt5::Script Qt5::Widgets Qt5::PrintSupport Qt5::Multimedia
+        ${GL_LIB} ${GLUT_LIB} 
+        ${CANON_LIB} ${TURBOJPEG_LIB} ${OpenCV_LIBS} strmiids
+        tnzcore tnzbase toonzlib colorfx tnzext image sound toonzqt tnztools tnzstdfx tfarm
+    )
+elseif(BUILD_ENV_MSVC)
     target_link_libraries(OpenToonz
         Qt5::WinMain Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Svg Qt5::Xml
         Qt5::Script Qt5::Widgets Qt5::PrintSupport Qt5::Multimedia

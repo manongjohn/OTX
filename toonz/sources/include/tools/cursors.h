@@ -96,6 +96,9 @@ enum {
   Ex_StyleArea        = 0x40000,
   Ex_RGB              = 0x80000,
   Ex_HV               = 0x100000,
+  Ex_Precise          = 0x200000,
+  Ex_Prev             = 0x400000,
+  Ex_Next             = 0x800000,
 
   // This section is for cursors that have fixed text that needs to
   // be handled separately when flipping for left-handed cursors.
@@ -107,9 +110,11 @@ enum {
   PickerCursorLine = PickerCursorLineBase | Ex_StyleLine,
   PickerCursorArea = PickerCursorAreaBase | Ex_StyleArea,
   PickerRGB        = PickerRGBBase | Ex_RGB,
-  ScaleHVCursor    = ScaleHVCursorBase | Ex_HV
+  ScaleHVCursor    = ScaleHVCursorBase | Ex_HV,
+  PickPrevCursor   = PointingHandCursor | Ex_Prev,
+  PickNextCursor   = PointingHandCursor | Ex_Next
 };
 
-}  // namespace
+}  // namespace ToolCursor
 
 #endif

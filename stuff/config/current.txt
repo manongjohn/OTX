@@ -405,6 +405,7 @@
   <item>"STD_solarizeFx.peak_edge"	"Peak Edge"	</item>
 
   <item>"STD_spiralFx"		"Spiral"		</item>
+  <item>"STD_spiralFx.type"		"Type"	</item>
   <item>"STD_spiralFx.freq"		"Frequency"	</item>
   <item>"STD_spiralFx.phase"	"Phase"		</item>
   <item>"STD_spiralFx.colors"	"Colors"		</item>
@@ -1285,6 +1286,24 @@
   <item>"STD_iwa_CorridorGradientFx.top_left_out"	"Top Left Out"		</item>
   <item>"STD_iwa_CorridorGradientFx.inner_color"	"Inner Color"		</item>
   <item>"STD_iwa_CorridorGradientFx.outer_color"	"Outer Color"		</item>
+
+  <item>"STD_iwa_SpinGradientFx" 			"Spin Gradient Iwa" 	</item>
+  <item>"STD_iwa_SpinGradientFx.center"	"Center"		</item>
+  <item>"STD_iwa_SpinGradientFx.curveType"	"Type"		</item>
+  <item>"STD_iwa_SpinGradientFx.startAngle"	"Start Angle"		</item>
+  <item>"STD_iwa_SpinGradientFx.startColor"	"Start Color"		</item>
+  <item>"STD_iwa_SpinGradientFx.endAngle"	"End Angle"		</item>
+  <item>"STD_iwa_SpinGradientFx.endColor"	"End Color"		</item>
+
+  <item>"STD_iwa_LinearGradientFx" 			"Linear Gradient" 	</item>
+  <item>"STD_iwa_LinearGradientFx.curveType"	"Type"		</item>
+  <item>"STD_iwa_LinearGradientFx.startPoint"	"Start Point"		</item>
+  <item>"STD_iwa_LinearGradientFx.startColor"	"Start Color"		</item>
+  <item>"STD_iwa_LinearGradientFx.endPoint"	"End Point"		</item>
+  <item>"STD_iwa_LinearGradientFx.endColor"	"End Color"		</item>
+  <item>"STD_iwa_LinearGradientFx.wave_amplitude"	"Amplitude"	</item>
+  <item>"STD_iwa_LinearGradientFx.wave_frequency"	"Frequency"	</item>
+  <item>"STD_iwa_LinearGradientFx.wave_phase"		"Phase"		</item>
 
  <!------------------------------ Tiled Particles Iwa ------------------------------------------->
 

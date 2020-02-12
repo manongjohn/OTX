@@ -274,15 +274,15 @@ StartupPopup::StartupPopup()
   bool ret = true;
   ret      = ret && connect(sceneHandle, SIGNAL(sceneChanged()), this,
                        SLOT(onSceneChanged()));
-  ret = ret && connect(sceneHandle, SIGNAL(sceneSwitched()), this,
+  ret      = ret && connect(sceneHandle, SIGNAL(sceneSwitched()), this,
                        SLOT(onSceneChanged()));
-  ret = ret && connect(newProjectButton, SIGNAL(clicked()), this,
+  ret      = ret && connect(newProjectButton, SIGNAL(clicked()), this,
                        SLOT(onNewProjectButtonPressed()));
-  ret = ret && connect(loadOtherSceneButton, SIGNAL(clicked()), this,
+  ret      = ret && connect(loadOtherSceneButton, SIGNAL(clicked()), this,
                        SLOT(onLoadSceneButtonPressed()));
-  ret = ret && connect(m_projectsCB, SIGNAL(currentIndexChanged(int)),
+  ret      = ret && connect(m_projectsCB, SIGNAL(currentIndexChanged(int)),
                        SLOT(onProjectChanged(int)));
-  ret = ret &&
+  ret      = ret &&
         connect(createButton, SIGNAL(clicked()), this, SLOT(onCreateButton()));
   ret = ret && connect(m_showAtStartCB, SIGNAL(stateChanged(int)), this,
                        SLOT(onShowAtStartChanged(int)));
@@ -440,12 +440,6 @@ void StartupPopup::onCreateButton() {
     m_nameFld->setFocus();
     return;
   }
-  if (!TSystem::doesExistFileOrLevel(TFilePath(m_pathFld->getPath()))) {
-    DVGui::warning(tr("The chosen file path is not valid."));
-    m_pathFld->setFocus();
-    return;
-  }
-
   if (m_widthFld->getValue() <= 0) {
     DVGui::warning(tr("The width must be greater than zero."));
     m_widthFld->setFocus();
@@ -461,9 +455,28 @@ void StartupPopup::onCreateButton() {
     m_fpsFld->setFocus();
     return;
   }
-  if (TSystem::doesExistFileOrLevel(
-          TFilePath(m_pathFld->getPath()) +
-          TFilePath(m_nameFld->text().trimmed().toStdWString() + L".tnz"))) {
+
+  TFilePath scenePath =
+      TFilePath(m_pathFld->getPath()) +
+      TFilePath(m_nameFld->text().trimmed().toStdWString() + L".tnz");
+
+  if (!TSystem::doesExistFileOrLevel(TFilePath(m_pathFld->getPath()))) {
+    QString question;
+    question = QObject::tr(
+        "The chosen folder path does not exist."
+        "\nDo you want to create it?");
+    int ret = DVGui::MsgBox(question, QObject::tr("Create"),
+                            QObject::tr("Cancel"), 0);
+    if (ret == 0 || ret == 2) {
+      m_pathFld->setFocus();
+      return;
+    }
+    if (!TSystem::touchParentDir(scenePath)) {
+      DVGui::warning(tr("Failed to create the folder."));
+      m_pathFld->setFocus();
+      return;
+    }
+  } else if (TSystem::doesExistFileOrLevel(scenePath)) {
     QString question;
     question = QObject::tr(
         "The file name already exists."
@@ -476,9 +489,7 @@ void StartupPopup::onCreateButton() {
     }
   }
   CommandManager::instance()->execute(MI_NewScene);
-  TApp::instance()->getCurrentScene()->getScene()->setScenePath(
-      TFilePath(m_pathFld->getPath()) +
-      TFilePath(m_nameFld->text().trimmed().toStdWString()));
+  TApp::instance()->getCurrentScene()->getScene()->setScenePath(scenePath);
   TDimensionD size =
       TDimensionD(m_widthFld->getValue(), m_heightFld->getValue());
   TDimension res = TDimension(m_xRes, m_yRes);
@@ -493,10 +504,11 @@ void StartupPopup::onCreateButton() {
       size);
   TApp::instance()->getCurrentScene()->getScene()->getCurrentCamera()->setRes(
       res);
-  // this one is debatable - should the scene be saved right away?
-  // IoCmd::saveScene();
+  // save the scene right away
+  IoCmd::saveScene();
   // this makes sure the scene viewers update to the right fps
   TApp::instance()->getCurrentScene()->notifySceneSwitched();
+  TApp::instance()->getCurrentScene()->notifyNameSceneChange();
 
   hide();
 }
@@ -508,13 +520,14 @@ void StartupPopup::updateProjectCB() {
   m_projectPaths.clear();
   m_projectsCB->clear();
 
-  TFilePath sandboxFp = TProjectManager::instance()->getSandboxProjectFolder() +
-                        "sandbox_otprj.xml";
+  TProjectManager *pm = TProjectManager::instance();
+
+  TFilePath sandboxFp = pm->getSandboxProjectFolder() + "sandbox_otprj.xml";
   m_projectPaths.push_back(sandboxFp);
   m_projectsCB->addItem("sandbox");
 
   std::vector<TFilePath> prjRoots;
-  TProjectManager::instance()->getProjectRoots(prjRoots);
+  pm->getProjectRoots(prjRoots);
   for (int i = 0; i < prjRoots.size(); i++) {
     TFilePathSet fps;
     TSystem::readDirectory_Dir_ReadExe(fps, prjRoots[i]);
@@ -522,17 +535,24 @@ void StartupPopup::updateProjectCB() {
     TFilePathSet::iterator it;
     for (it = fps.begin(); it != fps.end(); ++it) {
       TFilePath fp(*it);
-      if (TProjectManager::instance()->isProject(fp)) {
-        m_projectPaths.push_back(
-            TProjectManager::instance()->projectFolderToProjectPath(fp));
-        m_projectsCB->addItem(QString::fromStdString(fp.getName()));
+      if (pm->isProject(fp)) {
+        m_projectPaths.push_back(pm->projectFolderToProjectPath(fp));
+        TFilePath prjFile = pm->getProjectPathByProjectFolder(fp);
+        m_projectsCB->addItem(QString::fromStdString(prjFile.getName()));
       }
     }
   }
+  // Add in project of current project if outside known Project root folders
+  TProjectP currentProject   = pm->getCurrentProject();
+  TFilePath currentProjectFP = currentProject->getProjectPath();
+  if (m_projectPaths.indexOf(currentProjectFP) == -1) {
+    m_projectPaths.push_back(currentProjectFP);
+    m_projectsCB->addItem(
+        QString::fromStdString(currentProject->getName().getName()));
+  }
   int i;
   for (i = 0; i < m_projectPaths.size(); i++) {
-    if (TProjectManager::instance()->getCurrentProjectPath() ==
-        m_projectPaths[i]) {
+    if (pm->getCurrentProjectPath() == m_projectPaths[i]) {
       m_projectsCB->setCurrentIndex(i);
       break;
     }
@@ -552,7 +572,16 @@ void StartupPopup::onProjectChanged(int index) {
   if (m_updating) return;
   TFilePath projectFp = m_projectPaths[index];
 
-  TProjectManager::instance()->setCurrentProjectPath(projectFp);
+  TProjectManager *pm = TProjectManager::instance();
+  pm->setCurrentProjectPath(projectFp);
+
+  TProjectP currentProject = pm->getCurrentProject();
+
+  // In case the project file was upgraded to current version, save it now
+  if (currentProject->getProjectPath() != projectFp) {
+    m_projectPaths[index] = currentProject->getProjectPath();
+    currentProject->save();
+  }
 
   IoCmd::newScene();
   m_pathFld->setPath(TApp::instance()
@@ -777,8 +806,8 @@ double StartupPopup::aspectRatioStringToValue(const QString &s) {
   }
   int i = s.indexOf("/");
   if (i <= 0 || i + 1 >= s.length()) return s.toDouble();
-  int num           = s.left(i).toInt();
-  int den           = s.mid(i + 1).toInt();
+  int num = s.left(i).toInt();
+  int den = s.mid(i + 1).toInt();
   if (den <= 0) den = 1;
   return (double)num / (double)den;
 }
@@ -867,23 +896,19 @@ void StartupPopup::onRecentSceneClicked(int index) {
       if (projectIndex >= 0) {
         TFilePath projectFp = m_projectPaths[projectIndex];
         TProjectManager::instance()->setCurrentProjectPath(projectFp);
-      } else {
-        QString msg = tr("The selected scene project '%1' is not in the "
-                         "Current Project list and may not open automatically.")
-                          .arg(projectName);
-        DVGui::warning(msg);
       }
     }
     IoCmd::loadScene(TFilePath(path.toStdWString()), false, true);
-    if (RecentFiles::instance()->getFileProject(index) == "-") {
+    QString origProjectName = RecentFiles::instance()->getFileProject(index);
+    QString projectName     = QString::fromStdString(TApp::instance()
+                                                     ->getCurrentScene()
+                                                     ->getScene()
+                                                     ->getProject()
+                                                     ->getName()
+                                                     .getName());
+    if (origProjectName == "-" || origProjectName != projectName) {
       QString fileName =
           RecentFiles::instance()->getFilePath(index, RecentFiles::Scene);
-      QString projectName = QString::fromStdString(TApp::instance()
-                                                       ->getCurrentScene()
-                                                       ->getScene()
-                                                       ->getProject()
-                                                       ->getName()
-                                                       .getName());
       RecentFiles::instance()->removeFilePath(index, RecentFiles::Scene);
       RecentFiles::instance()->addFilePath(fileName, RecentFiles::Scene,
                                            projectName);
@@ -899,13 +924,18 @@ void StartupPopup::onRecentSceneClicked(int index) {
 void StartupPopup::onCameraUnitChanged(int index) {
   Preferences *pref = Preferences::instance();
   QStringList type;
-  type << tr("pixel") << tr("cm") << tr("mm") << tr("inch") << tr("field");
+  // preference value should not be translated
+  type << "pixel"
+       << "cm"
+       << "mm"
+       << "inch"
+       << "field";
 
   double width  = m_widthFld->getValue();
   double height = m_heightFld->getValue();
   if (index != 0) {
-    pref->setPixelsOnly(false);
-    pref->setCameraUnits(type[index].toStdString());
+    pref->setValue(pixelsOnly, false);
+    pref->setValue(cameraUnits, type[index]);
     m_widthFld->setDecimals(4);
     m_heightFld->setDecimals(4);
     m_resTextLabel->show();
@@ -919,9 +949,9 @@ void StartupPopup::onCameraUnitChanged(int index) {
     m_widthFld->setValue(width);
     m_heightFld->setValue(height);
   } else {
-    pref->setPixelsOnly(true);
-    pref->setUnits("pixel");
-    pref->setCameraUnits("pixel");
+    pref->setValue(pixelsOnly, true);
+    pref->setValue(linearUnits, "pixel");
+    pref->setValue(cameraUnits, "pixel");
     m_widthFld->setDecimals(0);
     m_heightFld->setDecimals(0);
     m_resTextLabel->hide();
@@ -941,20 +971,21 @@ void StartupPopup::onCameraUnitChanged(int index) {
 //-----------------------------------------------------------------------------
 
 void StartupPopup::onShowAtStartChanged(int index) {
-  Preferences::instance()->enableStartupPopup(index);
+  Preferences::instance()->setValue(startupPopupEnabled, index == Qt::Checked);
 }
 
 //-----------------------------------------------------------------------------
 
 void StartupPopup::onAutoSaveOnChanged(int index) {
-  Preferences::instance()->enableAutosave(index);
+  Preferences::instance()->setValue(autosaveEnabled, index == Qt::Checked);
   m_autoSaveTimeFld->setEnabled(index);
 }
 
 //-----------------------------------------------------------------------------
 
 void StartupPopup::onAutoSaveTimeChanged() {
-  Preferences::instance()->setAutosavePeriod(m_autoSaveTimeFld->getValue());
+  Preferences::instance()->setValue(autosavePeriod,
+                                    m_autoSaveTimeFld->getValue());
 }
 
 //-----------------------------------------------------------------------------

@@ -119,15 +119,13 @@ SceneViewerPanel::SceneViewerPanel(QWidget *parent, Qt::WFlags flags)
   m_keyFrameButton->setObjectHandle(app->getCurrentObject());
   m_keyFrameButton->setXsheetHandle(app->getCurrentXsheet());
 
-  int buttons = FlipConsole::cFullConsole;
+  std::vector<int> buttonMask = {FlipConsole::eFilledRaster,
+                                 FlipConsole::eDefineLoadBox,
+                                 FlipConsole::eUseLoadBox};
 
-  // buttons &= (~FlipConsole::eSound);
-  buttons &= (~FlipConsole::eFilledRaster);
-  buttons &= (~FlipConsole::eDefineLoadBox);
-  buttons &= (~FlipConsole::eUseLoadBox);
-
-  m_flipConsole = new FlipConsole(mainLayout, buttons, false, m_keyFrameButton,
-                                  "SceneViewerConsole", this, true);
+  m_flipConsole =
+      new FlipConsole(mainLayout, buttonMask, false, m_keyFrameButton,
+                      "SceneViewerConsole", this, true);
 
   m_flipConsole->enableButton(FlipConsole::eMatte, false, false);
   m_flipConsole->enableButton(FlipConsole::eSave, false, false);
@@ -157,6 +155,10 @@ SceneViewerPanel::SceneViewerPanel(QWidget *parent, Qt::WFlags flags)
 
   ret = ret && connect(m_sceneViewer, SIGNAL(previewStatusChanged()), this,
                        SLOT(update()));
+  ret = ret && connect(m_sceneViewer, SIGNAL(onFlipHChanged(bool)), this,
+                       SLOT(setFlipHButtonChecked(bool)));
+  ret = ret && connect(m_sceneViewer, SIGNAL(onFlipVChanged(bool)), this,
+                       SLOT(setFlipVButtonChecked(bool)));
 
   ret = ret && connect(app->getCurrentScene(), SIGNAL(sceneSwitched()), this,
                        SLOT(onSceneSwitched()));
@@ -510,6 +512,7 @@ void SceneViewerPanel::onPlayingStatusChanged(bool playing) {
       TApp::instance()->getCurrentOnionSkin()->notifyOnionSkinMaskChanged();
     }
   }
+  m_sceneViewer->invalidateToolStatus();
 }
 
 //-----------------------------------------------------------------------------
@@ -522,12 +525,11 @@ void SceneViewerPanel::changeWindowTitle() {
   int frame = app->getCurrentFrame()->getFrame();
   QString name;
   if (app->getCurrentFrame()->isEditingScene()) {
-    TProject *project   = scene->getProject();
-    QString projectName = QString::fromStdString(project->getName().getName());
-    QString sceneName   = QString::fromStdWString(scene->getSceneName());
+    TProject *project = scene->getProject();
+    QString sceneName = QString::fromStdWString(scene->getSceneName());
     if (sceneName.isEmpty()) sceneName = tr("Untitled");
     if (app->getCurrentScene()->getDirtyFlag()) sceneName += QString("*");
-    name = tr("Scene: ") + sceneName + tr("   ::   Project: ") + projectName;
+    name = tr("[SCENE]: ") + sceneName;
     if (frame >= 0)
       name =
           name + tr("   ::   Frame: ") + tr(std::to_string(frame + 1).c_str());
@@ -544,7 +546,7 @@ void SceneViewerPanel::changeWindowTitle() {
                       m_sceneViewer->getNormalZoomScale().inv();
         if (m_sceneViewer->getIsFlippedX()) aff = aff * TScale(-1, 1);
         if (m_sceneViewer->getIsFlippedY()) aff = aff * TScale(1, -1);
-        name                                    = name + tr("  ::  Zoom : ") +
+        name = name + tr("  ::  Zoom : ") +
                QString::number(tround(100.0 * sqrt(aff.det()))) + "%";
         if (m_sceneViewer->getIsFlippedX() || m_sceneViewer->getIsFlippedY()) {
           name = name + tr(" (Flipped)");
@@ -564,7 +566,7 @@ void SceneViewerPanel::changeWindowTitle() {
       TFilePath fp(level->getName());
       QString imageName = QString::fromStdWString(
           fp.withFrame(app->getCurrentFrame()->getFid()).getWideString());
-      name = name + tr("Level: ") + imageName;
+      name = name + tr("[LEVEL]: ") + imageName;
     }
   }
   if (!m_sceneViewer->is3DView()) {
@@ -572,7 +574,7 @@ void SceneViewerPanel::changeWindowTitle() {
                   m_sceneViewer->getNormalZoomScale().inv();
     if (m_sceneViewer->getIsFlippedX()) aff = aff * TScale(-1, 1);
     if (m_sceneViewer->getIsFlippedY()) aff = aff * TScale(1, -1);
-    name                                    = name + tr("  ::  Zoom : ") +
+    name = name + tr("  ::  Zoom : ") +
            QString::number(tround(100.0 * sqrt(aff.det()))) + "%";
     if (m_sceneViewer->getIsFlippedX() || m_sceneViewer->getIsFlippedY()) {
       name = name + tr(" (Flipped)");
@@ -745,4 +747,12 @@ void SceneViewerPanel::onButtonPressed(FlipConsole::EGadget button) {
   if (button == FlipConsole::eSound) {
     m_playSound = !m_playSound;
   }
+}
+
+void SceneViewerPanel::setFlipHButtonChecked(bool checked) {
+  m_flipConsole->setChecked(FlipConsole::eFlipHorizontal, checked);
+}
+
+void SceneViewerPanel::setFlipVButtonChecked(bool checked) {
+  m_flipConsole->setChecked(FlipConsole::eFlipVertical, checked);
 }

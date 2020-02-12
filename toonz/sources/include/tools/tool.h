@@ -8,6 +8,7 @@
 #include "toonz/txsheet.h"
 #include "toonz/imagepainter.h"
 #include "toonz/tapplication.h"
+#include "tools/cursors.h"
 
 // TnzCore includes
 #include "tcommon.h"
@@ -502,6 +503,8 @@ transformation.
 
   QString updateEnabled();  //!< Sets the tool's \a enability and returns a
                             //!  reason in case the tool was disabled.
+  QString updateEnabled(int rowIndex, int columnIndex);
+
   bool isColumnLocked(int columnIndex) const;
 
   void resetInputMethod();  //!< Resets Input Context (IME)
@@ -510,20 +513,36 @@ transformation.
   // Tools.
   virtual bool isPencilModeActive() { return false; }
 
+  // return true if the tool is busy with a mouse drag operation
+  virtual bool isDragging() const { return false; };
+
   void setSelectedFrames(const std::set<TFrameId> &selectedFrames);
   static const std::set<TFrameId> &getSelectedFrames() {
     return m_selectedFrames;
   }
 
+  void tweenSelectedGuideStrokes();
+  void tweenGuideStrokeToSelected();
+  void flipGuideStrokeDirection(int mode);
+
 public:
-  static std::vector<int> m_cellsData;  //!< \deprecated  brutto brutto. fix
-                                        //! quick & dirty del baco #6213 (undo
+  struct CellOps {
+    int r0;
+    int r1;
+    enum Type { ExistingToNew = 0, BlankToExisting, BlankToNew } type;
+  };
+  static std::vector<CellOps>
+      m_cellsData;  //!< \deprecated  brutto brutto. fix
+                    //! quick & dirty del baco #6213 (undo
   //! con animation sheet) spiegazioni in
   //! tool.cpp
   static bool m_isLevelCreated;  //!< \deprecated  Shouldn't expose global
                                  //! static variables.
   static bool m_isFrameCreated;  //!< \deprecated  Shouldn't expose global
                                  //! static variables.
+  static std::vector<TFrameId> m_oldFids;
+  static std::vector<TFrameId> m_newFids;
+  static bool m_isLevelRenumbererd;
 
 protected:
   std::string m_name;  //!< The tool's name.
@@ -567,6 +586,10 @@ protected:
   ImagePainter::VisualSettings
       m_visualSettings;  //!< Settings used by the Viewer to draw scene contents
 
+  int guidedStrokePickMode = 0;
+  int m_guidedFrontStroke  = -1;
+  int m_guidedBackStroke   = -1;
+
 public:
   Viewer() {}
   virtual ~Viewer() {}
@@ -576,9 +599,8 @@ public:
   }
   ImagePainter::VisualSettings &visualSettings() { return m_visualSettings; }
 
-  virtual double getPixelSize()
-      const = 0;  //!< Returns the length of a pixel in current OpenGL
-                  //!< coordinates
+  virtual double getPixelSize() const = 0;  //!< Returns the length of a pixel
+                                            //!< in current OpenGL coordinates
 
   virtual void invalidateAll() = 0;    //!< Redraws the entire viewer, passing
                                        //! through Qt's event system
@@ -598,7 +620,7 @@ public:
   //! return the column index of the drawing intersecting point \b p
   //! (window coordinate, pixels, bottom-left origin)
   virtual int posToColumnIndex(const TPointD &p, double distance,
-                               bool includeInvisible = true) const = 0;
+                               bool includeInvisible = true) const    = 0;
   virtual void posToColumnIndexes(const TPointD &p, std::vector<int> &indexes,
                                   double distance,
                                   bool includeInvisible = true) const = 0;
@@ -630,9 +652,9 @@ public:
 
   virtual void rotate(const TPointD &center, double angle) = 0;
   virtual void rotate3D(double dPhi, double dTheta)        = 0;
-  virtual bool is3DView() const      = 0;
-  virtual bool getIsFlippedX() const = 0;
-  virtual bool getIsFlippedY() const = 0;
+  virtual bool is3DView() const                            = 0;
+  virtual bool getIsFlippedX() const                       = 0;
+  virtual bool getIsFlippedY() const                       = 0;
 
   virtual double projectToZ(const TPointD &delta) = 0;
 
@@ -652,6 +674,33 @@ public:
 
   virtual void bindFBO() {}
   virtual void releaseFBO() {}
+
+  int getGuidedStrokePickerMode() { return guidedStrokePickMode; }
+  void setGuidedStrokePickerMode(int mode) { guidedStrokePickMode = mode; }
+
+  int getGuidedStrokePickerCursor() {
+    if (guidedStrokePickMode < 0)
+      return ToolCursor::PickPrevCursor;
+    else if (guidedStrokePickMode > 0)
+      return ToolCursor::PickNextCursor;
+    else
+      return ToolCursor::PointingHandCursor;
+  }
+
+  int getGuidedFrontStroke() { return m_guidedFrontStroke; }
+  void setGuidedFrontStroke(int strokeIdx) {
+    m_guidedFrontStroke = strokeIdx;
+    invalidateAll();
+  }
+
+  int getGuidedBackStroke() { return m_guidedBackStroke; }
+  void setGuidedBackStroke(int strokeIdx) {
+    m_guidedBackStroke = strokeIdx;
+    invalidateAll();
+  }
+
+  void getGuidedFrameIdx(int *backIdx, int *frontIdx);
+  void doPickGuideStroke(const TPointD &pos);
 };
 
 #endif

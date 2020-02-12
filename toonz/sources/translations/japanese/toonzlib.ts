@@ -436,6 +436,12 @@
         <source>Timeline</source>
         <translation>タイムライン</translation>
     </message>
+    <message>
+        <source>Failed to save the following resources:
+</source>
+        <translation>以下の素材の保存に失敗しました：
+</translation>
+    </message>
 </context>
 <context>
     <name>TScriptBinding::CenterlineVectorizer</name>

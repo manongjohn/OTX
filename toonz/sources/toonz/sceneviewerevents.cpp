@@ -15,6 +15,11 @@
 #include "ruler.h"
 #include "comboviewerpane.h"
 #include "locatorpopup.h"
+#include "cellselection.h"
+
+#ifdef WITH_STOPMOTION
+#include "stopmotion.h"
+#endif
 
 // TnzQt includes
 #include "toonzqt/tselectionhandle.h"
@@ -213,6 +218,22 @@ void SceneViewer::onButtonPressed(FlipConsole::EGadget button) {
     m_locator->show();
     m_locator->raise();
     m_locator->activateWindow();
+    break;
+
+  case FlipConsole::eZoomIn:
+    zoomIn();
+    break;
+  case FlipConsole::eZoomOut:
+    zoomOut();
+    break;
+  case FlipConsole::eFlipHorizontal:
+    flipX();
+    break;
+  case FlipConsole::eFlipVertical:
+    flipY();
+    break;
+  case FlipConsole::eResetView:
+    resetSceneViewer();
     break;
   }
 }
@@ -563,6 +584,11 @@ void SceneViewer::onMove(const TMouseEvent &event) {
       tool->mouseMove(pos, event);
     }
     if (!cursorSet) setToolCursor(this, tool->getCursorId());
+
+#ifdef WITH_STOPMOTION
+    if (StopMotion::instance()->m_pickLiveViewZoom)
+      setToolCursor(this, ToolCursor::ZoomCursor);
+#endif
     m_pos          = curPos;
     m_tabletMove   = false;
     m_toolSwitched = false;
@@ -704,6 +730,17 @@ void SceneViewer::onPress(const TMouseEvent &event) {
     pos.x /= m_dpiScale.x;
     pos.y /= m_dpiScale.y;
   }
+
+#ifdef WITH_STOPMOTION
+  // grab screen picking for stop motion live view zoom
+  if (StopMotion::instance()->m_pickLiveViewZoom) {
+    StopMotion::instance()->m_pickLiveViewZoom = false;
+    StopMotion::instance()->makeZoomPoint(pos);
+    if (tool) setToolCursor(this, tool->getCursorId());
+    if (m_mouseButton != Qt::RightButton) return;
+  }
+#endif
+
   // separate tablet and mouse events
   if (m_tabletEvent && m_tabletState == Touched) {
     TApp::instance()->getCurrentTool()->setToolBusy(true);
@@ -1154,6 +1191,12 @@ bool SceneViewer::event(QEvent *e) {
       e->accept();
     }
 
+    // Disable keyboard shortcuts while the tool is busy with a mouse drag
+    // operation.
+    if ( tool->isDragging() ) {
+      e->accept();
+    }
+
     return true;
   }
   if (e->type() == QEvent::KeyRelease) {
@@ -1351,6 +1394,7 @@ void SceneViewer::keyPressEvent(QKeyEvent *event) {
     if (changeFrameSkippingHolds(event)) return;
 
     TFrameHandle *fh = TApp::instance()->getCurrentFrame();
+    int origFrame    = fh->getFrame();
 
     if (key == Qt::Key_Up || key == Qt::Key_Left)
       fh->prevFrame();
@@ -1376,6 +1420,21 @@ void SceneViewer::keyPressEvent(QKeyEvent *event) {
       fh->firstFrame();
     else if (key == Qt::Key_End)
       fh->lastFrame();
+
+    // Use arrow keys to shift the cell selection.
+    if (Preferences::instance()->isUseArrowKeyToShiftCellSelectionEnabled() &&
+        fh->getFrameType() != TFrameHandle::LevelFrame) {
+      TCellSelection *cellSel =
+          dynamic_cast<TCellSelection *>(TSelection::getCurrent());
+      if (cellSel && !cellSel->isEmpty()) {
+        int r0, c0, r1, c1;
+        cellSel->getSelectedCells(r0, c0, r1, c1);
+        int shiftFrame = fh->getFrame() - origFrame;
+
+        cellSel->selectCells(r0 + shiftFrame, c0, r1 + shiftFrame, c1);
+        TApp::instance()->getCurrentSelection()->notifySelectionChanged();
+      }
+    }
   }
   update();
   // TODO: devo accettare l'evento?
@@ -1561,6 +1620,14 @@ void SceneViewer::dropEvent(QDropEvent *e) {
     }
 
     IoCmd::loadResources(args);
+
+	if (acceptResourceOrFolderDrop(mimeData->urls())) {
+		// Force Copy Action
+		e->setDropAction(Qt::CopyAction);
+		// For files, don't accept original proposed action in case it's a move
+		e->accept();
+		return;
+	}
   }
   e->acceptProposedAction();
 }
@@ -1573,7 +1640,10 @@ void SceneViewer::onToolSwitched() {
   invalidateToolStatus();
 
   TTool *tool = TApp::instance()->getCurrentTool()->getTool();
-  if (tool) tool->updateMatrix();
+  if (tool) {
+	  tool->updateMatrix();
+	  if (tool->getViewer()) tool->getViewer()->setGuidedStrokePickerMode(0);
+  }
 
   onLevelChanged();
   update();

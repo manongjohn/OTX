@@ -92,6 +92,8 @@ const struct {
     {ToolCursor::FillCursorL, "karasu", 7, 25, true},
     {ToolCursor::RulerModifyCursor, "ruler_modify", 7, 7, true},
     {ToolCursor::RulerNewCursor, "ruler_new", 7, 7, true},
+    {ToolCursor::PickPrevCursor, "", 13, 4, false},
+    {ToolCursor::PickNextCursor, "", 13, 4, false},
     {0, 0, 0, 0, false}};
 
 struct CursorData {
@@ -114,8 +116,11 @@ const struct {
                     {ToolCursor::Ex_StyleArea, "ex_style_area"},
                     {ToolCursor::Ex_RGB, "ex_rgb"},
                     {ToolCursor::Ex_HV, "ex_hv"},
+                    {ToolCursor::Ex_Precise, "ex_precise"},
+                    {ToolCursor::Ex_Prev, "ex_prev"},
+                    {ToolCursor::Ex_Next, "ex_next"},
                     {0, 0}};
-};
+};  // namespace
 
 //=============================================================================
 // CursorManager
@@ -141,9 +146,9 @@ public:
       p.setCompositionMode(QPainter::CompositionMode_SourceOver);
       for (int i = 0; decorateInfo[i].pixmapFilename; i++)
         if (decorationFlag & decorateInfo[i].decorateType) {
-          QString leftStr      = "";
+          QString leftStr = "";
           if (useLeft) leftStr = "_left";
-          QString path         = QString(":Resources/") +
+          QString path = QString(":Resources/") +
                          decorateInfo[i].pixmapFilename + leftStr + ".png";
           p.drawPixmap(0, 0, QPixmap(path));
         }
