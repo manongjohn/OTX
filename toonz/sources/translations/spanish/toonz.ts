@@ -2568,7 +2568,7 @@ Do you want to overwrite it?</source>
     </message>
     <message>
         <source>Ease In / Ease Out</source>
-        <translation>Aceleración y desaceleración suave</translation>
+        <translation>Aceleración y desaceleración suaves</translation>
     </message>
     <message>
         <source>Interpolation:</source>
@@ -5643,6 +5643,50 @@ o es posible que se termine borrando algún archivo usado por ésta.</translatio
         <source>Can&apos;t delete %1 : </source>
         <translation>No es posible borrar %1 : </translation>
     </message>
+    <message>
+        <source>https://github.com/opentoonz/opentoonz/releases/latest</source>
+        <translation>https://opentoonz.readthedocs.io/es/latest/whats_new.html#v1-4</translation>
+    </message>
+    <message>
+        <source>https://groups.google.com/forum/#!forum/opentoonz_en</source>
+        <translation>https://groups.google.com/forum/#!forum/open-toonz--comunidad-en-espaol</translation>
+    </message>
+    <message>
+        <source>To report a bug, click on the button below to open a web browser window for OpenToonz&apos;s Issues page on https://github.com.  Click on the &apos;New issue&apos; button and fill out the form.</source>
+        <translation>Para reportar un error: Hacer clic en el botón de abajo para abrir un navegador web e ir a la página de reportes de OpenToonz en https://github.com.  Allí, hacer clic en el botón &apos;New issue&apos; y rellenar el formulario con los datos del problema (en inglés, por favor).</translation>
+    </message>
+    <message>
+        <source>Vector Guided Drawing</source>
+        <translation>Asistencia para dibujo vectorial</translation>
+    </message>
+    <message>
+        <source>Short Play</source>
+        <translation>Reproducción breve</translation>
+    </message>
+    <message>
+        <source>&amp;What&apos;s New...</source>
+        <translation>&amp;Novedades de esta versión...</translation>
+    </message>
+    <message>
+        <source>&amp;Community Forum...</source>
+        <translation>&amp;Foro de la comunidad...</translation>
+    </message>
+    <message>
+        <source>&amp;Report a Bug...</source>
+        <translation>&amp;Reportar un error...</translation>
+    </message>
+    <message>
+        <source>Guided Drawing Controls</source>
+        <translation>Controles de asistencia para dibujo vectorial</translation>
+    </message>
+    <message>
+        <source>Flip Next Guide Stroke Direction</source>
+        <translation>Trazo de guía - Invertir dirección siguiente</translation>
+    </message>
+    <message>
+        <source>Flip Previous Guide Stroke Direction</source>
+        <translation>Trazo de guía - Invertir dirección anterior</translation>
+    </message>
 </context>
 <context>
     <name>MatchlinesDialog</name>
@@ -7941,6 +7985,10 @@ contengan píxeles transparentes en formatos de imagen sin soporte para canal al
     <message>
         <source>Enable Touch Gesture Controls</source>
         <translation>Habilitar control mediante gestos táctiles</translation>
+    </message>
+    <message>
+        <source>Number of Frames to Play for Short Play</source>
+        <translation>Cantidad de fotogramas en Reproducción breve</translation>
     </message>
 </context>
 <context>
@@ -10247,6 +10295,30 @@ Do you want to create it?</source>
         <source>Camera Column Switch :  </source>
         <translation>Columna de cámara :  </translation>
     </message>
+    <message>
+        <source>Vector Guided Drawing Controls</source>
+        <translation>Controles de asistencia para dibujo vectorial</translation>
+    </message>
+    <message>
+        <source>Vector Guided Drawing</source>
+        <translation>Asistencia para dibujo vectorial</translation>
+    </message>
+    <message>
+        <source>Group strokes by vector levels?</source>
+        <translation>¿Agrupar trazos por niveles vectoriales?</translation>
+    </message>
+    <message>
+        <source>Merge Vector Levels</source>
+        <translation>Fusionar niveles vectoriales</translation>
+    </message>
+    <message>
+        <source>Report a Bug</source>
+        <translation>Reportar un error</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Cerrar</translation>
+    </message>
 </context>
 <context>
     <name>ReframePopup</name>
@@ -11615,7 +11687,7 @@ Por favor enviar o revertir los cambios antes.</translation>
     </message>
     <message>
         <source>Ease In/Out Interpolation</source>
-        <translation>Aceleración y desaceleración suave</translation>
+        <translation>Aceleración y desaceleración suaves</translation>
     </message>
 </context>
 <context>
@@ -12577,6 +12649,14 @@ ADVERTENCIA : Tamaño de imagen no coincidente. El tamaño del nivel con esa rut
         <source>No camera selected.</source>
         <translation>No se seleccionó una cámara.</translation>
     </message>
+    <message>
+        <source>Please start live view before capturing an image.</source>
+        <translation>Por favor iniciar Ver en vivo antes de capturar una imagen.</translation>
+    </message>
+    <message>
+        <source>Cannot capture webcam image unless live view is active.</source>
+        <translation>No es posible capturar imágenes con una cámara web a menos que Ver en vivo se encuentre activo.</translation>
+    </message>
 </context>
 <context>
     <name>StopMotionController</name>
@@ -13299,6 +13379,89 @@ Clic en el botón con la flecha para crear una nueva sub-planilla</translation>
     </message>
 </context>
 <context>
+    <name>VectorGuidedDrawingPane</name>
+    <message>
+        <source>Off</source>
+        <translation>Desactivado</translation>
+    </message>
+    <message>
+        <source>Closest</source>
+        <translation>Más próximo</translation>
+    </message>
+    <message>
+        <source>Farthest</source>
+        <translation>Más distante</translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation>Todos</translation>
+    </message>
+    <message>
+        <source>Auto Inbetween</source>
+        <translation>Intermediación automática</translation>
+    </message>
+    <message>
+        <source>Linear</source>
+        <translation>Lineal</translation>
+    </message>
+    <message>
+        <source>Ease In</source>
+        <translation>Desaceleración suave</translation>
+    </message>
+    <message>
+        <source>Ease Out</source>
+        <translation>Aceleración suave</translation>
+    </message>
+    <message>
+        <source>EaseIn/Out</source>
+        <translation>Aceleración/Desaceleración suaves</translation>
+    </message>
+    <message>
+        <source>Previous</source>
+        <translation>Anterior</translation>
+    </message>
+    <message>
+        <source>Next</source>
+        <translation>Siguiente</translation>
+    </message>
+    <message>
+        <source>Both</source>
+        <translation>Ambos</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Restablecer</translation>
+    </message>
+    <message>
+        <source>Tween Selected Guide Strokes</source>
+        <translation>Intermediar entre trazos guía seleccionados</translation>
+    </message>
+    <message>
+        <source>Tween Guide Strokes to Selected</source>
+        <translation>Intermediar de trazos guía al seleccionado</translation>
+    </message>
+    <message>
+        <source>Select Guide Strokes &amp;&amp; Tween Mode</source>
+        <translation>Seleccionar trazos guía &amp;y modo de intermediación</translation>
+    </message>
+    <message>
+        <source>Guide Frames:</source>
+        <translation>Guías en fotogramas:</translation>
+    </message>
+    <message>
+        <source>Select Guide Stroke:</source>
+        <translation>Seleccionar trazo guía:</translation>
+    </message>
+    <message>
+        <source>Flip Guide Stroke:</source>
+        <translation>Invertir trazo guía:</translation>
+    </message>
+    <message>
+        <source>Interpolation:</source>
+        <translation>Interpolación:</translation>
+    </message>
+</context>
+<context>
     <name>VectorizerPopup</name>
     <message>
         <source>Convert-to-Vector Settings</source>
@@ -13979,7 +14142,7 @@ Mantener presionada la tecla F3 para ver sólo este fotograma en el visor</trans
     </message>
     <message>
         <source>   ::   Project: </source>
-        <translation>   ::   Proyecto: </translation>
+        <translation type="vanished">   ::   Proyecto: </translation>
     </message>
     <message>
         <source> Frame</source>

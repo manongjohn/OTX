@@ -1308,6 +1308,8 @@ void TTool::setSelectedFrames(const std::set<TFrameId> &selectedFrames) {
 //-------------------------------------------------------------------------------------------------------------
 
 void TToolViewer::getGuidedFrameIdx(int *backIdx, int *frontIdx) {
+  if (!Preferences::instance()->isGuidedDrawingEnabled()) return;
+
   OnionSkinMask osMask =
       TTool::getApplication()->getCurrentOnionSkin()->getOnionSkinMask();
 
@@ -1324,7 +1326,7 @@ void TToolViewer::getGuidedFrameIdx(int *backIdx, int *frontIdx) {
   int fosCount = osMask.getFosCount();
 
   // Find onion-skinned drawing that is being used for guided auto inbetween
-  if (Preferences::instance()->getGuidedDrawing() == 1) {
+  if (Preferences::instance()->getGuidedDrawingType() == 1) {
     // Get closest moving unionskin
     for (int i = 0; i < mosCount; i++) {
       int cmos = osMask.getMos(i);
@@ -1351,7 +1353,7 @@ void TToolViewer::getGuidedFrameIdx(int *backIdx, int *frontIdx) {
       *frontIdx = fosFront;
     else if (fosFront != -1)
       *frontIdx = std::min(*frontIdx, fosFront);
-  } else if (Preferences::instance()->getGuidedDrawing() ==
+  } else if (Preferences::instance()->getGuidedDrawingType() ==
              2) {  // Furthest drawing
                    // Get moving unionskin
     for (int i = 0; i < mosCount; i++) {
@@ -1533,6 +1535,8 @@ void TTool::tweenSelectedGuideStrokes() {
   TTool *tool = TTool::getTool(T_Brush, TTool::ToolTargetType::VectorImage);
   ToonzVectorBrushTool *vbTool = (ToonzVectorBrushTool *)tool;
   if (vbTool) {
+    m_isFrameCreated = false;
+    m_isLevelCreated = false;
     vbTool->setViewer(m_viewer);
     vbTool->doFrameRangeStrokes(
         bFid, bStroke, fFid, fStroke,
@@ -1632,6 +1636,8 @@ void TTool::tweenGuideStrokeToSelected() {
   TTool *tool = TTool::getTool(T_Brush, TTool::ToolTargetType::VectorImage);
   ToonzVectorBrushTool *vbTool = (ToonzVectorBrushTool *)tool;
   if (vbTool) {
+    m_isFrameCreated = false;
+    m_isLevelCreated = false;
     vbTool->setViewer(m_viewer);
     TUndoManager::manager()->beginBlock();
     if (bStroke)
@@ -1646,4 +1652,72 @@ void TTool::tweenGuideStrokeToSelected() {
           false, false, false, false);
     TUndoManager::manager()->endBlock();
   }
+}
+
+//-------------------------------------------------------------------------------------------------------------
+
+void TTool::flipGuideStrokeDirection(int mode) {
+  if (!mode) return;
+
+  TXshSimpleLevel *sl =
+      m_application->getCurrentLevel()->getLevel()->getSimpleLevel();
+  if (!sl) return;
+
+  int osBack  = -1;
+  int osFront = -1;
+  int os      = -1;
+  int strokeIdx;
+
+  getViewer()->getGuidedFrameIdx(&osBack, &osFront);
+
+  if (mode < 0) {  // Previous Frame
+    os        = osBack;
+    strokeIdx = getViewer()->getGuidedBackStroke();
+  } else if (mode > 0) {  // Next Frame
+    os        = osFront;
+    strokeIdx = getViewer()->getGuidedFrontStroke();
+  }
+
+  if (os < 0) return;
+
+  TFrameHandle *currentFrame = getApplication()->getCurrentFrame();
+  int row                    = currentFrame->getFrameIndex();
+  TFrameId cFid              = getCurrentFid();
+  if (cFid.isEmptyFrame()) return;
+
+  TVectorImageP cvi = sl->getFrame(cFid, false);
+  if (!cvi) return;
+
+  int cStrokeCount = cvi->getStrokeCount();
+
+  TFrameId fid;
+  if (currentFrame->isEditingScene()) {
+    TXsheet *xsh = getApplication()->getCurrentXsheet()->getXsheet();
+    int col      = getApplication()->getCurrentColumn()->getColumnIndex();
+    if (xsh && col >= 0) {
+      TXshCell cell            = xsh->getCell(os, col);
+      if (!cell.isEmpty()) fid = cell.getFrameId();
+    }
+  } else
+    fid = sl->getFrameId(os);
+
+  if (fid.isEmptyFrame()) return;
+
+  TVectorImageP vi = sl->getFrame(fid, false);
+  if (!vi) return;
+
+  int strokeCount = vi->getStrokeCount();
+  if (!strokeCount) return;
+
+  if (strokeIdx == -1) strokeIdx = cStrokeCount;
+
+  if (strokeIdx >= strokeCount) return;
+
+  TStroke *stroke = vi->getStroke(strokeIdx);
+  if (!stroke) return;
+
+  stroke->changeDirection();
+  sl->setDirtyFlag(true);
+  getViewer()->invalidateAll();
+  m_application->getCurrentLevel()->notifyLevelChange();
 }

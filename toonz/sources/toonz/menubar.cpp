@@ -1102,7 +1102,10 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   QMenu *importMenu = fileMenu->addMenu(tr("Import"));
   { addMenuItem(importMenu, MI_ImportMagpieFile); }
   QMenu *exportMenu = fileMenu->addMenu(tr("Export"));
-  { addMenuItem(exportMenu, MI_SoundTrack); }
+  {
+    addMenuItem(exportMenu, MI_SoundTrack);
+    addMenuItem(exportMenu, MI_ExportXDTS);
+  }
   fileMenu->addSeparator();
   addMenuItem(fileMenu, MI_PrintXsheet);
   addMenuItem(fileMenu, MI_Print);
@@ -1380,6 +1383,8 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   addMenuItem(viewMenu, MI_NoShift);
   addMenuItem(viewMenu, MI_ResetShift);
   viewMenu->addSeparator();
+  addMenuItem(viewMenu, MI_VectorGuidedDrawing);
+  viewMenu->addSeparator();
   addMenuItem(viewMenu, MI_RasterizePli);
 #ifdef LINETEST
   viewMenu->addSeparator();
@@ -1427,6 +1432,7 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   addMenuItem(windowsMenu, MI_OpenStopMotionPanel);
 #endif
   addMenuItem(windowsMenu, MI_StartupPopup);
+  addMenuItem(windowsMenu, MI_OpenGuidedDrawingControls);
 #ifdef LINETEST
   windowsMenu->addSeparator();
   addMenuItem(windowsMenu, MI_OpenExport);

@@ -20,6 +20,7 @@
 #include "tapp.h"
 #include "menubarcommandids.h"
 #include "xdtsimportpopup.h"
+#include "filebrowserpopup.h"
 
 #include <iostream>
 #include <QJsonObject>
@@ -162,7 +163,7 @@ QVector<int> XdtsFieldTrackItem::getCellNumberTrack() const {
   return cells;
 }
 
-QString XdtsFieldTrackItem::build(TXshCellColumn *column, int duration) {
+QString XdtsFieldTrackItem::build(TXshCellColumn *column) {
   // register the firstly-found level
   TXshSimpleLevel *level = nullptr;
   TXshCell prevCell;
@@ -186,7 +187,7 @@ QString XdtsFieldTrackItem::build(TXshCellColumn *column, int duration) {
 
     prevCell = cell;
   }
-  if (r1 + 1 < duration) addFrame(r1 + 1, 0);
+  addFrame(r1 + 1, 0);
   if (level)
     return QString::fromStdWString(level->getName());
   else {
@@ -234,8 +235,7 @@ QVector<int> XdtsTimeTableFieldItem::getColumnTrack(int col) const {
   return QVector<int>();
 }
 
-void XdtsTimeTableFieldItem::build(TXsheet *xsheet, int duration,
-                                   QStringList &columnLabels) {
+void XdtsTimeTableFieldItem::build(TXsheet *xsheet, QStringList &columnLabels) {
   m_fieldId = CELL;
   for (int col = 0; col < xsheet->getFirstFreeColumnIndex(); col++) {
     if (xsheet->isColumnEmpty(col)) {
@@ -248,7 +248,7 @@ void XdtsTimeTableFieldItem::build(TXsheet *xsheet, int duration,
       continue;
     }
     XdtsFieldTrackItem track(col);
-    columnLabels.append(track.build(column, duration));
+    columnLabels.append(track.build(column));
     if (!track.isEmpty()) m_tracks.append(track);
   }
 }
@@ -333,14 +333,19 @@ QStringList XdtsTimeTableItem::getLevelNames() const {
   return ret;
 }
 
-void XdtsTimeTableItem::build(TXsheet *xsheet, QString name) {
-  m_duration = xsheet->getFrameCount();
+void XdtsTimeTableItem::build(TXsheet *xsheet, QString name, int duration) {
+  m_duration = duration;
   m_name     = name;
   QStringList columnLabels;
   XdtsTimeTableFieldItem field;
-  field.build(xsheet, m_duration, columnLabels);
+  field.build(xsheet, columnLabels);
   m_fields.append(field);
-  while (columnLabels.last().isEmpty()) columnLabels.removeLast();
+  while (!columnLabels.isEmpty() && columnLabels.last().isEmpty())
+    columnLabels.removeLast();
+  if (columnLabels.isEmpty()) {
+    m_fields.clear();
+    return;
+  }
   XdtsTimeTableHeaderItem header;
   header.build(columnLabels);
   m_timeTableHeaders.append(header);
@@ -385,9 +390,10 @@ QStringList XdtsData::getLevelNames() const {
   return m_timeTables.at(0).getLevelNames();
 }
 
-void XdtsData::build(TXsheet *xsheet, QString name) {
+void XdtsData::build(TXsheet *xsheet, QString name, int duration) {
   XdtsTimeTableItem timeTable;
-  timeTable.build(xsheet, name);
+  timeTable.build(xsheet, name, duration);
+  if (timeTable.isEmpty()) return;
   m_timeTables.append(timeTable);
 }
 
@@ -511,17 +517,38 @@ void ExportXDTSCommand::execute() {
   ToonzScene *scene = TApp::instance()->getCurrentScene()->getScene();
   TXsheet *xsheet   = TApp::instance()->getCurrentXsheet()->getXsheet();
   TFilePath fp      = scene->getScenePath().withType("xdts");
-  if (TSystem::doesExistFileOrLevel(fp)) {
-    QString question =
-        QObject::tr("The file %1 already exists.\nDo you want to overwrite it?")
-            .arg(toQString(fp));
-    int ret = DVGui::MsgBox(question, QObject::tr("Overwrite"),
-                            QObject::tr("Cancel"), 0);
-    if (ret == 2 || ret == 0) return;
-  }
+
+  // if the current xsheet is top xsheet in the scene and the output
+  // frame range is specified, set the "to" frame value as duration
+  int duration;
+  TOutputProperties *oprop = scene->getProperties()->getOutputProperties();
+  int from, to, step;
+  if (scene->getTopXsheet() == xsheet && oprop->getRange(from, to, step))
+    duration = to + 1;
+  else
+    duration = xsheet->getFrameCount();
 
   XdtsData xdtsData;
-  xdtsData.build(xsheet, QString::fromStdString(fp.getName()));
+  xdtsData.build(xsheet, QString::fromStdString(fp.getName()), duration);
+  if (xdtsData.isEmpty()) {
+    DVGui::error(QObject::tr("No columns can be exported."));
+    return;
+  }
+
+  static GenericSaveFilePopup *savePopup = 0;
+  if (!savePopup) {
+    savePopup = new GenericSaveFilePopup(
+        QObject::tr("Export Exchange Digital Time Sheet (XDTS)"));
+    savePopup->addFilterType("xdts");
+  }
+  if (!scene->isUntitled())
+    savePopup->setFolder(fp.getParentDir());
+  else
+    savePopup->setFolder(
+        TProjectManager::instance()->getCurrentProject()->getScenesPath());
+  savePopup->setFilename(fp.withoutParentDir());
+  fp = savePopup->getPath();
+  if (fp.isEmpty()) return;
 
   QFile saveFile(fp.getQString());
 

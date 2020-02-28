@@ -990,29 +990,26 @@ void ToonzVectorBrushTool::leftButtonUp(const TPointD &pos,
       m_snapSelf = false;
     }
 
-    bool strokeAdded = false;
+    addStrokeToImage(getApplication(), vi, stroke, m_breakAngles.getValue(),
+                     false, false, m_isFrameCreated, m_isLevelCreated);
+    TRectD bbox = stroke->getBBox().enlarge(2) + m_track.getModifiedRegion();
 
-    if ((Preferences::instance()->getGuidedDrawing() == 1 ||
-         Preferences::instance()->getGuidedDrawing() == 2) &&
+    invalidate();  // should use bbox?
+
+    if ((Preferences::instance()->getGuidedDrawingType() == 1 ||
+         Preferences::instance()->getGuidedDrawingType() == 2) &&
         Preferences::instance()->getGuidedAutoInbetween()) {
       int fidx     = getApplication()->getCurrentFrame()->getFrameIndex();
       TFrameId fId = getFrameId();
 
-      strokeAdded = doGuidedAutoInbetween(
-          fId, vi, stroke, m_breakAngles.getValue(), false, false, true);
+      doGuidedAutoInbetween(fId, vi, stroke, m_breakAngles.getValue(), false,
+                            false, false);
 
       if (getApplication()->getCurrentFrame()->isEditingScene())
         getApplication()->getCurrentFrame()->setFrame(fidx);
       else
         getApplication()->getCurrentFrame()->setFid(fId);
     }
-
-    if (!strokeAdded)
-      addStrokeToImage(getApplication(), vi, stroke, m_breakAngles.getValue(),
-                       false, false, m_isFrameCreated, m_isLevelCreated);
-    TRectD bbox = stroke->getBBox().enlarge(2) + m_track.getModifiedRegion();
-
-    invalidate();  // should use bbox?
   }
   assert(stroke);
   m_track.clear();
@@ -1151,7 +1148,7 @@ bool ToonzVectorBrushTool::doGuidedAutoInbetween(
   bool resultFront           = false;
   TFrameId oFid;
   int cStrokeIdx   = cvi->getStrokeCount();
-  int cStrokeCount = cStrokeIdx + 1;
+  if (!drawStroke) cStrokeIdx--;
 
   TUndoManager::manager()->beginBlock();
   if (osBack != -1) {
@@ -1176,10 +1173,13 @@ bool ToonzVectorBrushTool::doGuidedAutoInbetween(
         strokeIdx < fStrokeCount) {
       TStroke *fStroke = fvi->getStroke(strokeIdx);
 
-      resultBack = doFrameRangeStrokes(
+      bool frameCreated = m_isFrameCreated;
+      m_isFrameCreated  = false;
+      resultBack        = doFrameRangeStrokes(
           oFid, fStroke, cFid, cStroke,
           Preferences::instance()->getGuidedInterpolation(), breakAngles,
           autoGroup, autoFill, false, drawStroke, false);
+      m_isFrameCreated = frameCreated;
     }
   }
 
@@ -1207,10 +1207,13 @@ bool ToonzVectorBrushTool::doGuidedAutoInbetween(
         strokeIdx < fStrokeCount) {
       TStroke *fStroke = fvi->getStroke(strokeIdx);
 
-      resultFront = doFrameRangeStrokes(
+      bool frameCreated = m_isFrameCreated;
+      m_isFrameCreated  = false;
+      resultFront       = doFrameRangeStrokes(
           cFid, cStroke, oFid, fStroke,
           Preferences::instance()->getGuidedInterpolation(), breakAngles,
           autoGroup, autoFill, drawFirstStroke, false, false);
+      m_isFrameCreated = frameCreated;
     }
   }
   TUndoManager::manager()->endBlock();

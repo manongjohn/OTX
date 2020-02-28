@@ -226,10 +226,6 @@ pick up all frames in the selected level.</source>
         <translation>자동 입력기</translation>
     </message>
     <message>
-        <source>::</source>
-        <translation type="vanished"></translation>
-    </message>
-    <message>
         <source>Field Guide:</source>
         <translation>필드 가이드:</translation>
     </message>
@@ -1664,7 +1660,7 @@ DPI 정보를 포함하면 현재 카메라 DPI가 적용됩니다. </translatio
     </message>
     <message>
         <source>Up to Frame:</source>
-        <translation>프레이 까지</translation>
+        <translation>프레임 까지</translation>
     </message>
 </context>
 <context>
@@ -2467,15 +2463,15 @@ Do you want to overwrite it?</source>
     </message>
     <message>
         <source>Ease In</source>
-        <translation>서서히 움직임</translation>
-    </message>
-    <message>
-        <source>Ease Out</source>
         <translation>서서히 멈춤</translation>
     </message>
     <message>
+        <source>Ease Out</source>
+        <translation>서서히 시작</translation>
+    </message>
+    <message>
         <source>Ease In / Ease Out</source>
-        <translation>이즈 인/이즈 아웃</translation>
+        <translation>서서히 멈춤/서서히 시작</translation>
     </message>
     <message>
         <source>Interpolation:</source>
@@ -4626,11 +4622,11 @@ Please use the frame numbers for reference.</source>
     </message>
     <message>
         <source>Ease In / Ease Out Interpolation</source>
-        <translation>이즈 인/이즈 아웃 보간</translation>
+        <translation>서서히 멈춤/서서히 시작 보간</translation>
     </message>
     <message>
         <source>Ease In / Ease Out (%) Interpolation</source>
-        <translation>이즈 인/이즈 아웃(%)보간</translation>
+        <translation>서서히 멈춤/서서히 시작(%)보간</translation>
     </message>
     <message>
         <source>Exponential Interpolation</source>
@@ -4754,7 +4750,7 @@ Please use the frame numbers for reference.</source>
     </message>
     <message>
         <source>Fill Tool</source>
-        <translation>파일 도구</translation>
+        <translation>채우기 도구</translation>
     </message>
     <message>
         <source>Paint Brush Tool</source>
@@ -5318,6 +5314,50 @@ N.B. Open Toonz 다른 프로세스를 실행하고 있지 않은지 확인하�
     <message>
         <source>Go to Stop Motion Insert Frame</source>
         <translation>모션 삽입 프레임 정지로 이동</translation>
+    </message>
+    <message>
+        <source>https://github.com/opentoonz/opentoonz/releases/latest</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>https://groups.google.com/forum/#!forum/opentoonz_en</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>To report a bug, click on the button below to open a web browser window for OpenToonz&apos;s Issues page on https://github.com.  Click on the &apos;New issue&apos; button and fill out the form.</source>
+        <translation>버그를 보고하려면 아래 버튼을 클릭하여 오픈툰즈용 웹 브라우저 창을 여십시오.&apos;s문제페이지 https://github.com.  클릭하기&apos;새로운 문제&apos; 버튼을 누르고 양식을 작성한다.</translation>
+    </message>
+    <message>
+        <source>Vector Guided Drawing</source>
+        <translation>백터 가이드 그림</translation>
+    </message>
+    <message>
+        <source>Short Play</source>
+        <translation>쇼트 플레이</translation>
+    </message>
+    <message>
+        <source>&amp;What&apos;s New...</source>
+        <translation>새로운 기능(&amp;W)...</translation>
+    </message>
+    <message>
+        <source>&amp;Community Forum...</source>
+        <translation>커뮤니티 포럼(&amp;C)...</translation>
+    </message>
+    <message>
+        <source>&amp;Report a Bug...</source>
+        <translation>버그보고(&amp;R)...</translation>
+    </message>
+    <message>
+        <source>Guided Drawing Controls</source>
+        <translation>안내 도면 제어</translation>
+    </message>
+    <message>
+        <source>Flip Next Guide Stroke Direction</source>
+        <translation>다음 가이드 스트로크 방향 뒤집기</translation>
+    </message>
+    <message>
+        <source>Flip Previous Guide Stroke Direction</source>
+        <translation>이전 가이드 스트로크 방향 반전</translation>
     </message>
 </context>
 <context>
@@ -6988,11 +7028,11 @@ if both are possible on coding file path.</source>
     </message>
     <message>
         <source>Ease In / Ease Out</source>
-        <translation>이즈 인/이즈 아웃</translation>
+        <translation>서서히 멈춤/서서히 시작</translation>
     </message>
     <message>
         <source>Ease In / Ease Out %</source>
-        <translation>이즈 인/이즈 아웃 %</translation>
+        <translation>서서히 멈춤/서서히 시작 %</translation>
     </message>
     <message>
         <source>Exponential</source>
@@ -7061,10 +7101,6 @@ if both are possible on coding file path.</source>
     <message>
         <source>Icon Size *</source>
         <translation>아이콘 크기 *</translation>
-    </message>
-    <message>
-        <source>X</source>
-        <translation type="vanished"></translation>
     </message>
     <message>
         <source>Viewer  Shrink</source>
@@ -7323,6 +7359,10 @@ in non alpha-enabled image format.</source>
     <message>
         <source>Show Tools For Level Only</source>
         <translation>레벨 전용 도구 표시</translation>
+    </message>
+    <message>
+        <source>Number of Frames to Play for Short Play</source>
+        <translation>쇼트 플레이에 사용할 프레임 수</translation>
     </message>
 </context>
 <context>
@@ -9540,6 +9580,42 @@ Do you want to create it?</source>
         <source>Stop Motion Controller</source>
         <translation>스톱 모션 컨트롤러</translation>
     </message>
+    <message>
+        <source>Vector Guided Drawing Controls</source>
+        <translation>벡터 안내 도면 컨트롤</translation>
+    </message>
+    <message>
+        <source>Vector Guided Drawing</source>
+        <translation>백터 가이드 그림</translation>
+    </message>
+    <message>
+        <source>Group strokes by vector levels?</source>
+        <translation>벡터 레벨별로 그룹 스트로크?</translation>
+    </message>
+    <message>
+        <source>Merge Vector Levels</source>
+        <translation>벡터 수준 병합</translation>
+    </message>
+    <message>
+        <source>Report a Bug</source>
+        <translation>버그 보고</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+    <message>
+        <source>No columns can be exported.</source>
+        <translation>열을 내보낼 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Export Exchange Digital Time Sheet (XDTS)</source>
+        <translation>타임시트 교환 내보내기(XDTS)</translation>
+    </message>
+    <message>
+        <source>Script file %1 does not exists.</source>
+        <translation>스크립트 파일 % 1이 (가) 없습니다.</translation>
+    </message>
 </context>
 <context>
     <name>ReframePopup</name>
@@ -10841,15 +10917,15 @@ Please commit or revert changes first.</source>
     </message>
     <message>
         <source>Ease In Interpolation</source>
-        <translation>간편한 가속</translation>
+        <translation>서서히 멈춤 보간</translation>
     </message>
     <message>
         <source>Ease Out Interpolation</source>
-        <translation>간편한 감속</translation>
+        <translation>서서히 시작 보간</translation>
     </message>
     <message>
         <source>Ease In/Out Interpolation</source>
-        <translation>간편한 가속/감속</translation>
+        <translation>서서히 멈춤/시작 보간</translation>
     </message>
 </context>
 <context>
@@ -11797,6 +11873,14 @@ WARNING : Image size mismatch. The size of level with the same path is %1 x %2.<
         <source>No camera selected.</source>
         <translation>카메라가 감지되지 않음.</translation>
     </message>
+    <message>
+        <source>Please start live view before capturing an image.</source>
+        <translation>이미지를 캡처하기 전에 라이브 보기를 시작하십시오.</translation>
+    </message>
+    <message>
+        <source>Cannot capture webcam image unless live view is active.</source>
+        <translation>라이브 뷰가 활성화되어 있지 않으면 웹캠 이미지를 캡처할 수 없다.</translation>
+    </message>
 </context>
 <context>
     <name>StopMotionController</name>
@@ -11826,7 +11910,7 @@ WARNING : Image size mismatch. The size of level with the same path is %1 x %2.<
     </message>
     <message>
         <source>Webcam Settings...</source>
-        <translation>웹캡세팅...</translation>
+        <translation>웹캠세팅...</translation>
     </message>
     <message>
         <source>Capture</source>
@@ -11974,7 +12058,7 @@ WARNING : Image size mismatch. The size of level with the same path is %1 x %2.<
     </message>
     <message>
         <source>Webcam Options</source>
-        <translation>웹캡 옵션</translation>
+        <translation>웹캠옵션</translation>
     </message>
     <message>
         <source>DSLR Options</source>
@@ -12518,6 +12602,89 @@ WARNING : Image size mismatch. The size of level with the same path is %1 x %2.<
     <message>
         <source>Cancel</source>
         <translation>취소</translation>
+    </message>
+</context>
+<context>
+    <name>VectorGuidedDrawingPane</name>
+    <message>
+        <source>Off</source>
+        <translation>끄기</translation>
+    </message>
+    <message>
+        <source>Closest</source>
+        <translation>가장 가까운</translation>
+    </message>
+    <message>
+        <source>Farthest</source>
+        <translation>가장 멀리</translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation>전체</translation>
+    </message>
+    <message>
+        <source>Auto Inbetween</source>
+        <translation>자동 중간</translation>
+    </message>
+    <message>
+        <source>Linear</source>
+        <translation>선형</translation>
+    </message>
+    <message>
+        <source>Ease In</source>
+        <translation>서서히 멈춤</translation>
+    </message>
+    <message>
+        <source>Ease Out</source>
+        <translation>서서히 시작</translation>
+    </message>
+    <message>
+        <source>EaseIn/Out</source>
+        <translation>서서히 멈춤/시작</translation>
+    </message>
+    <message>
+        <source>Previous</source>
+        <translation>이전</translation>
+    </message>
+    <message>
+        <source>Next</source>
+        <translation>다음</translation>
+    </message>
+    <message>
+        <source>Both</source>
+        <translation>둘 다</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>리셋</translation>
+    </message>
+    <message>
+        <source>Tween Selected Guide Strokes</source>
+        <translation>트윈 선택된 가이드 스트로크</translation>
+    </message>
+    <message>
+        <source>Tween Guide Strokes to Selected</source>
+        <translation>트윈 가이드 스트로크 선택</translation>
+    </message>
+    <message>
+        <source>Select Guide Strokes &amp;&amp; Tween Mode</source>
+        <translation>가이드 스트로크 &amp;&amp; 전환 모드 선택</translation>
+    </message>
+    <message>
+        <source>Guide Frames:</source>
+        <translation>안내 프레임:</translation>
+    </message>
+    <message>
+        <source>Select Guide Stroke:</source>
+        <translation>안내 스트로크 선택:</translation>
+    </message>
+    <message>
+        <source>Flip Guide Stroke:</source>
+        <translation>뒤집기 안내 스트로크:</translation>
+    </message>
+    <message>
+        <source>Interpolation:</source>
+        <translation>보간:</translation>
     </message>
 </context>
 <context>
