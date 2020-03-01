@@ -29,7 +29,7 @@ before_deploy:
   # Set up git user name and tag this commit
   - git config --local user.name "$GITNAME"
   - git config --local user.email "$GITEMAIL"
-  - export TRAVIS_TAG="OTX-nightly-"$(date +'%Y-%m-%d')
+  - export TRAVIS_TAG="OTX-"$(date +'%Y-%m-%d')
   - git tag -f $TRAVIS_TAG
   - bash ci-scripts/$TRAVIS_OS_NAME/travis-buildpkg.sh
 deploy:
