@@ -56,6 +56,7 @@ const std::string
     TProject::Palettes = "palettes";
 //! Default project name
 const TFilePath TProject::SandboxProjectName("sandbox");
+const TFilePath TProject::PortableSandboxProjectName("portablesandbox");
 
 TProjectP currentProject;
 
@@ -845,7 +846,9 @@ TFilePath TProjectManager::projectNameToProjectPath(
   assert(!TProject::isAProjectPath(projectName));
   assert(!projectName.isAbsolute());
   if (m_projectsRoots.empty()) addDefaultProjectsRoot();
-  if (projectName == TProject::SandboxProjectName)
+  if ((TEnv::getIsPortable() &&
+       projectName == TProject::PortableSandboxProjectName) ||
+      (!TEnv::getIsPortable() && projectName == TProject::SandboxProjectName))
     return searchProjectPath(TEnv::getStuffDir() + projectName);
   return searchProjectPath(m_projectsRoots[0] + projectName);
 }
@@ -872,7 +875,9 @@ TFilePath TProjectManager::getProjectPathByName(const TFilePath &projectName) {
   // TFilePath relativeProjectPath = projectName + (projectName.getName() +
   // projectPathSuffix);
   if (m_projectsRoots.empty()) addDefaultProjectsRoot();
-  if (projectName == TProject::SandboxProjectName)
+  if ((TEnv::getIsPortable() &&
+       projectName == TProject::PortableSandboxProjectName) ||
+      (!TEnv::getIsPortable() && projectName == TProject::SandboxProjectName))
     return searchProjectPath(TEnv::getStuffDir() + projectName);
   int i, n = (int)m_projectsRoots.size();
   for (i = 0; i < n; i++) {
@@ -951,15 +956,23 @@ void TProjectManager::setCurrentProjectPath(const TFilePath &fp) {
 */
 TFilePath TProjectManager::getCurrentProjectPath() {
   TFilePath fp(currentProjectPath);
-  if (fp == TFilePath())
-    fp = projectNameToProjectPath(TProject::SandboxProjectName);
+  if (fp == TFilePath()) {
+    if (TEnv::getIsPortable())
+      fp = projectNameToProjectPath(TProject::PortableSandboxProjectName);
+    else
+      fp = projectNameToProjectPath(TProject::SandboxProjectName);
+  }
   if (!TProject::isAProjectPath(fp)) {
     // in Toonz 5.1 e precedenti era un project name
     if (!fp.isAbsolute()) fp = getProjectPathByName(fp);
   }
   fp = searchProjectPath(fp.getParentDir());
-  if (!TFileStatus(fp).doesExist())
-    fp = projectNameToProjectPath(TProject::SandboxProjectName);
+  if (!TFileStatus(fp).doesExist()) {
+    if (TEnv::getIsPortable())
+      fp = projectNameToProjectPath(TProject::PortableSandboxProjectName);
+    else
+      fp = projectNameToProjectPath(TProject::SandboxProjectName);
+  }
   fp       = getLatestVersionProjectPath(fp);
   string s = ::to_string(fp);
   if (s != (string)currentProjectPath) currentProjectPath = s;
@@ -1139,12 +1152,21 @@ TProjectP TProjectManager::createStandardProject() {
   return project;
 }
 
+//! Return the name of sandbox which could be "sandbox" or "portablesandbox".
+QString TProjectManager::getSandboxProjectName() {
+  if (TEnv::getIsPortable())
+    return QString::fromStdString(
+        TProject::PortableSandboxProjectName.getName());
+  return QString::fromStdString(TProject::SandboxProjectName.getName());
+}
 //! Return the absolute path of the standard folder "sandbox".
 TFilePath TProjectManager::getSandboxProjectFolder() {
   return getSandboxProjectPath().getParentDir();
 }
 //! Return the absolute path of the standard project "sandbox_prj6.xml" file.
 TFilePath TProjectManager::getSandboxProjectPath() {
+  if (TEnv::getIsPortable())
+    return getProjectPathByName(TProject::PortableSandboxProjectName);
   return getProjectPathByName(TProject::SandboxProjectName);
 }
 
