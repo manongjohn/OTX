@@ -93,7 +93,7 @@ QString removeZeros(QString srcStr) {
 
 StartupPopup::StartupPopup()
     : Dialog(TApp::instance()->getMainWindow(), true, true, "StartupPopup") {
-  setWindowTitle(tr("OpenToonz Startup"));
+  setWindowTitle(tr("OpenToonz (eXperimental) Startup"));
 
   m_projectBox = new QGroupBox(tr("Current Project"), this);
   m_sceneBox   = new QGroupBox(tr("Create a New Scene"), this);
@@ -157,7 +157,7 @@ StartupPopup::StartupPopup()
   m_removePresetBtn->setStyleSheet(
       "QPushButton { padding-left: 4px; padding-right: 4px;}");
   QLabel *label = new QLabel();
-  label->setPixmap(QPixmap(":Resources/startup.png"));
+  label->setPixmap(QPixmap(":Resources/startup_OTX.png"));
   m_projectBox->setObjectName("SolidLineFrame");
   m_sceneBox->setObjectName("SolidLineFrame");
   m_recentBox->setObjectName("SolidLineFrame");

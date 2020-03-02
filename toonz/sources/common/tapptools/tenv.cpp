@@ -205,7 +205,9 @@ public:
   }
   std::string getApplicationFullName() { return m_applicationFullName; }
 
-  void setModuleName(std::string moduleName) { m_moduleName = moduleName; }
+  void setModuleName(std::string moduleName) {
+    m_moduleName = moduleName + " (eXperimental)";
+  }
   std::string getModuleName() { return m_moduleName; }
 
   void setRootVarName(std::string varName) {

@@ -391,9 +391,9 @@ qt5_wrap_cpp(SOURCES ${MOC_HEADERS})
 if(BUILD_ENV_MSVC)
     add_executable(OpenToonz WIN32 ${HEADERS} ${SOURCES} ${OBJCSOURCES} ${RESOURCES} ${RC_FILE})
 else()
-    set(MACOSX_BUNDLE_ICON_FILE "OpenToonz.icns")
-    set_source_files_properties(OpenToonz.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
-    add_executable(OpenToonz MACOSX_BUNDLE OpenToonz.icns ${HEADERS} ${SOURCES} ${OBJCSOURCES} ${RESOURCES})
+    set(MACOSX_BUNDLE_ICON_FILE "OpenToonz_OTX.icns")
+    set_source_files_properties(OpenToonz_OTX.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+    add_executable(OpenToonz MACOSX_BUNDLE OpenToonz_OTX.icns ${HEADERS} ${SOURCES} ${OBJCSOURCES} ${RESOURCES})
     #add_definitions(
     #    -DTNZBASE_EXPORTS
     #    -DTPARAM_EXPORTS
