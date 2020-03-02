@@ -127,6 +127,8 @@ public:
 public:
   static Preferences *instance();
 
+  void load();
+
   QMap<PreferencesItemId, PreferencesItem> m_items;
   void initializeOptions();
   void definePreferenceItems();

@@ -100,6 +100,7 @@ DVAPI void setApplicationFileName(std::string appFileName);
 DVAPI std::string getApplicationFileName();
 
 DVAPI bool getIsPortable();
+DVAPI void setIsPortable(bool portable);
 
 // es.: TEnv::setModuleFullName("Toonz 5.0.1 Harlequin");
 // (default: "<applicationName> <applicationVersion>")
