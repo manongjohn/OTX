@@ -485,5 +485,7 @@
       <file>Resources/reset.svg</file>
       <file>Resources/reset_over.svg</file>
       <file>Resources/xdts.svg</file>
+      <file>Resources/splash_OTX.svg</file>
+      <file>Resources/startup_OTX.png</file>
     </qresource>
 </RCC>

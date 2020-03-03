@@ -575,7 +575,8 @@ void ShortcutPopup::showDialog(QString text) {
   if (m_dialog == NULL) {
     m_dialogLabel = new QLabel("", this);
     m_dialog      = new DVGui::Dialog(this, false, false);
-    m_dialog->setWindowTitle(tr("OpenToonz - Setting Shortcuts"));
+    m_dialog->setWindowTitle(
+        tr("OpenToonz (eXperimental) - Setting Shortcuts"));
     m_dialog->setModal(false);
 
     m_dialog->setTopMargin(10);

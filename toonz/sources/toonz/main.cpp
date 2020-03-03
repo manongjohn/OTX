@@ -433,7 +433,8 @@ int main(int argc, char *argv[]) {
   TEnv::setApplicationFileName(argv[0]);
 
   // splash screen
-  QPixmap splashPixmap = QIcon(":Resources/splash.svg").pixmap(QSize(610, 344));
+  QPixmap splashPixmap =
+      QIcon(":Resources/splash_OTX.svg").pixmap(QSize(610, 344));
   splashPixmap.setDevicePixelRatio(QApplication::desktop()->devicePixelRatio());
 // QPixmap splashPixmap(":Resources/splash.png");
 #ifdef _WIN32

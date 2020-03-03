@@ -1,53 +1,52 @@
-# OpenToonz
+# OpenToonz (eXperimental)
 
-[日本語](./doc/README_ja.md)
+![](./toonz/sources/toonz/Resources/splash_OTX.svg)
 
-[![](https://ci.appveyor.com/api/projects/status/oa5l5pc964h8fv49/branch/master?svg=true)](https://ci.appveyor.com/project/opentoonz/opentoonz)
-[![](https://travis-ci.org/opentoonz/opentoonz.svg?branch=master)](https://travis-ci.org/opentoonz/opentoonz)
+OpenToonz (eXperimental), also known as OTX, is a portable version of OpenToonz that contain changes, fixes and new features that will either be in the next official release or somewhere down the road.
 
-## What is OpenToonz?
+This repository IS NOT source code repository of OpenToonz and should not be used for continued development. Please see https://github.com/opentoonz/opentoonz for the source code.
 
-OpenToonz is a 2D animation software published by 
-[DWANGO](http://dwango.co.jp/english/). It is based on **Toonz Studio
-Ghibli Version**, originally developed in Italy by
-[Digital Video, Inc.](http://www.toonz.com/), and customized by
-[Studio Ghibli](http://www.ghibli.jp/) over many years of production.
+### Program Requirements
 
-## Program Requirements
+- Windows 7 (64bit) or later
+- macOS 10.13 (High Sierra) or later
+- Ubuntu 14.04 (or equivalent) or later
 
-Please refer to the OpenToonz site at <https://opentoonz.github.io/e/index.html>.
+For additional requirements, please refer to the OpenToonz site at <https://opentoonz.github.io/e/index.html>.
 
-## Installation
+### Installation and Usage
 
-Please download and install OpenToonz from the latest installer at <https://opentoonz.github.io/e/index.html>.
+OTX builds are created as portables so no installation is required.  You can keep existing installed OpenToonz versions on your system.
 
-Older versions and unstable nightly build are also available at <https://github.com/opentoonz/opentoonz/releases>.
+- Windows:
 
-## How to Build Locally
+   - Download the file: OpenToonz-OTX-win.zip
+   - Right-click the OpenToonz-OTX-win.zip file and select "Extract All..." to extract the contents.
+      - This will extract a folder called "OpenToonzPortable".
+   - Move the OpenToonzPortable folder to a desired location (i.e. C:\Program Files, Desktop, a USB key)
+   - Double-click the 'OpenToonzPortable\OpenToonz.exe' to run
 
-- [Windows](./doc/how_to_build_win.md)
-- [OS X](./doc/how_to_build_macosx.md)
-- [Linux](./doc/how_to_build_linux.md)
+- macOS:
 
-For instructions on how to build stylesheets, please [see here](./doc/how_to_stylesheet.md).
+   - Download the file: OpenToonz-OTX-osx.dmg
+   - Double-click the OpenToonz-OTX-osx.dmg file to open it
+   - Drag the "OpenToonz" application to wherever you want to run it from (i.e Applications, Desktop, a USB key)
+        - If you already have the official OpenToonz application installed, you should rename the OTX version (OpenToonz_OTX) if you want to keep it in the same directory as the official version.
+   - Double-click the "OpenToonz" application to run.
+        - The 1st time you do this, macOS will likely block the application from running. You will need to update your Security settings to allow it to run.
 
-Can't develop but still want to help? Help us test individual Pull Requests before they are merged with [these steps](./doc/how_to_test_prs.md).
+   - NOTE(s): 
+      - Do NOT run the OTX application from inside the .dmg file. It will not work.
+      - If you run this for the first time on a system that already has OpenToonz officially installed, it will detect the preferences and prompt you 2x to import them, once for preferences and another for room layouts.
 
-## Community
+        However, due to a Qt bug, not OT, the popups appear behind the splash screen and will make it seem like it's taking forever to load.
 
-- To share tips or to troubleshoot, join the [Google OpenToonz Users forum](https://groups.google.com/forum/#!forum/opentoonz_en)
-- If you found a bug with the software after troubleshooting, or are a developer, search the [Github issues](https://github.com/opentoonz/opentoonz/issues) and post there.
+        If it seems like it is taking forever to initialize OTX, click away from the splash screen to reveal the popups. Click and drag it away from splash screen area before interacting with it.
 
-## Licensing
+- Linux:
 
-- Files outside of the `thirdparty` and `stuff/library/mypaint brushes` directories are based on the Modified BSD License.
-  - [modified BSD license](./LICENSE.txt).
-  - Based on this license, this software may be used or changed freely for business or personal use.
-- For files in the `thirdparty` directory:
-  - Please consult with the licenses in the appropriate READMEs or source codes.
-- For files in the `stuff/library/mypaint brushes` directory:
-  - Please see the licenses in `stuff/library/mypaint brushes/Licenses.txt`.
-
-### Special Thanks
-
-This Open Source Program is developed from Toonz, a software originally created by Digital Video, S.p.A., Rome Italy
+   - Download the file: OpenToonz-OTX-linux.tar.gz
+   - Right-click the OpenToonz-OTX-linux.tar.gz file and "Extract Here" to extract the contents.
+        - This will create a folder as "OpenToonz-OTX-linux/OpenToonzPortable".
+   - Move the entire OpenToonzPortable folder to a desired location (i.e. application folder, Desktop, a USB key)
+   - Double-click the 'OpenToonzPortable/OpenToonz.AppImage' to run

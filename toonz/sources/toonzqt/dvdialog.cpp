@@ -32,7 +32,7 @@
 
 using namespace DVGui;
 
-QString DialogTitle = "OpenToonz 1.4";
+QString DialogTitle = "OpenToonz 1.4 (eXperimental)";
 
 //=============================================================================
 namespace {
@@ -818,7 +818,7 @@ RadioButtonDialog::RadioButtonDialog(const QString &labelText,
                                      const QList<QString> &radioButtonList,
                                      QWidget *parent, Qt::WindowFlags f)
     : Dialog(parent, true, true), m_result(1) {
-  setWindowTitle(tr("OpenToonz"));
+  setWindowTitle(tr("OpenToonz (eXperimental)"));
 
   setMinimumSize(20, 20);
 
@@ -888,7 +888,7 @@ ProgressDialog::ProgressDialog(const QString &labelText,
                                const QString &cancelButtonText, int minimum,
                                int maximum, QWidget *parent, Qt::WindowFlags f)
     : Dialog(parent, true, true), m_isCanceled(false) {
-  setWindowTitle(tr("OpenToonz"));
+  setWindowTitle(tr("OpenToonz (eXperimental)"));
 
   setMinimumSize(20, 20);
 
