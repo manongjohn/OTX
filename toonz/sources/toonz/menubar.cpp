@@ -1421,6 +1421,7 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   windowsMenu->addSeparator();
   addMenuItem(windowsMenu, MI_OpenFileBrowser);
   addMenuItem(windowsMenu, MI_OpenFileBrowser2);
+  addMenuItem(windowsMenu, MI_OpenAdvancedColorSelector);
   windowsMenu->addSeparator();
   addMenuItem(windowsMenu, MI_OpenCleanupSettings);
   addMenuItem(windowsMenu, MI_OpenTasks);
