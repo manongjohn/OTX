@@ -255,6 +255,7 @@ public:
   std::string getWorkingDirectory() { return m_workingDirectory; }
 
   bool getIsPortable() { return m_isPortable; }
+  void setIsPortable(bool portable) { m_isPortable = portable; }
 
   void setDllRelativeDir(const TFilePath &dllRelativeDir) {
     delete m_dllRelativeDir;
@@ -601,6 +602,9 @@ TFilePath TEnv::getStuffDir() {
 }
 
 bool TEnv::getIsPortable() { return EnvGlobals::instance()->getIsPortable(); }
+void TEnv::setIsPortable(bool portable) {
+  EnvGlobals::instance()->setIsPortable(portable);
+}
 
 TFilePath TEnv::getConfigDir() {
   TFilePath configDir = getSystemVarPathValue(getSystemVarPrefix() + "CONFIG");

@@ -153,6 +153,125 @@ DV_IMPORT_API void initColorFx();
 
 //-----------------------------------------------------------------------------
 
+void checkPreferences() {
+  TFilePath prefPath =
+      ToonzFolder::getMyModuleDir() + TFilePath("preferences.ini");
+
+  // Preference file exists in the current stuff folder, do nothing
+  if (TFileStatus(prefPath).doesExist()) return;
+
+  bool isPortable = TEnv::getIsPortable();
+  TEnv::setIsPortable(false);  // Temporarily unset so we can get system's
+                               // TOONZROOT value if available
+  TFilePath rootPath =
+      TFilePath(TEnv::getSystemVarStringValue(TEnv::getRootVarName()));
+  TEnv::setIsPortable(isPortable);
+
+  if (rootPath == TFilePath()) return;
+
+  // Let's look for old folders or, in case of portable, an existing one
+  std::string username = TSystem::getUserName().toStdString();
+  TFilePath envPath =
+      TFilePath(TEnv::getSystemPathMap().at("PROFILES")) + TFilePath("env");
+  TFilePath layoutsPath =
+      TFilePath(TEnv::getSystemPathMap().at("PROFILES")) + TFilePath("layouts");
+  TFilePath settingsPath = layoutsPath + TFilePath("settings." + username);
+  TFilePath defaultsPath =
+      layoutsPath + TFilePath("personal") + TFilePath("Default." + username);
+
+  TFilePath tmpRootPath(rootPath);
+
+#ifndef LINUX
+  // Work backwards through versions to find an old stuff folder we might want
+  // to pull preferences from. We'll only look for default paths.
+  // Note: Linux versions used the same folders for each version so no need to
+  // loop to look for different versioned stuff folders.
+  for (int version = 3; version >= 0; version--) {
+    std::wstring tmpPath = tmpRootPath.getWideString();
+    if (version != 3) {
+      std::wstring versionStr = L"1." + std::to_wstring(version);
+#ifdef _WIN32
+      versionStr.append(L" ");
+#elif MACOSX
+      versionStr.append(L"_");
+#endif
+      tmpPath.insert(tmpPath.find(L"stuff"), versionStr);
+      tmpRootPath = TFilePath(tmpPath);
+    }
+#endif
+
+    TFilePath oldSettingsDir = tmpRootPath + settingsPath;
+
+    if (TFileStatus(oldSettingsDir).doesExist()) {
+      int ret = DVGui::MsgBox(
+          QObject::tr("Existing preferences and layouts have "
+                      "been detected in \n\n\t%1\n\nWould you "
+                      "like to import your old preferences?")
+              .arg(QString::fromStdWString(tmpRootPath.getWideString())),
+          QObject::tr("Yes"), QObject::tr("No"));
+      if (ret == 1) {
+        // Remove preference.ini created by the DVGui::MsgBox
+        TSystem::removeFileOrLevel(prefPath);
+
+        // Copy layouts/settings.username directory
+        TFilePath newSettingsDir = TEnv::getStuffDir() + settingsPath;
+        TSystem::copyDir(newSettingsDir, oldSettingsDir);
+
+        // Copy env/username.env file
+        TFilePath oldEnvFile =
+            tmpRootPath + envPath + TFilePath(username + ".env");
+        TFilePath newEnvFile =
+            TEnv::getStuffDir() + envPath + TFilePath(username + ".env");
+        TSystem::copyFile(newEnvFile, oldEnvFile);
+
+        // Force reload of preferences because DVGui::MsgBox caused default
+        // preferences to load
+        Preferences::instance()->load();
+      }
+
+      // Copy layouts/personal/Default.username
+      ret = DVGui::MsgBox(
+#ifdef _WIN32
+          QObject::tr("Would you like to import your old room and menu "
+                      "layouts?\n\nWARNING: If you import them, you will not "
+                      "see any new changes."),
+          QObject::tr("Import Both"), QObject::tr("Import Rooms Only"),
+          QObject::tr("No"), 2);
+#else
+        QObject::tr("Would you like to import your old room "
+                    "layouts?\n\nWARNING: If you import them, you will not see "
+                    "any new changes."),
+        QObject::tr("Yes"), QObject::tr("No"), 1);
+#endif
+      TFilePath oldDefaultsDir = tmpRootPath + defaultsPath;
+      TFilePath newDefaultsDir = TEnv::getStuffDir() + defaultsPath;
+      if (ret == 1) TSystem::copyDir(newDefaultsDir, oldDefaultsDir);
+#ifdef _WIN32
+      else if (ret == 2) {
+        QFileInfoList fil = QDir(toQString(oldDefaultsDir)).entryInfoList();
+
+        int i;
+        for (i = 0; i < fil.size(); i++) {
+          QFileInfo fi = fil.at(i);
+          if (fi.fileName() == QString(".") || fi.fileName() == QString(".."))
+            continue;
+          TFilePath fp(fi.fileName());
+          if (fp.getType() == "xml") continue;
+          if (fi.isDir())
+            TSystem::copyDir(newDefaultsDir + fp, oldDefaultsDir + fp);
+          else
+            TSystem::copyFile(newDefaultsDir + fp, oldDefaultsDir + fp);
+        }
+      }
+#endif
+
+      return;
+    }
+#ifndef LINUX
+  }
+#endif
+}
+
 //! Inizializzaza l'Environment di Toonz
 /*! In particolare imposta la projectRoot e
     la stuffDir, controlla se la directory di outputs esiste (e provvede a
@@ -191,6 +310,10 @@ static void initToonzEnv(QHash<QString, QString> &argPathValues) {
   else if (!TFileStatus(stuffDir).isDirectory())
     fatalError("Folder \"" + toQString(stuffDir) +
                "\" not found or not readable");
+
+  // Since we'll need preferences loaded, let's just check now for them in
+  // current and prior installations.
+  checkPreferences();
 
   Tiio::defineStd();
   initImageIo();
