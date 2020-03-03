@@ -61,7 +61,6 @@ std::string ToonzVersion::getAppVersionInfo(std::string msg) {
   appinfo += "." + getAppRevisionString();
   if (hasAppNote())
     appinfo += " " + std::string(applicationNote);
-//  appinfo += "  (eXperimental)";
   return appinfo;
 }
 

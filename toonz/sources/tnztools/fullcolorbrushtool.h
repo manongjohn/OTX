@@ -137,9 +137,9 @@ protected:
 
   bool m_presetsLoaded;
   bool m_firstTime;
+  bool m_started;
 
   bool m_propertyUpdating = false;
-  bool m_started;
 };
 
 //------------------------------------------------------------

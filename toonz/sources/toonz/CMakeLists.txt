@@ -681,7 +681,7 @@ exec \$OPENTOONZ_BASE/bin/OpenToonz \"\$@\"
             "$<TARGET_FILE:tnztools>"
             "$<TARGET_FILE:tnzstdfx>"
             "$<TARGET_FILE:tfarm>"
-			"$<TARGET_FILE:ColorWidgets-qt5>"
+            "$<TARGET_FILE:ColorWidgets-qt5>"
         DESTINATION lib/opentoonz
     )
 

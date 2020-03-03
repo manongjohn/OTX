@@ -15,11 +15,6 @@
 // Windows include
 #include <windows.h>
 
-// Toonz includes
-#include "tlevel_io.h"
-#include "tthreadmessage.h"
-#include "tcommon.h"
-
 // QuickTime includes
 namespace QuickTime {
 #define list QuickTime_list

@@ -174,7 +174,6 @@ public:
       m_applicationFullName += " " + m_version.getAppNote();
       
     m_moduleName          = m_version.getAppName();
-//	m_moduleName = m_version.getAppName() + " (eXperimental)";
     m_rootVarName         = toUpper(m_version.getAppName()) + "ROOT";
 #ifdef _WIN32
     // from v1.3, registry root is moved to SOFTWARE\\OpenToonz\\OpenToonz

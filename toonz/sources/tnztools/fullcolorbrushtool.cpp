@@ -55,8 +55,8 @@ TEnv::DoubleVar FullcolorModifierSize("FullcolorModifierSize", 0);
 TEnv::DoubleVar FullcolorModifierOpacity("FullcolorModifierOpacity", 100);
 TEnv::IntVar FullcolorModifierEraser("FullcolorModifierEraser", 0);
 TEnv::IntVar FullcolorModifierLockAlpha("FullcolorModifierLockAlpha", 0);
-TEnv::StringVar FullcolorBrushPreset("FullcolorBrushPreset", "<custom>");
 TEnv::IntVar FullcolorAssistants("FullcolorAssistants", 0);
+TEnv::StringVar FullcolorBrushPreset("FullcolorBrushPreset", "<custom>");
 
 //----------------------------------------------------------------------------------
 
@@ -135,6 +135,7 @@ FullColorBrushTool::FullColorBrushTool(std::string name)
     , m_firstTime(true)
     , m_started(false) {
   bind(TTool::RasterImage | TTool::EmptyTarget);
+
   m_thickness.setNonLinearSlider();
   m_preset.setId("BrushPreset");
   m_modifierEraser.setId("RasterEraser");

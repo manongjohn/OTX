@@ -32,7 +32,7 @@
 
 using namespace DVGui;
 
-QString DialogTitle = QObject::tr("OpenToonz 1.4 (eXperimental)");
+QString DialogTitle = "OpenToonz 1.4 (eXperimental)";
 
 //=============================================================================
 namespace {

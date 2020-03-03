@@ -793,8 +793,7 @@ SceneViewer::SceneViewer(ImageUtils::FullScreenWidget *parent)
     , m_editPreviewSubCamera(false)
     , m_locator(NULL)
     , m_isLocator(false)
-    , m_isBusyOnTabletMove(false)
-{
+    , m_isBusyOnTabletMove(false) {
   m_visualSettings.m_sceneProperties =
       TApp::instance()->getCurrentScene()->getScene()->getProperties();
 #ifdef WITH_STOPMOTION

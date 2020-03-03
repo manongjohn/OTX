@@ -15,9 +15,6 @@
 // Windows include
 #include <windows.h>
 
-#include "tlevel_io.h"
-#include "tthreadmessage.h"
-
 namespace QuickTime {
 #define list List
 #define map Map

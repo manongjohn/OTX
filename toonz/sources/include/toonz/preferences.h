@@ -127,13 +127,13 @@ public:
 public:
   static Preferences *instance();
 
+  void load();
+
   QMap<PreferencesItemId, PreferencesItem> m_items;
   void initializeOptions();
   void definePreferenceItems();
   void define(PreferencesItemId id, QString idString, QMetaType::Type type,
               QVariant defaultValue, QVariant min = 0, QVariant max = -1);
-
-  void load();
 
   void setCallBack(const PreferencesItemId id, OnEditedFunc func);
   void resolveCompatibility();

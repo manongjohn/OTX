@@ -208,36 +208,6 @@ TPanelTitleBarButton::TPanelTitleBarButton(QWidget *parent,
 
 //-----------------------------------------------------------------------------
 
-TPanelTitleBarButton::TPanelTitleBarButton(QWidget *parent,
-                                           const QString &standardPixmapName,
-                                           const QString &rolloverPixmapName)
-    : QWidget(parent)
-    , m_standardPixmap(standardPixmapName)
-    , m_rolloverPixmap(rolloverPixmapName)
-    , m_rollover(false)
-    , m_pressed(false)
-    , m_buttonSet(0)
-    , m_id(0) {
-  setFixedSize(m_standardPixmap.size());
-}
-
-//-----------------------------------------------------------------------------
-
-TPanelTitleBarButton::TPanelTitleBarButton(QWidget *parent,
-                                           const QPixmap &standardPixmap,
-                                           const QPixmap &rolloverPixmap)
-    : QWidget(parent)
-    , m_standardPixmap(standardPixmap)
-    , m_rolloverPixmap(rolloverPixmap)
-    , m_rollover(false)
-    , m_pressed(false)
-    , m_buttonSet(0)
-    , m_id(0) {
-  setFixedSize(m_standardPixmap.size() / m_standardPixmap.devicePixelRatio());
-}
-
-//-----------------------------------------------------------------------------
-
 void TPanelTitleBarButton::setButtonSet(TPanelTitleBarButtonSet *buttonSet,
                                         int id) {
   m_buttonSet = buttonSet;
@@ -248,7 +218,6 @@ void TPanelTitleBarButton::setButtonSet(TPanelTitleBarButtonSet *buttonSet,
 //-----------------------------------------------------------------------------
 
 void TPanelTitleBarButton::setPressed(bool pressed) {
-  if (m_pressedPixmap.isNull()) return;
   if (pressed != m_pressed) {
     m_pressed = pressed;
     update();
@@ -295,12 +264,8 @@ void TPanelTitleBarButton::mousePressEvent(QMouseEvent *e) {
     if (m_pressed) return;
     m_buttonSet->select(this);
   } else {
-    if (m_pressedPixmap.isNull())
-      emit triggered();
-    else {
-      m_pressed = !m_pressed;
-      emit toggled(m_pressed);
-    }
+    m_pressed = !m_pressed;
+    emit toggled(m_pressed);
     update();
   }
 }
