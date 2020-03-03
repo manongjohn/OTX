@@ -38,6 +38,7 @@ public:
   static const std::string Palettes;
 
   static const TFilePath SandboxProjectName;
+  static const TFilePath PortableSandboxProjectName;
 
   // TProject
   TProject();
@@ -163,6 +164,7 @@ public:
   bool isTabModeEnabled() const { return m_tabMode; }
   void enableTabMode(bool tabMode) { m_tabMode = tabMode; }
 
+  QString getSandboxProjectName();
   TFilePath getSandboxProjectFolder();
   TFilePath getSandboxProjectPath();
 
