@@ -25,26 +25,41 @@ public:
     wheel->setEnabledWidgets(AdvancedColorSelector::RGBSliders);
     auto palette_controller = TApp::instance()->getPaletteController();
     auto palette_handle = palette_controller->getCurrentPalette();
+    auto getCurrentColor = [wheel](){
+      auto palette_controller = TApp::instance()->getPaletteController();
+      auto palette_handle = palette_controller->getCurrentPalette();
+      auto palette = palette_handle->getPalette();
+      auto styleIndex = palette_handle->getStyleIndex();
+      return palette->getStyle(styleIndex)->getColorParamValue(wheel->paramIndex());
+    };
+    auto setCurrentColor = [wheel](TPixel c) {
+      auto palette_controller = TApp::instance()->getPaletteController();
+      auto palette_handle = palette_controller->getCurrentPalette();
+      auto palette = palette_handle->getPalette();
+      auto styleIndex = palette_handle->getStyleIndex();
+      palette->getStyle(styleIndex)->setColorParamValue(wheel->paramIndex(), c);
+    };
     QObject::connect(
       wheel,
       &AdvancedColorSelector::colorChanged,
-      [palette_handle](QColor c){
+      [palette_handle, getCurrentColor, setCurrentColor](QColor c){
         auto palette = palette_handle->getPalette();
         auto styleIndex = palette_handle->getStyleIndex();
         if (!palette || styleIndex < 0)
           return;
-        if (palette->getStyle(styleIndex)->getMainColor() == qColorToTPixel(c))
-            return;
-        palette->getStyle(styleIndex)->setMainColor(qColorToTPixel(c));
+	auto tc = qColorToTPixel(c);
+	if (getCurrentColor() == tc)
+	  return;
+	setCurrentColor(tc);
         palette_handle->notifyColorStyleChanged(true);
       }
     );
-    auto update_wheel = [palette_handle, wheel]() {
+    auto update_wheel = [palette_handle, wheel, getCurrentColor]() {
       auto palette = palette_handle->getPalette();
       auto styleIndex = palette_handle->getStyleIndex();
       if (!palette || styleIndex < 0)
         return;
-      wheel->setColor(tPixelToQColor(palette->getStyle(styleIndex)->getMainColor()));
+      wheel->setColor(tPixelToQColor(getCurrentColor()));
       wheel->saveToHistory();
     };
     QObject::connect(
