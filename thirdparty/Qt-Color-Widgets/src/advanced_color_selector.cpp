@@ -472,6 +472,7 @@ HarmonyButton::HarmonyButton(AdvancedColorSelector::Private* parent, unsigned n)
     widget(new ColorLineEdit(this))
 {
     widget->setPreviewColor(true);
+    widget->setColor(QColor());
     auto layout = new QHBoxLayout();
     layout->addWidget(widget);
     layout->setContentsMargins(0, 0, 0, 0);
