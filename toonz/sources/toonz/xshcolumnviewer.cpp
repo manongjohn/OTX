@@ -2039,8 +2039,6 @@ void ColumnArea::mousePressEvent(QMouseEvent *event) {
           return;
         setDragTool(XsheetGUI::DragTool::makeColumnSelectionTool(m_viewer));
       }
-      // synchronize the current column and the current fx
-      if (column) TApp::instance()->getCurrentFx()->setFx(column->getFx());
     }
     // clicking on the normal columns
     else if (!isEmpty) {
@@ -2146,14 +2144,16 @@ void ColumnArea::mousePressEvent(QMouseEvent *event) {
           }
         }
       }
-      // synchronize the current column and the current fx
-      if (column) TApp::instance()->getCurrentFx()->setFx(column->getFx());
+      // update the current fx when zerary fx column is clicked
+      if (column && column->getZeraryFxColumn()) {
+        TFx *fx = column->getZeraryFxColumn()->getZeraryColumnFx();
+        TApp::instance()->getCurrentFx()->setFx(fx);
+      }
     } else {
       if (m_viewer->getColumnSelection()->isColumnSelected(m_col) &&
           event->button() == Qt::RightButton)
         return;
       setDragTool(XsheetGUI::DragTool::makeColumnSelectionTool(m_viewer));
-      TApp::instance()->getCurrentFx()->setFx(0);
     }
 
     m_viewer->dragToolClick(event);
@@ -2366,7 +2366,19 @@ void ColumnArea::mouseReleaseEvent(QMouseEvent *event) {
       assert(false);
 
     app->getCurrentScene()->notifySceneChanged();
-    app->getCurrentXsheet()->notifyXsheetChanged();
+    // signal XsheetChanged will invoke PreviewFxManager to all rendered frames,
+    // if necessary. it causes slowness when opening preview flipbook of large
+    // scene.
+    bool isTransparencyRendered = app->getCurrentScene()
+                                      ->getScene()
+                                      ->getProperties()
+                                      ->isColumnColorFilterOnRenderEnabled();
+    if ((isTransparencyRendered && (m_doOnRelease == ToggleTransparency ||
+                                    m_doOnRelease == ToggleAllTransparency ||
+                                    m_doOnRelease == OpenSettings)) ||
+        m_doOnRelease == TogglePreviewVisible ||
+        m_doOnRelease == ToggleAllPreviewVisible)
+      app->getCurrentXsheet()->notifyXsheetChanged();
     update();
     m_doOnRelease = 0;
   }
