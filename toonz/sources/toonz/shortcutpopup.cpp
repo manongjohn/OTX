@@ -709,7 +709,12 @@ void ShortcutPopup::onLoadPreset() {
     TFilePath fp = defaultPresetDir + TFilePath("otharmony.ini");
     setPresetShortcuts(fp);
     return;
-  } else if (preset == "Adobe Animate(Flash)") {
+  } else if (preset == "Adobe Animate") {
+    clearAllShortcuts(false);
+    TFilePath fp = defaultPresetDir + TFilePath("otanimate.ini");
+    setPresetShortcuts(fp);
+    return;
+  } else if (preset == "Adobe Flash Pro") {
     clearAllShortcuts(false);
     TFilePath fp = defaultPresetDir + TFilePath("otadobe.ini");
     setPresetShortcuts(fp);
@@ -737,7 +742,8 @@ QStringList ShortcutPopup::buildPresets() {
           << "OpenToonz"
           //<< "RETAS PaintMan"
           << "Toon Boom Harmony"
-          << "Adobe Animate(Flash)";
+          << "Adobe Animate"
+          << "Adobe Flash Pro";
   TFilePath presetDir =
       ToonzFolder::getMyModuleDir() + TFilePath("shortcutpresets");
   if (TSystem::doesExistFileOrLevel(presetDir)) {
