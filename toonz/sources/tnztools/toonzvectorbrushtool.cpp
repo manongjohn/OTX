@@ -1281,7 +1281,9 @@ void ToonzVectorBrushTool::mouseMove(const TPointD &pos, const TMouseEvent &e) {
   TPointD halfThick(m_maxThick * 0.5, m_maxThick * 0.5);
   TRectD invalidateRect(m_brushPos - halfThick, m_brushPos + halfThick);
 
-  if (e.isCtrlPressed() && e.isAltPressed() && !e.isShiftPressed()) {
+  if (e.isCtrlPressed() && e.isAltPressed() && !e.isShiftPressed() &&
+      Preferences::instance()->useCtrlAltToResizeBrushEnabled()) {
+    // Resize the brush if CTRL+ALT is pressed and the preference is enabled.
     const TPointD &diff = pos - m_mousePos;
     double max          = diff.x / 2;
     double min          = diff.y / 2;
@@ -1333,8 +1335,8 @@ void ToonzVectorBrushTool::checkStrokeSnapping(bool beforeMousePress,
   TVectorImageP vi(getImage(false));
   bool checkSnap = m_snap.getValue();
   if (invertCheck) checkSnap = !checkSnap;
+  m_dragDraw = true;
   if (vi && checkSnap) {
-    m_dragDraw          = true;
     double minDistance2 = m_minDistance2;
     if (beforeMousePress)
       m_strokeIndex1 = -1;
