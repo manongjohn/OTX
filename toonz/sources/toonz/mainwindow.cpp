@@ -2004,6 +2004,7 @@ void MainWindow::defineActions() {
   createMenuWindowsAction(MI_OpenBatchServers, tr("&Batch Servers"), "");
   createMenuWindowsAction(MI_OpenTMessage, tr("&Message Center"), "");
   createMenuWindowsAction(MI_OpenColorModel, tr("&Color Model"), "");
+  createMenuWindowsAction(MI_OpenAdvancedColorSelector, tr("Advanced Color Selector"), "");
   createMenuWindowsAction(MI_OpenStudioPalette, tr("&Studio Palette"), "");
   createMenuWindowsAction(MI_OpenSchematic, tr("&Schematic"), "");
   createMenuWindowsAction(MI_FxParamEditor, tr("&FX Editor"), "Ctrl+K");
@@ -2031,7 +2032,6 @@ void MainWindow::defineActions() {
 
   createMenuWindowsAction(MI_OpenComboViewer, tr("&ComboViewer"), "");
   createMenuWindowsAction(MI_OpenHistoryPanel, tr("&History"), "Ctrl+H");
-  createMenuWindowsAction(MI_OpenAdvancedColorSelector, tr("Advanced Color Selector"), "");
   createMenuWindowsAction(MI_AudioRecording, tr("Record Audio"), "Alt+A");
   createMenuWindowsAction(MI_ResetRoomLayout, tr("&Reset to Default Rooms"),
                           "");

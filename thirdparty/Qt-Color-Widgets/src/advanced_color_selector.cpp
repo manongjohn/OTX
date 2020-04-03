@@ -4,7 +4,7 @@
  *
  * \author caryoscelus
  *
- * \copyright Copyright (C) 2017-2018 caryoscelus
+ * \copyright Copyright (C) 2017-2020 caryoscelus
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,6 +22,7 @@
  */
 
 #include <QLayout>
+#include <QSpinBox>
 #include <QToolButton>
 #include <QPushButton>
 #include <QTabWidget>
@@ -167,7 +168,8 @@ public:
 	palette(new CustomPalette(parent)),
         harmony_buttons(new QButtonGroup()),
         wheel_layout(new QVBoxLayout()),
-        parent(parent)
+        parent(parent),
+        param_index_chooser(new QSpinBox())
     {
         addColorWidget(wheel);
         addColorWidgetWOAlpha(rectangle);
@@ -271,6 +273,7 @@ public:
         main_layout->addWidget(alpha_slider);
         main_layout->addWidget(rgb_chooser);
         main_layout->addWidget(hsv_chooser);
+	main_layout->addWidget(param_index_chooser);
 
         main_layout->addWidget(color_history);
 	main_layout->addWidget(palette);
@@ -320,6 +323,8 @@ public:
         connect(wheel, &ColorWheel::harmonyChanged, this, &Private::updateColors);
         harmony_none->setChecked(true);
         setHarmony(0);
+
+	connect(param_index_chooser, QOverload<int>::of(&QSpinBox::valueChanged), this, &Private::setParamIndex);
     }
     ~Private() = default;
 public:
@@ -442,6 +447,12 @@ public:
     QColor baseColor() const {
         return wheel->color();
     }
+    unsigned paramIndex() const {
+        return param_index;
+    }
+    void setParamIndex(int i) {
+        param_index = i;
+    }
 public:
     ColorWheel* wheel;
     Color2DSlider* rectangle;
@@ -461,9 +472,11 @@ private:
     QVector<QObject*> widgets;
     std::unique_ptr<QWidget> harmony_colors_widget = nullptr;
     QHBoxLayout* harmony_colors_layout = nullptr;
+    QSpinBox* param_index_chooser;
     QVector<HarmonyButton*> harmony_colors_widgets;
     QColor base_color;
     int selected_harmony = 0;
+    unsigned param_index = 0;
 };
 
 HarmonyButton::HarmonyButton(AdvancedColorSelector::Private* parent, unsigned n) :
@@ -472,6 +485,7 @@ HarmonyButton::HarmonyButton(AdvancedColorSelector::Private* parent, unsigned n)
     widget(new ColorLineEdit(this))
 {
     widget->setPreviewColor(true);
+    widget->setColor(QColor());
     auto layout = new QHBoxLayout();
     layout->addWidget(widget);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -505,6 +519,14 @@ AdvancedColorSelector::AdvancedColorSelector(QWidget* parent) :
 
 AdvancedColorSelector::~AdvancedColorSelector()
 {
+}
+
+unsigned AdvancedColorSelector::paramIndex() const {
+    return p->paramIndex();
+}
+
+void AdvancedColorSelector::setParamIndex(unsigned i) {
+    p->setParamIndex(i);
 }
 
 QColor AdvancedColorSelector::color() const

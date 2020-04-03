@@ -4,7 +4,7 @@
  *
  * \author caryoscelus
  *
- * \copyright Copyright (C) 2017-2018 caryoscelus
+ * \copyright Copyright (C) 2017-2020 caryoscelus
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -56,6 +56,7 @@ public:
 
 public:
     QColor color() const;
+    unsigned paramIndex() const;
 
     void setEnabledWidgets(EnabledWidgetsFlags flags);
 
@@ -64,6 +65,7 @@ public Q_SLOTS:
     void setBaseColor(QColor c);
     void setBaseColorWOAlpha(QColor c);
     void setHarmony(unsigned harmony);
+    void setParamIndex(unsigned i);
     void saveToHistory();
 
 Q_SIGNALS:
