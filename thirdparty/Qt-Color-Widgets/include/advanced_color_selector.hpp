@@ -4,7 +4,7 @@
  *
  * \author caryoscelus
  *
- * \copyright Copyright (C) 2017-2018 caryoscelus
+ * \copyright Copyright (C) 2017-2020 caryoscelus
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -31,50 +31,53 @@ namespace color_widgets {
 
 class HarmonyButton;
 
-class QCP_EXPORT AdvancedColorSelector : public QWidget {
-  Q_OBJECT
+class QCP_EXPORT AdvancedColorSelector : public QWidget
+{
+    Q_OBJECT
 
-  // TODO: define Q_PROPERTYs
+    // TODO: define Q_PROPERTYs
 
-  friend class HarmonyButton;
-
-public:
-  enum EnabledWidgets {
-    Main       = 0x0001,
-    History    = 0x0002,
-    RGBSliders = 0x0004,
-    HSVSliders = 0x0008,
-    Palette    = 0x0010,
-  };
-  Q_DECLARE_FLAGS(EnabledWidgetsFlags, EnabledWidgets)
-  Q_FLAGS(EnabledWidgetsFlags)
+    friend class HarmonyButton;
 
 public:
-  explicit AdvancedColorSelector(QWidget* parent = nullptr);
-  ~AdvancedColorSelector();
+    enum EnabledWidgets {
+        Main        = 0x0001,
+        History     = 0x0002,
+        RGBSliders  = 0x0004,
+        HSVSliders  = 0x0008,
+	Palette     = 0x0010,
+    };
+    Q_DECLARE_FLAGS(EnabledWidgetsFlags, EnabledWidgets)
+    Q_FLAGS(EnabledWidgetsFlags)
 
 public:
-  QColor color() const;
+    explicit AdvancedColorSelector(QWidget* parent = nullptr);
+    ~AdvancedColorSelector();
 
-  void setEnabledWidgets(EnabledWidgetsFlags flags);
+public:
+    QColor color() const;
+    unsigned paramIndex() const;
+
+    void setEnabledWidgets(EnabledWidgetsFlags flags);
 
 public Q_SLOTS:
-  void setColor(QColor c);
-  void setBaseColor(QColor c);
-  void setBaseColorWOAlpha(QColor c);
-  void setHarmony(unsigned harmony);
-  void saveToHistory();
+    void setColor(QColor c);
+    void setBaseColor(QColor c);
+    void setBaseColorWOAlpha(QColor c);
+    void setHarmony(unsigned harmony);
+    void setParamIndex(unsigned i);
+    void saveToHistory();
 
 Q_SIGNALS:
-  void colorChanged(QColor);
+    void colorChanged(QColor);
 
 private:
-  class Private;
-  QScopedPointer<Private> const p;
+    class Private;
+    QScopedPointer<Private> const p;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(AdvancedColorSelector::EnabledWidgetsFlags)
 
-}  // namespace color_widgets
+} // namespace color_widgets
 
 #endif
