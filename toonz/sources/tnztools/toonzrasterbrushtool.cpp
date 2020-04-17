@@ -701,7 +701,7 @@ static void Smooth(std::vector<TThickPoint> &points, int radius) {
   if (points.size() >= 3) {
     std::vector<TThickPoint> pts;
     CatmullRomInterpolate(points[0], points[0], points[1], points[2], 10, pts);
-    std::vector<TThickPoint>::iterator it = points.begin();
+    std::vector<TThickPoint>::iterator it = points.begin() + 1;
     points.insert(it, pts.begin(), pts.end());
 
     pts.clear();
@@ -1788,7 +1788,9 @@ void ToonzRasterBrushTool::mouseMove(const TPointD &pos, const TMouseEvent &e) {
   TPointD halfThick(thickness * 0.5, thickness * 0.5);
   TRectD invalidateRect(m_brushPos - halfThick, m_brushPos + halfThick);
 
-  if (e.isCtrlPressed() && e.isAltPressed() && !e.isShiftPressed()) {
+  if (e.isCtrlPressed() && e.isAltPressed() && !e.isShiftPressed() &&
+      Preferences::instance()->useCtrlAltToResizeBrushEnabled()) {
+    // Resize the brush if CTRL+ALT is pressed and the preference is enabled.
     const TPointD &diff = pos - m_mousePos;
     double max          = diff.x / 2;
     double min          = diff.y / 2;

@@ -629,19 +629,25 @@ void RasterPainter::flushRasterImages() {
  * on systems that don't support them: see #591 */
 #if 0
 #ifdef GL_EXT_convolution
-  glDisable(GL_CONVOLUTION_1D_EXT);
-  glDisable(GL_CONVOLUTION_2D_EXT);
-  glDisable(GL_SEPARABLE_2D_EXT);
+  if( GLEW_EXT_convolution ) {
+    glDisable(GL_CONVOLUTION_1D_EXT);
+    glDisable(GL_CONVOLUTION_2D_EXT);
+    glDisable(GL_SEPARABLE_2D_EXT);
+  }
 #endif
 
 #ifdef GL_EXT_histogram
-  glDisable(GL_HISTOGRAM_EXT);
-  glDisable(GL_MINMAX_EXT);
+  if( GLEW_EXT_histogram ) {
+    glDisable(GL_HISTOGRAM_EXT);
+    glDisable(GL_MINMAX_EXT);
+  }
 #endif
 #endif
 
 #ifdef GL_EXT_texture3D
-  glDisable(GL_TEXTURE_3D_EXT);
+  if( GL_EXT_texture3D ) {
+    glDisable(GL_TEXTURE_3D_EXT);
+  }
 #endif
 
   glPushMatrix();
@@ -869,6 +875,7 @@ void RasterPainter::onVectorImage(TVectorImage *vi,
 
   rd.m_drawRegions           = !inksOnly;
   rd.m_inkCheckEnabled       = tc & ToonzCheck::eInk;
+  rd.m_ink1CheckEnabled      = tc & ToonzCheck::eInk1;
   rd.m_paintCheckEnabled     = tc & ToonzCheck::ePaint;
   rd.m_blackBgEnabled        = tc & ToonzCheck::eBlackBg;
   rd.m_colorCheckIndex       = ToonzCheck::instance()->getColorIndex();
