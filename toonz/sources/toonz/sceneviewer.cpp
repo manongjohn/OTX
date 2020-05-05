@@ -1149,7 +1149,7 @@ void SceneViewer::hideEvent(QHideEvent *) {
 
   disconnect(app, SIGNAL(tabletLeft()), this, SLOT(resetTabletStatus()));
 
-  if (!m_stopMotion == NULL) {
+  if (m_stopMotion) {
     disconnect(m_stopMotion, SIGNAL(newImageReady()), this,
                SLOT(onNewStopMotionImageReady()));
     disconnect(m_stopMotion, SIGNAL(liveViewStopped()), this,
@@ -1553,7 +1553,7 @@ void SceneViewer::drawPreview() {
   }
 
   if (!previewer->isFrameReady(row) ||
-      app->getCurrentFrame()->isPlaying() && previewer->isBusy()) {
+      (app->getCurrentFrame()->isPlaying() && previewer->isBusy())) {
     glColor3d(1, 0, 0);
 
     tglDrawRect(frameRect);
@@ -1587,8 +1587,8 @@ void SceneViewer::drawOverlay() {
   if (!m_drawCameraTest) {
     // draw grid & guides
     if (viewGuideToggle.getStatus() &&
-        (m_vRuler && m_vRuler->getGuideCount() ||
-         m_hRuler && m_hRuler->getGuideCount())) {
+        ((m_vRuler && m_vRuler->getGuideCount()) ||
+         (m_hRuler && m_hRuler->getGuideCount()))) {
       glPushMatrix();
       tglMultMatrix(getViewMatrix());
       ViewerDraw::drawGridAndGuides(
@@ -2426,16 +2426,18 @@ void SceneViewer::zoomQt(const QPoint &center, double factor) {
       TAffine &viewAff = m_viewAff[i];
       double scale2    = fabs(viewAff.det());
       if ((scale2 < 100000 || factor < 1) &&
-          (scale2 > 0.001 * 0.05 || factor > 1))
-        if (i == m_viewMode)
+          (scale2 > 0.001 * 0.05 || factor > 1)) {
+        if (i == m_viewMode) {
           // viewAff = TTranslation(delta) * TScale(factor) *
           // TTranslation(-delta) * viewAff;
           setViewMatrix(TTranslation(delta) * TScale(factor) *
                             TTranslation(-delta) * viewAff,
                         i);
-        else
+        } else {
           // viewAff = TScale(factor) * viewAff;
           setViewMatrix(TScale(factor) * viewAff, i);
+	}
+      }
     }
   }
 

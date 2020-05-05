@@ -427,7 +427,9 @@ enum {
   eShowDefineLoadBox   = 0x400,
   eShowUseLoadBox      = 0x800,
   eShowViewerControls  = 0x1000,
-  eShowHowMany         = 0x2000
+  eShowSound           = 0x2000,
+  eShowLocator         = 0x4000,
+  eShowHowMany         = 0x8000
 };
 
 FlipConsole::FlipConsole(QVBoxLayout *mainLayout, std::vector<int> gadgetsMask,
@@ -535,6 +537,18 @@ FlipConsole::FlipConsole(QVBoxLayout *mainLayout, std::vector<int> gadgetsMask,
 
 void FlipConsole::showHideAllParts(bool isShow) {
   m_playToolBarContainer->setVisible(isShow);
+  m_frameSliderFrame->setVisible(isShow);
+}
+
+//-----------------------------------------------------------------------------
+
+void FlipConsole::showHidePlaybar(bool isShow) {
+  m_playToolBarContainer->setVisible(isShow);
+}
+
+//-----------------------------------------------------------------------------
+
+void FlipConsole::showHideFrameSlider(bool isShow) {
   m_frameSliderFrame->setVisible(isShow);
 }
 
@@ -670,24 +684,27 @@ void FlipConsole::enableButton(UINT button, bool enable, bool doShowHide) {
   if (!m_playToolBar) return;
 
   QList<QAction *> list = m_playToolBar->actions();
-  int i;
-  for (i = 0; i < (int)list.size(); i++)
+  for (size_t i = 0; i < list.size(); i++)
     if (list[i]->data().toUInt() == button) {
-      if (button == eSound)
-        if (doShowHide)
+      if (button == eSound) {
+        if (doShowHide) {
           m_soundSep->setVisible(enable);
-        else
+        } else {
           m_soundSep->setEnabled(enable);
-      if (button == eHisto) {
-        if (doShowHide)
-          m_histoSep->setVisible(enable && m_customizeMask & eShowHisto);
-        else
-          m_histoSep->setEnabled(enable);
+	}
       }
-      if (doShowHide)
+      if (button == eHisto) {
+        if (doShowHide) {
+          m_histoSep->setVisible(enable && m_customizeMask & eShowHisto);
+        } else {
+          m_histoSep->setEnabled(enable);
+	}
+      }
+      if (doShowHide) {
         list[i]->setVisible(enable);
-      else
+      } else {
         list[i]->setEnabled(enable);
+      }
       if (!enable && list[i]->isChecked()) pressButton((EGadget)button);
 
       return;
@@ -704,6 +721,8 @@ void FlipConsole::enableButton(UINT button, bool enable, bool doShowHide) {
     break;
   case eGBlue:
     if (m_doubleBlue) m_doubleBlue->setEnabledSecondButton(enable);
+    break;
+  default:
     break;
   }
 }
@@ -990,10 +1009,20 @@ void FlipConsole::applyCustomizeMask() {
   enableButton(eDefineSubCamera, m_customizeMask & eShowDefineSubCamera);
   enableButton(eDefineLoadBox, m_customizeMask & eShowDefineLoadBox);
   enableButton(eUseLoadBox, m_customizeMask & eShowUseLoadBox);
-  if (m_subcamSep)
-    m_subcamSep->setVisible(m_customizeMask & eShowDefineSubCamera ||
-                            m_customizeMask & eShowDefineLoadBox ||
-                            m_customizeMask & eShowUseLoadBox);
+  if (m_subcamSep) {
+    int count = m_gadgetsMask.size();
+    bool hasDefineLoadBox =
+        std::find(m_gadgetsMask.begin(), m_gadgetsMask.end(), eDefineLoadBox) ==
+        m_gadgetsMask.end();
+    bool hasUseLoadBox = std::find(m_gadgetsMask.begin(), m_gadgetsMask.end(),
+                                   eUseLoadBox) == m_gadgetsMask.end();
+    bool hasDefineSubCam = std::find(m_gadgetsMask.begin(), m_gadgetsMask.end(),
+                                     eDefineSubCamera) == m_gadgetsMask.end();
+    m_subcamSep->setVisible(
+        (hasDefineSubCam && m_customizeMask & eShowDefineSubCamera) ||
+        (hasDefineLoadBox && m_customizeMask & eShowDefineLoadBox) ||
+        (hasUseLoadBox && m_customizeMask & eShowUseLoadBox));
+  }
 
   enableButton(eWhiteBg, m_customizeMask & eShowBg);
   enableButton(eBlackBg, m_customizeMask & eShowBg);
@@ -1013,6 +1042,9 @@ void FlipConsole::applyCustomizeMask() {
   enableButton(eLoop, m_customizeMask & eShowVcr);
   enableButton(eNext, m_customizeMask & eShowVcr);
   enableButton(eLast, m_customizeMask & eShowVcr);
+
+  enableButton(eSound, m_customizeMask & eShowSound);
+  enableButton(eLocator, m_customizeMask & eShowLocator);
 
   if (m_vcrSep) m_vcrSep->setVisible(m_customizeMask & eShowVcr);
 
@@ -1092,8 +1124,6 @@ void FlipConsole::createCustomizeMenu(bool withCustomWidget) {
         hasButton(m_gadgetsMask, eBlackBg) ||
         hasButton(m_gadgetsMask, eCheckBg))
       addMenuItem(eShowBg, tr("Background Colors"), menu);
-    if (hasButton(m_gadgetsMask, eRate))
-      addMenuItem(eShowFramerate, tr("Framerate"), menu);
 
     addMenuItem(eShowVcr, tr("Playback Controls"), menu);
 
@@ -1101,10 +1131,16 @@ void FlipConsole::createCustomizeMenu(bool withCustomWidget) {
         hasButton(m_gadgetsMask, eBlue) || hasButton(m_gadgetsMask, eMatte))
       addMenuItem(eShowcolorFilter, tr("Color Channels"), menu);
 
-    if (withCustomWidget) addMenuItem(eShowCustom, tr("Set Key"), menu);
+    if (hasButton(m_gadgetsMask, eSound))
+      addMenuItem(eShowSound, tr("Sound"), menu);
 
     if (hasButton(m_gadgetsMask, eHisto))
       addMenuItem(eShowHisto, tr("Histogram"), menu);
+
+    if (hasButton(m_gadgetsMask, eLocator))
+      addMenuItem(eShowLocator, tr("Locator"), menu);
+
+    if (withCustomWidget) addMenuItem(eShowCustom, tr("Set Key"), menu);
 
     if (hasButton(m_gadgetsMask, eFilledRaster))
       addMenuItem(eFilledRaster, tr("Display Areas as Filled"), menu);
@@ -1115,6 +1151,9 @@ void FlipConsole::createCustomizeMenu(bool withCustomWidget) {
         hasButton(m_gadgetsMask, eFlipVertical) ||
         hasButton(m_gadgetsMask, eResetView))
       addMenuItem(eShowViewerControls, tr("Viewer Controls"), menu);
+
+    if (hasButton(m_gadgetsMask, eRate))
+      addMenuItem(eShowFramerate, tr("Framerate"), menu);
 
     bool ret = connect(menu, SIGNAL(triggered(QAction *)), this,
                        SLOT(onCustomizeButtonPressed(QAction *)));

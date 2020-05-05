@@ -1048,6 +1048,9 @@ static LevelType getLevelType(const TFilePath &fp) {
   case TFileType::META_LEVEL:
     ret.m_ltype = META_XSHLEVEL;
     break;
+ 
+  default:
+    break;
   }
 
   return ret;
