@@ -1310,7 +1310,7 @@ void MainWindow::onMenuCheckboxChanged() {
 #endif
   else if (cm->getAction(MI_RasterizePli) == action) {
     if (!QGLPixelBuffer::hasOpenGLPbuffers()) isChecked = 0;
-    RasterizePliToggleAction = isChecked;
+    RasterizePliToggleAction                            = isChecked;
   } else if (cm->getAction(MI_SafeArea) == action)
     SafeAreaToggleAction = isChecked;
   else if (cm->getAction(MI_ViewColorcard) == action)
@@ -1633,6 +1633,13 @@ QAction *MainWindow::createToolOptionsAction(const char *id,
 
 //-----------------------------------------------------------------------------
 
+QAction *MainWindow::createStopMotionAction(const char *id, const QString &name,
+                                            const QString &defaultShortcut) {
+  return createAction(id, name, defaultShortcut, StopMotionCommandType);
+}
+
+//-----------------------------------------------------------------------------
+
 QAction *MainWindow::createToggle(const char *id, const QString &name,
                                   const QString &defaultShortcut,
                                   bool startStatus, CommandType type) {
@@ -1734,6 +1741,8 @@ void MainWindow::defineActions() {
   createMenuRenderAction(MI_FastRender, tr("&Fast Render to MP4"), "Alt+R");
   createMenuRenderAction(MI_Preview, tr("&Preview"), "Ctrl+R");
   createMenuFileAction(MI_SoundTrack, tr("&Export Soundtrack"), "");
+  createStopMotionAction(MI_StopMotionExportImageSequence,
+                         tr("&Export Stop Motion Image Sequence"), "");
   createMenuRenderAction(MI_SavePreviewedFrames, tr("&Save Previewed Frames"),
                          "");
   createRightClickMenuAction(MI_RegeneratePreview, tr("&Regenerate Preview"),
@@ -2129,11 +2138,8 @@ void MainWindow::defineActions() {
   createMenuWindowsAction(MI_OpenToolbar, tr("&Toolbar"), "");
   createMenuWindowsAction(MI_OpenToolOptionBar, tr("&Tool Option Bar"), "");
   createMenuWindowsAction(MI_OpenCommandToolbar, tr("&Command Bar"), "");
-#ifdef WITH_STOPMOTION
   createMenuWindowsAction(MI_OpenStopMotionPanel, tr("&Stop Motion Controls"),
                           "");
-
-#endif
   createMenuWindowsAction(MI_OpenLevelView, tr("&Viewer"), "");
 #ifdef LINETEST
   createMenuWindowsAction(MI_OpenLineTestCapture, tr("&LineTest Capture"), "");
@@ -2379,8 +2385,8 @@ void MainWindow::defineActions() {
                           tr("Brush hardness - Increase"), "");
   createToolOptionsAction("A_DecreaseBrushHardness",
                           tr("Brush hardness - Decrease"), "");
-  createToolOptionsAction("A_ToolOption_SnapSensitivity", tr("Snap Sensitivity"),
-                          "");
+  createToolOptionsAction("A_ToolOption_SnapSensitivity",
+                          tr("Snap Sensitivity"), "");
   createToolOptionsAction("A_ToolOption_AutoGroup", tr("Auto Group"), "");
   createToolOptionsAction("A_ToolOption_BreakSharpAngles",
                           tr("Break sharp angles"), "");
@@ -2591,8 +2597,8 @@ void MainWindow::defineActions() {
                ToolCommandType);
   createAction(MI_TapeNextMode, tr("Tape Tool - Next Mode"), "",
                ToolCommandType);
-  createAction(MI_TapeEndpointToEndpoint, tr("Tape Tool - Endpoint to Endpoint"),
-               "", ToolCommandType);
+  createAction(MI_TapeEndpointToEndpoint,
+               tr("Tape Tool - Endpoint to Endpoint"), "", ToolCommandType);
   createAction(MI_TapeEndpointToLine, tr("Tape Tool - Endpoint to Line"), "",
                ToolCommandType);
   createAction(MI_TapeLineToLine, tr("Tape Tool - Line to Line"), "",
@@ -2643,20 +2649,33 @@ void MainWindow::defineActions() {
                ToolCommandType);
 
   createMiscAction("A_FxSchematicToggle", tr("Toggle FX/Stage schematic"), "");
-#ifdef WITH_STOPMOTION
-  createAction(MI_StopMotionCapture, tr("Capture Stop Motion Frame"), "");
-  createAction(MI_StopMotionRaiseOpacity, tr("Raise Stop Motion Opacity"), "");
-  createAction(MI_StopMotionLowerOpacity, tr("Lower Stop Motion Opacity"), "");
-  createAction(MI_StopMotionToggleLiveView, tr("Toggle Stop Motion Live View"),
-               "");
-  createAction(MI_StopMotionToggleZoom, tr("Toggle Stop Motion Zoom"), "");
-  createAction(MI_StopMotionLowerSubsampling,
-               tr("Lower Stop Motion Level Subsampling"), "");
-  createAction(MI_StopMotionRaiseSubsampling,
-               tr("Raise Stop Motion Level Subsampling"), "");
-  createAction(MI_StopMotionJumpToCamera, tr("Go to Stop Motion Insert Frame"),
-               "");
+
+  createStopMotionAction(MI_StopMotionCapture, tr("Capture Stop Motion Frame"),
+                         "");
+  createStopMotionAction(MI_StopMotionRaiseOpacity,
+                         tr("Raise Stop Motion Opacity"), "");
+  createStopMotionAction(MI_StopMotionLowerOpacity,
+                         tr("Lower Stop Motion Opacity"), "");
+  createStopMotionAction(MI_StopMotionToggleLiveView,
+                         tr("Toggle Stop Motion Live View"), "");
+#ifdef WITH_CANON
+  createStopMotionAction(MI_StopMotionToggleZoom, tr("Toggle Stop Motion Zoom"),
+                         "");
+  createStopMotionAction(MI_StopMotionPickFocusCheck,
+                         tr("Pick Focus Check Location"), "");
 #endif
+  createStopMotionAction(MI_StopMotionLowerSubsampling,
+                         tr("Lower Stop Motion Level Subsampling"), "");
+  createStopMotionAction(MI_StopMotionRaiseSubsampling,
+                         tr("Raise Stop Motion Level Subsampling"), "");
+  createStopMotionAction(MI_StopMotionJumpToCamera,
+                         tr("Go to Stop Motion Insert Frame"), "");
+  createStopMotionAction(MI_StopMotionRemoveFrame,
+                         tr("Remove frame before Stop Motion Camera"), "");
+  createStopMotionAction(MI_StopMotionNextFrame,
+                         tr("Next Frame including Stop Motion Camera"), "");
+  createStopMotionAction(MI_StopMotionToggleUseLiveViewImages,
+                         tr("Show original live view images."), "");
 }
 
 //-----------------------------------------------------------------------------
@@ -3186,7 +3205,7 @@ void MainWindow::clearCacheFolder() {
   // 1. $CACHE/[Current ProcessID]
   // 2. $CACHE/temp/[Current scene folder] if the current scene is untitled
 
-  TFilePath cacheRoot = ToonzFolder::getCacheRootFolder();
+  TFilePath cacheRoot                = ToonzFolder::getCacheRootFolder();
   if (cacheRoot.isEmpty()) cacheRoot = TEnv::getStuffDir() + "cache";
 
   TFilePathSet filesToBeRemoved;
@@ -3309,9 +3328,9 @@ RecentFiles::~RecentFiles() {}
 void RecentFiles::addFilePath(QString path, FileType fileType,
                               QString projectName) {
   QList<QString> files =
-      (fileType == Scene)
-          ? m_recentScenes
-          : (fileType == Level) ? m_recentLevels : m_recentFlipbookImages;
+      (fileType == Scene) ? m_recentScenes : (fileType == Level)
+                                                 ? m_recentLevels
+                                                 : m_recentFlipbookImages;
   int i;
   for (i = 0; i < files.size(); i++)
     if (files.at(i) == path) {
@@ -3478,9 +3497,9 @@ void RecentFiles::saveRecentFiles() {
 
 QList<QString> RecentFiles::getFilesNameList(FileType fileType) {
   QList<QString> files =
-      (fileType == Scene)
-          ? m_recentScenes
-          : (fileType == Level) ? m_recentLevels : m_recentFlipbookImages;
+      (fileType == Scene) ? m_recentScenes : (fileType == Level)
+                                                 ? m_recentLevels
+                                                 : m_recentFlipbookImages;
   QList<QString> names;
   int i;
   for (i = 0; i < files.size(); i++) {
@@ -3507,9 +3526,9 @@ void RecentFiles::refreshRecentFilesMenu(FileType fileType) {
     menu->setEnabled(false);
   else {
     CommandId clearActionId =
-        (fileType == Scene)
-            ? MI_ClearRecentScene
-            : (fileType == Level) ? MI_ClearRecentLevel : MI_ClearRecentImage;
+        (fileType == Scene) ? MI_ClearRecentScene : (fileType == Level)
+                                                        ? MI_ClearRecentLevel
+                                                        : MI_ClearRecentImage;
     menu->setActions(names);
     menu->addSeparator();
     QAction *clearAction = CommandManager::instance()->getAction(clearActionId);
