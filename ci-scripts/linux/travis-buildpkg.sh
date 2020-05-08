@@ -1,5 +1,5 @@
 #!/bin/bash
-source /opt/qt59/bin/qt59-env.sh
+source /opt/qt514/bin/qt514-env.sh
 
 echo ">>> Temporary install of OpenToonz"
 export BUILDDIR=$(pwd)/toonz/build
