@@ -75,7 +75,7 @@ namespace {
 
 void initToonzEvent(TMouseEvent &toonzEvent, QMouseEvent *event,
                     int widgetHeight, double pressure, int devPixRatio) {
-  toonzEvent.m_pos      = TPointD(event->pos().x() * devPixRatio,
+  toonzEvent.m_pos = TPointD(event->pos().x() * devPixRatio,
                              widgetHeight - 1 - event->pos().y() * devPixRatio);
   toonzEvent.m_mousePos = event->pos();
   toonzEvent.m_pressure = 1.0;
@@ -235,6 +235,8 @@ void SceneViewer::onButtonPressed(FlipConsole::EGadget button) {
   case FlipConsole::eResetView:
     resetSceneViewer();
     break;
+  default:
+    break;
   }
 }
 
@@ -305,6 +307,15 @@ void SceneViewer::tabletEvent(QTabletEvent *e) {
       }
     } else
       m_tabletEvent = false;
+#endif
+
+#ifdef LINUX
+    // for Linux, create context menu on right click here.
+    // could possibly merge with OSX code above
+    if (e->button() == Qt::RightButton) {
+      m_mouseButton = Qt::NoButton;
+      onContextMenu(e->pos(), e->globalPos());
+    }
 #endif
 
   } break;
@@ -431,7 +442,21 @@ void SceneViewer::onEnter() {
     tool->onEnter();
   }
 
-  setFocus();
+  // grab the focus, unless a line-edit is focused currently
+  bool shouldSetFocus = true;
+
+  QWidget *focusWidget = qApp->focusWidget();
+  if (focusWidget) {
+    QLineEdit *lineEdit = dynamic_cast<QLineEdit *>(focusWidget);
+    if (lineEdit) {
+      shouldSetFocus = false;
+    }
+  }
+
+  if (shouldSetFocus) {
+    setFocus();
+  }
+
   update();
 }
 
@@ -476,11 +501,11 @@ void SceneViewer::onMove(const TMouseEvent &event) {
   // if the "compare with snapshot" mode is activated, change the mouse cursor
   // on the border handle
   if (m_visualSettings.m_doCompare && isPreviewEnabled()) {
-    if (abs(curPos.x() - width() * m_compareSettings.m_compareX) < 20) {
+    if (std::abs(curPos.x() - width() * m_compareSettings.m_compareX) < 20) {
       cursorSet = true;
       setToolCursor(this, ToolCursor::ScaleHCursor);
-    } else if (abs((height() - curPos.y()) -
-                   height() * m_compareSettings.m_compareY) < 20) {
+    } else if (std::abs((height() - curPos.y()) -
+                         height() * m_compareSettings.m_compareY) < 20) {
       cursorSet = true;
       setToolCursor(this, ToolCursor::ScaleVCursor);
     }
@@ -680,7 +705,7 @@ void SceneViewer::onPress(const TMouseEvent &event) {
     if (!PreviewSubCameraManager::instance()->mousePressEvent(this, event))
       return;
   } else if (m_mouseButton == Qt::LeftButton && m_visualSettings.m_doCompare) {
-    if (abs(m_pos.x() - width() * m_compareSettings.m_compareX) < 20) {
+    if (std::abs(m_pos.x() - width() * m_compareSettings.m_compareX) < 20) {
       m_compareSettings.m_dragCompareX = true;
       m_compareSettings.m_dragCompareY = false;
       m_compareSettings.m_compareY     = ImagePainter::DefaultCompareValue;
@@ -688,8 +713,8 @@ void SceneViewer::onPress(const TMouseEvent &event) {
       m_tabletEvent = false;
       m_tabletState = None;
       return;
-    } else if (abs((height() - m_pos.y()) -
-                   height() * m_compareSettings.m_compareY) < 20) {
+    } else if (std::abs((height() - m_pos.y()) -
+                         height() * m_compareSettings.m_compareY) < 20) {
       m_compareSettings.m_dragCompareY = true;
       m_compareSettings.m_dragCompareX = false;
       m_compareSettings.m_compareX     = ImagePainter::DefaultCompareValue;
@@ -908,12 +933,12 @@ void SceneViewer::wheelEvent(QWheelEvent *event) {
 
   default:  // Qt::MouseEventSynthesizedByQt,
             // Qt::MouseEventSynthesizedByApplication
-  {
-    std::cout << "not supported event: Qt::MouseEventSynthesizedByQt, "
-                 "Qt::MouseEventSynthesizedByApplication"
-              << std::endl;
-    break;
-  }
+    {
+      std::cout << "not supported event: Qt::MouseEventSynthesizedByQt, "
+                   "Qt::MouseEventSynthesizedByApplication"
+                << std::endl;
+      break;
+    }
 
   }  // end switch
 
@@ -1009,11 +1034,11 @@ void SceneViewer::gestureEvent(QGestureEvent *e) {
         qreal rotationDelta =
             gesture->rotationAngle() - gesture->lastRotationAngle();
         if (m_isFlippedX != m_isFlippedY) rotationDelta = -rotationDelta;
-        TAffine aff    = getViewMatrix().inv();
-        TPointD center = aff * TPointD(0, 0);
+        TAffine aff                                     = getViewMatrix().inv();
+        TPointD center                                  = aff * TPointD(0, 0);
         if (!m_rotating && !m_zooming) {
           m_rotationDelta += rotationDelta;
-          double absDelta = abs(m_rotationDelta);
+          double absDelta = std::abs(m_rotationDelta);
           if (absDelta >= 10) {
             m_rotating = true;
           }
@@ -1151,9 +1176,10 @@ bool SceneViewer::event(QEvent *e) {
     break;
   }
   */
-  if (e->type() == QEvent::Gesture && CommandManager::instance()
-                                          ->getAction(MI_TouchGestureControl)
-                                          ->isChecked()) {
+  if (e->type() == QEvent::Gesture &&
+      CommandManager::instance()
+          ->getAction(MI_TouchGestureControl)
+          ->isChecked()) {
     gestureEvent(static_cast<QGestureEvent *>(e));
     return true;
   }
@@ -1193,7 +1219,7 @@ bool SceneViewer::event(QEvent *e) {
 
     // Disable keyboard shortcuts while the tool is busy with a mouse drag
     // operation.
-    if ( tool->isDragging() ) {
+    if (tool->isDragging()) {
       e->accept();
     }
 
@@ -1287,7 +1313,7 @@ public:
 
 bool changeFrameSkippingHolds(QKeyEvent *e) {
   if ((e->modifiers() & Qt::ShiftModifier) == 0 ||
-      e->key() != Qt::Key_Down && e->key() != Qt::Key_Up)
+      (e->key() != Qt::Key_Down && e->key() != Qt::Key_Up))
     return false;
   TApp *app        = TApp::instance();
   TFrameHandle *fh = app->getCurrentFrame();
@@ -1574,6 +1600,13 @@ void SceneViewer::onContextMenu(const QPoint &pos, const QPoint &globalPos) {
     cvp->addShowHideContextMenu(menu);
   }
 
+  SceneViewerPanel *svp = qobject_cast<SceneViewerPanel *>(
+      parentWidget()->parentWidget()->parentWidget());
+  if (svp) {
+    menu->addSeparator();
+    svp->addShowHideContextMenu(menu);
+  }
+
   menu->exec(globalPos);
   delete menu;
   menuVisible = false;
@@ -1621,13 +1654,13 @@ void SceneViewer::dropEvent(QDropEvent *e) {
 
     IoCmd::loadResources(args);
 
-	if (acceptResourceOrFolderDrop(mimeData->urls())) {
-		// Force Copy Action
-		e->setDropAction(Qt::CopyAction);
-		// For files, don't accept original proposed action in case it's a move
-		e->accept();
-		return;
-	}
+    if (acceptResourceOrFolderDrop(mimeData->urls())) {
+      // Force Copy Action
+      e->setDropAction(Qt::CopyAction);
+      // For files, don't accept original proposed action in case it's a move
+      e->accept();
+      return;
+    }
   }
   e->acceptProposedAction();
 }
@@ -1641,8 +1674,8 @@ void SceneViewer::onToolSwitched() {
 
   TTool *tool = TApp::instance()->getCurrentTool()->getTool();
   if (tool) {
-	  tool->updateMatrix();
-	  if (tool->getViewer()) tool->getViewer()->setGuidedStrokePickerMode(0);
+    tool->updateMatrix();
+    if (tool->getViewer()) tool->getViewer()->setGuidedStrokePickerMode(0);
   }
 
   onLevelChanged();

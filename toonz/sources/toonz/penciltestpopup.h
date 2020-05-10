@@ -6,16 +6,17 @@
 #include "toonzqt/dvdialog.h"
 #include "toonzqt/lineedit.h"
 #include "toonz/namebuilder.h"
+#include "opencv2/opencv.hpp"
 
 #include <QAbstractVideoSurface>
 #include <QRunnable>
+#include <QLineEdit>
 
 // forward decl.
 class QCamera;
 class QCameraImageCapture;
 
 class QComboBox;
-class QLineEdit;
 class QSlider;
 class QCheckBox;
 class QPushButton;
@@ -36,70 +37,6 @@ class IntLineEdit;
 
 class CameraCaptureLevelControl;
 
-class ApplyLutTask : public QRunnable {
-protected:
-  int m_fromY, m_toY;
-  QImage& m_img;
-  std::vector<int>& m_lut;
-
-public:
-  ApplyLutTask(int from, int to, QImage& img, std::vector<int>& lut)
-      : m_fromY(from), m_toY(to), m_img(img), m_lut(lut) {}
-
-private:
-  virtual void run() override;
-};
-
-class ApplyGrayLutTask : public ApplyLutTask {
-public:
-  ApplyGrayLutTask(int from, int to, QImage& img, std::vector<int>& lut)
-      : ApplyLutTask(from, to, img, lut) {}
-
-private:
-  void run() override;
-};
-
-//=============================================================================
-// MyVideoSurface
-//-----------------------------------------------------------------------------
-
-class QVideoSurfaceFormat;
-class MyVideoSurface : public QAbstractVideoSurface {
-  Q_OBJECT
-public:
-  MyVideoSurface(QWidget* widget, QObject* parent = 0);
-
-  QList<QVideoFrame::PixelFormat> supportedPixelFormats(
-      QAbstractVideoBuffer::HandleType handleType =
-          QAbstractVideoBuffer::NoHandle) const;
-  bool isFormatSupported(const QVideoSurfaceFormat& format,
-                         QVideoSurfaceFormat* similar) const;
-
-  bool start(const QVideoSurfaceFormat& format);
-  void stop();
-
-  bool present(const QVideoFrame& frame);
-
-  QRect videoRect() const { return m_targetRect; }
-  QRect sourceRect() const { return m_sourceRect; }
-  void updateVideoRect();
-
-  QTransform transform() { return m_S2V_Transform; }
-
-private:
-  QWidget* m_widget;
-  QImage::Format m_imageFormat;
-  QRect m_targetRect;
-  QSize m_imageSize;
-  QRect m_sourceRect;
-  QVideoFrame m_currentFrame;
-
-  QTransform m_S2V_Transform;  // surface to video transform
-
-signals:
-  void frameCaptured(QImage& image);
-};
-
 //=============================================================================
 // MyVideoWidget
 //-----------------------------------------------------------------------------
@@ -118,6 +55,8 @@ class MyVideoWidget : public QWidget {
   QRect m_preSubCameraRect;
   QPoint m_dragStartPos;
 
+  QRect m_targetRect;
+  QTransform m_S2V_Transform;  // surface to video transform
   enum SUBHANDLE {
     HandleNone,
     HandleFrame,
@@ -134,15 +73,11 @@ class MyVideoWidget : public QWidget {
 
 public:
   MyVideoWidget(QWidget* parent = 0);
-  ~MyVideoWidget();
 
   void setImage(const QImage& image) {
     m_image = image;
     update();
   }
-  QAbstractVideoSurface* videoSurface() const { return m_surface; }
-
-  QSize sizeHint() const;
 
   void setShowOnionSkin(bool on) { m_showOnionSkin = on; }
   void setOnionOpacity(int value) { m_onionOpacity = value; }
@@ -156,6 +91,8 @@ public:
   void setSubCameraSize(QSize size);
   QRect subCameraRect() { return m_subCameraRect; }
 
+  void computeTransform(QSize imgSize);
+
 protected:
   void paintEvent(QPaintEvent* event) override;
   void resizeEvent(QResizeEvent* event) override;
@@ -163,9 +100,6 @@ protected:
   void mouseMoveEvent(QMouseEvent* event) override;
   void mousePressEvent(QMouseEvent* event) override;
   void mouseReleaseEvent(QMouseEvent* event) override;
-
-private:
-  MyVideoSurface* m_surface;
 
 protected slots:
   void onUpsideDownChecked(bool on) { m_upsideDown = on; }
@@ -281,6 +215,12 @@ protected slots:
 class PencilTestPopup : public DVGui::Dialog {
   Q_OBJECT
 
+  QTimer* m_timer;
+  cv::VideoCapture m_cvWebcam;
+  QSize m_resolution;
+
+  //--------
+
   QCamera* m_currentCamera;
   QString m_deviceName;
   MyVideoWidget* m_videoWidget;
@@ -297,7 +237,7 @@ class PencilTestPopup : public DVGui::Dialog {
 
   QTimer *m_captureTimer, *m_countdownTimer;
 
-  QImage m_whiteBGImg;
+  cv::Mat m_whiteBGImg;
 
   // used only for Windows
   QPushButton* m_captureFilterSettingsBtn;
@@ -317,12 +257,22 @@ class PencilTestPopup : public DVGui::Dialog {
   bool m_captureWhiteBGCue;
   bool m_captureCue;
   bool m_alwaysOverwrite = false;
+  bool m_useMjpg;
+#ifdef _WIN32
+  bool m_useDirectShow;
+#endif
 
-  void processImage(QImage& procImage);
+  void processImage(cv::Mat& procImage);
   bool importImage(QImage image);
 
   void setToNextNewLevel();
   void updateLevelNameAndFrame(std::wstring levelName);
+
+  void getWebcamImage();
+
+  QMenu* createOptionsMenu();
+
+  int translateIndex(int camIndex);
 
 public:
   PencilTestPopup();
@@ -338,13 +288,13 @@ protected:
 protected slots:
   void refreshCameraList();
   void onCameraListComboActivated(int index);
-  void onResolutionComboActivated(const QString&);
+  void onResolutionComboActivated();
   void onFileFormatOptionButtonPressed();
   void onLevelNameEdited();
   void onNextName();
   void onPreviousName();
   void onColorTypeComboChanged(int index);
-  void onFrameCaptured(QImage& image);
+  void onFrameCaptured(cv::Mat& image);
   void onCaptureWhiteBGButtonPressed();
   void onOnionCBToggled(bool);
   void onLoadImageButtonPressed();
@@ -365,6 +315,7 @@ protected slots:
   void onSubCameraResized(bool isDragging);
   void onSubCameraSizeEdited();
 
+  void onTimeout();
 public slots:
   void openSaveInFolderPopup();
 };
