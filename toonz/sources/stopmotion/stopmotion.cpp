@@ -207,7 +207,6 @@ StopMotion::StopMotion() {
 
   m_webcam = new Webcam();
   m_canon  = Canon::instance();
-  m_serial = new StopMotionSerial();
   m_light  = new StopMotionLight();
 
   m_alwaysLiveView = StopMotionAlwaysLiveView;
@@ -309,7 +308,7 @@ void StopMotion::onSceneSwitched() {
         setXSheetFrameNumber(xsh->getFrameCount() + 1);
         loadXmlFile();
         buildLiveViewMap(sl);
-        m_sl = sl;
+        m_sl  = sl;
         found = true;
         break;
       }
@@ -1001,7 +1000,6 @@ void StopMotion::setXSheetFrameNumber(int frameNumber) {
   TApp::instance()->getCurrentFrame()->setFrame(frameNumber - 1);
   loadLineUpImage();
   emit(xSheetFrameNumberChanged(m_xSheetFrameNumber));
-  m_serial->sendSerialData();
   TApp::instance()->getCurrentXsheet()->notifyXsheetChanged();
 }
 
