@@ -629,19 +629,25 @@ void RasterPainter::flushRasterImages() {
  * on systems that don't support them: see #591 */
 #if 0
 #ifdef GL_EXT_convolution
-  glDisable(GL_CONVOLUTION_1D_EXT);
-  glDisable(GL_CONVOLUTION_2D_EXT);
-  glDisable(GL_SEPARABLE_2D_EXT);
+  if( GLEW_EXT_convolution ) {
+    glDisable(GL_CONVOLUTION_1D_EXT);
+    glDisable(GL_CONVOLUTION_2D_EXT);
+    glDisable(GL_SEPARABLE_2D_EXT);
+  }
 #endif
 
 #ifdef GL_EXT_histogram
-  glDisable(GL_HISTOGRAM_EXT);
-  glDisable(GL_MINMAX_EXT);
+  if( GLEW_EXT_histogram ) {
+    glDisable(GL_HISTOGRAM_EXT);
+    glDisable(GL_MINMAX_EXT);
+  }
 #endif
 #endif
 
 #ifdef GL_EXT_texture3D
-  glDisable(GL_TEXTURE_3D_EXT);
+  if( GL_EXT_texture3D ) {
+    glDisable(GL_TEXTURE_3D_EXT);
+  }
 #endif
 
   glPushMatrix();
@@ -695,7 +701,7 @@ void RasterPainter::drawRasterImages(QPainter &p, QPolygon cameraPol) {
   p.setClipRegion(QRegion(cameraPol));
   for (i = 0; i < (int)m_nodes.size(); i++) {
     if (m_nodes[i].m_onionMode != Node::eOnionSkinNone) continue;
-    p.resetMatrix();
+    p.resetTransform();
     TRasterP ras = m_nodes[i].m_raster;
     TAffine aff  = TTranslation(-rect.x0, -rect.y0) * flipY * m_nodes[i].m_aff;
     QMatrix matrix(aff.a11, aff.a21, aff.a12, aff.a22, aff.a13, aff.a23);
@@ -705,7 +711,7 @@ void RasterPainter::drawRasterImages(QPainter &p, QPolygon cameraPol) {
     p.drawImage(rect.getP00().x, rect.getP00().y, image);
   }
 
-  p.resetMatrix();
+  p.resetTransform();
   m_nodes.clear();
 }
 
@@ -744,7 +750,13 @@ static void drawAutocloses(TVectorImage *vi, TVectorRenderData &rd) {
 
   rd.m_palette = plt;
   buildAutocloseImage(vaux, vi, startPoints, endPoints);
+  // temporarily disable fill check, to preserve the gap indicator color
+  bool tCheckEnabledOriginal = rd.m_tcheckEnabled;
+  rd.m_tcheckEnabled = false;
+  // draw
   tglDraw(rd, vaux);
+  // restore original value
+  rd.m_tcheckEnabled = tCheckEnabledOriginal;
   delete vaux;
 }
 
@@ -863,6 +875,7 @@ void RasterPainter::onVectorImage(TVectorImage *vi,
 
   rd.m_drawRegions           = !inksOnly;
   rd.m_inkCheckEnabled       = tc & ToonzCheck::eInk;
+  rd.m_ink1CheckEnabled      = tc & ToonzCheck::eInk1;
   rd.m_paintCheckEnabled     = tc & ToonzCheck::ePaint;
   rd.m_blackBgEnabled        = tc & ToonzCheck::eBlackBg;
   rd.m_colorCheckIndex       = ToonzCheck::instance()->getColorIndex();

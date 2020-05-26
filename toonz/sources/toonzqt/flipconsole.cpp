@@ -170,11 +170,11 @@ void PlaybackExecutor::run() {
   TUINT32 loadedInstant, nextSampleInstant = timeResolution;
   TUINT32 sampleTotalLoadingTime = 0;
 
-  TUINT32 lastFrameCounts[4] = {0, 0, 0,
+  TUINT32 lastFrameCounts[4]    = {0, 0, 0,
                                 0};  // Keep the last 4 'played frames' counts.
   TUINT32 lastSampleInstants[4] = {0, 0, 0,
                                    0};  // Same for the last sampling instants
-  TUINT32 lastLoadingTimes[4] = {0, 0, 0,
+  TUINT32 lastLoadingTimes[4]   = {0, 0, 0,
                                  0};  // Same for total sample loading times
 
   double targetFrameTime =
@@ -189,8 +189,9 @@ void PlaybackExecutor::run() {
     emissionInstant = timer.getTotalTime();
 
     // Draw the next frame
-    if (playedFramesCount) emit nextFrame(fps);  // Show the next frame, telling
-                                                 // currently measured fps
+    if (playedFramesCount)
+      emit nextFrame(fps);  // Show the next frame, telling
+                            // currently measured fps
 
     if (FlipConsole::m_areLinked) {
       // In case there are linked consoles, update them too.
@@ -318,15 +319,17 @@ void FlipSlider::paintEvent(QPaintEvent *ev) {
 
   p.drawImage(QRect(0, 0, PBColorMarginLeft, height()), PBOverlay,
               QRect(0, 0, PBColorMarginLeft, PBOverlay.height()));
-  p.drawImage(QRect(PBColorMarginLeft, 0,
-                    sliderRect.width() - PBColorMarginLeft - PBColorMarginRight,
-                    height()),
-              PBOverlay, QRect(PBColorMarginLeft, 0, overlayInnerWidth,
-                               PBOverlay.height()));
+  p.drawImage(
+      QRect(PBColorMarginLeft, 0,
+            sliderRect.width() - PBColorMarginLeft - PBColorMarginRight,
+            height()),
+      PBOverlay,
+      QRect(PBColorMarginLeft, 0, overlayInnerWidth, PBOverlay.height()));
   p.drawImage(
       QRect(width() - PBColorMarginRight, 0, PBColorMarginRight, height()),
-      PBOverlay, QRect(PBOverlay.width() - PBColorMarginRight, 0,
-                       PBColorMarginRight, PBOverlay.height()));
+      PBOverlay,
+      QRect(PBOverlay.width() - PBColorMarginRight, 0, PBColorMarginRight,
+            PBOverlay.height()));
 
   // Draw the position marker
   currPos = sliderPositionFromValue(minimum(), maxValuePlusStep, value(),
@@ -427,7 +430,9 @@ enum {
   eShowDefineLoadBox   = 0x400,
   eShowUseLoadBox      = 0x800,
   eShowViewerControls  = 0x1000,
-  eShowHowMany         = 0x2000
+  eShowSound           = 0x2000,
+  eShowLocator         = 0x4000,
+  eShowHowMany         = 0x8000
 };
 
 FlipConsole::FlipConsole(QVBoxLayout *mainLayout, std::vector<int> gadgetsMask,
@@ -481,7 +486,7 @@ FlipConsole::FlipConsole(QVBoxLayout *mainLayout, std::vector<int> gadgetsMask,
     , m_fpsLabel(0)
     , m_consoleOwner(consoleOwner)
     , m_enableBlankFrameButton(0) {
-  QString s                    = QSettings().value(m_customizeId).toString();
+  QString s = QSettings().value(m_customizeId).toString();
   if (s != "") m_customizeMask = s.toUInt();
 
   if (m_gadgetsMask.size() == 0) return;
@@ -535,6 +540,18 @@ FlipConsole::FlipConsole(QVBoxLayout *mainLayout, std::vector<int> gadgetsMask,
 
 void FlipConsole::showHideAllParts(bool isShow) {
   m_playToolBarContainer->setVisible(isShow);
+  m_frameSliderFrame->setVisible(isShow);
+}
+
+//-----------------------------------------------------------------------------
+
+void FlipConsole::showHidePlaybar(bool isShow) {
+  m_playToolBarContainer->setVisible(isShow);
+}
+
+//-----------------------------------------------------------------------------
+
+void FlipConsole::showHideFrameSlider(bool isShow) {
   m_frameSliderFrame->setVisible(isShow);
 }
 
@@ -670,24 +687,27 @@ void FlipConsole::enableButton(UINT button, bool enable, bool doShowHide) {
   if (!m_playToolBar) return;
 
   QList<QAction *> list = m_playToolBar->actions();
-  int i;
-  for (i = 0; i < (int)list.size(); i++)
+  for (size_t i = 0; i < list.size(); i++)
     if (list[i]->data().toUInt() == button) {
-      if (button == eSound)
-        if (doShowHide)
+      if (button == eSound) {
+        if (doShowHide) {
           m_soundSep->setVisible(enable);
-        else
+        } else {
           m_soundSep->setEnabled(enable);
-      if (button == eHisto) {
-        if (doShowHide)
-          m_histoSep->setVisible(enable && m_customizeMask & eShowHisto);
-        else
-          m_histoSep->setEnabled(enable);
+        }
       }
-      if (doShowHide)
+      if (button == eHisto) {
+        if (doShowHide) {
+          m_histoSep->setVisible(enable && m_customizeMask & eShowHisto);
+        } else {
+          m_histoSep->setEnabled(enable);
+        }
+      }
+      if (doShowHide) {
         list[i]->setVisible(enable);
-      else
+      } else {
         list[i]->setEnabled(enable);
+      }
       if (!enable && list[i]->isChecked()) pressButton((EGadget)button);
 
       return;
@@ -704,6 +724,8 @@ void FlipConsole::enableButton(UINT button, bool enable, bool doShowHide) {
     break;
   case eGBlue:
     if (m_doubleBlue) m_doubleBlue->setEnabledSecondButton(enable);
+    break;
+  default:
     break;
   }
 }
@@ -750,9 +772,8 @@ bool FlipConsole::drawBlanks(int from, int to) {
   if (m_blanksToDraw > 1 ||
       (m_blanksToDraw == 0 &&
        ((m_reverse && m_currentFrame - m_step < from) ||
-        (!m_reverse &&
-         m_currentFrame + m_step >
-             to))))  // we are on the last frame of the loop
+        (!m_reverse && m_currentFrame + m_step >
+                           to))))  // we are on the last frame of the loop
   {
     m_blanksToDraw = (m_blanksToDraw == 0 ? m_blanksCount : m_blanksToDraw - 1);
     m_settings.m_blankColor     = m_blankColor;
@@ -855,7 +876,7 @@ void FlipConsole::setCurrentFPS(int val) {
   if (m_fps == val) return;
 
   if (val == 0) val = 1;
-  m_fps             = val;
+  m_fps = val;
   m_fpsField->setValue(m_fps);
 
   if (m_playbackExecutor.isRunning() || m_isLinkedPlaying)
@@ -990,10 +1011,20 @@ void FlipConsole::applyCustomizeMask() {
   enableButton(eDefineSubCamera, m_customizeMask & eShowDefineSubCamera);
   enableButton(eDefineLoadBox, m_customizeMask & eShowDefineLoadBox);
   enableButton(eUseLoadBox, m_customizeMask & eShowUseLoadBox);
-  if (m_subcamSep)
-    m_subcamSep->setVisible(m_customizeMask & eShowDefineSubCamera ||
-                            m_customizeMask & eShowDefineLoadBox ||
-                            m_customizeMask & eShowUseLoadBox);
+  if (m_subcamSep) {
+    int count = m_gadgetsMask.size();
+    bool hasDefineLoadBox =
+        std::find(m_gadgetsMask.begin(), m_gadgetsMask.end(), eDefineLoadBox) ==
+        m_gadgetsMask.end();
+    bool hasUseLoadBox   = std::find(m_gadgetsMask.begin(), m_gadgetsMask.end(),
+                                   eUseLoadBox) == m_gadgetsMask.end();
+    bool hasDefineSubCam = std::find(m_gadgetsMask.begin(), m_gadgetsMask.end(),
+                                     eDefineSubCamera) == m_gadgetsMask.end();
+    m_subcamSep->setVisible(
+        (hasDefineSubCam && m_customizeMask & eShowDefineSubCamera) ||
+        (hasDefineLoadBox && m_customizeMask & eShowDefineLoadBox) ||
+        (hasUseLoadBox && m_customizeMask & eShowUseLoadBox));
+  }
 
   enableButton(eWhiteBg, m_customizeMask & eShowBg);
   enableButton(eBlackBg, m_customizeMask & eShowBg);
@@ -1013,6 +1044,9 @@ void FlipConsole::applyCustomizeMask() {
   enableButton(eLoop, m_customizeMask & eShowVcr);
   enableButton(eNext, m_customizeMask & eShowVcr);
   enableButton(eLast, m_customizeMask & eShowVcr);
+
+  enableButton(eSound, m_customizeMask & eShowSound);
+  enableButton(eLocator, m_customizeMask & eShowLocator);
 
   if (m_vcrSep) m_vcrSep->setVisible(m_customizeMask & eShowVcr);
 
@@ -1092,8 +1126,6 @@ void FlipConsole::createCustomizeMenu(bool withCustomWidget) {
         hasButton(m_gadgetsMask, eBlackBg) ||
         hasButton(m_gadgetsMask, eCheckBg))
       addMenuItem(eShowBg, tr("Background Colors"), menu);
-    if (hasButton(m_gadgetsMask, eRate))
-      addMenuItem(eShowFramerate, tr("Framerate"), menu);
 
     addMenuItem(eShowVcr, tr("Playback Controls"), menu);
 
@@ -1101,10 +1133,16 @@ void FlipConsole::createCustomizeMenu(bool withCustomWidget) {
         hasButton(m_gadgetsMask, eBlue) || hasButton(m_gadgetsMask, eMatte))
       addMenuItem(eShowcolorFilter, tr("Color Channels"), menu);
 
-    if (withCustomWidget) addMenuItem(eShowCustom, tr("Set Key"), menu);
+    if (hasButton(m_gadgetsMask, eSound))
+      addMenuItem(eShowSound, tr("Sound"), menu);
 
     if (hasButton(m_gadgetsMask, eHisto))
       addMenuItem(eShowHisto, tr("Histogram"), menu);
+
+    if (hasButton(m_gadgetsMask, eLocator))
+      addMenuItem(eShowLocator, tr("Locator"), menu);
+
+    if (withCustomWidget) addMenuItem(eShowCustom, tr("Set Key"), menu);
 
     if (hasButton(m_gadgetsMask, eFilledRaster))
       addMenuItem(eFilledRaster, tr("Display Areas as Filled"), menu);
@@ -1115,6 +1153,9 @@ void FlipConsole::createCustomizeMenu(bool withCustomWidget) {
         hasButton(m_gadgetsMask, eFlipVertical) ||
         hasButton(m_gadgetsMask, eResetView))
       addMenuItem(eShowViewerControls, tr("Viewer Controls"), menu);
+
+    if (hasButton(m_gadgetsMask, eRate))
+      addMenuItem(eShowFramerate, tr("Framerate"), menu);
 
     bool ret = connect(menu, SIGNAL(triggered(QAction *)), this,
                        SLOT(onCustomizeButtonPressed(QAction *)));
@@ -1395,8 +1436,33 @@ void FlipConsole::onButtonPressed(int button) {
   if (m_playbackExecutor.isRunning() &&
       (button == FlipConsole::ePlay || button == FlipConsole::eLoop)) {
     pressButton(ePause);
-  } else
+  } else {
+    // Sync playback state among all viewers & combo viewers.
+    // Note that the property "m_isLinkable" is used for distinguishing the
+    // owner between (viewer / combo viewer) and (flipbook / color model).
+    if (!m_isLinkable &&
+        (button == FlipConsole::ePlay || button == FlipConsole::eLoop)) {
+      bool stoppedOther = false;
+      for (auto playingConsole : m_visibleConsoles) {
+        if (playingConsole == this || playingConsole->isLinkable()) continue;
+        if (playingConsole->m_playbackExecutor.isRunning()) {
+          playingConsole->doButtonPressed(ePause);
+          playingConsole->setChecked(ePlay, false);
+          playingConsole->setChecked(eLoop, false);
+          playingConsole->setChecked(ePause, true);
+          stoppedOther = true;
+        }
+      }
+      if (stoppedOther) {
+        setChecked(ePlay, false);
+        setChecked(eLoop, false);
+        setChecked(ePause, true);
+        return;
+      }
+    }
+
     doButtonPressed(button);
+  }
 
   if (m_areLinked) pressLinkedConsoleButton(button, this);
 }
@@ -1511,7 +1577,7 @@ void FlipConsole::doButtonPressed(UINT button) {
       if (m_currentFrame <= from ||
           m_currentFrame >=
               to)  // the first frame of the playback is drawn right now
-        m_currentFrame               = m_reverse ? to : from;
+        m_currentFrame = m_reverse ? to : from;
       m_settings.m_recomputeIfNeeded = true;
       m_consoleOwner->onDrawFrame(m_currentFrame, m_settings);
     }
@@ -1520,7 +1586,22 @@ void FlipConsole::doButtonPressed(UINT button) {
     return;
 
   case ePause:
-    if (!m_playbackExecutor.isRunning() && !m_isLinkedPlaying) return;
+    if (!m_playbackExecutor.isRunning() && !m_isLinkedPlaying) {
+      // Sync playback state among all viewers & combo viewers.
+      // Note that the property "m_isLinkable" is used for distinguishing the
+      // owner between (viewer / combo viewer) and (flipbook / color model).
+      if (!m_isLinkable) {
+        for (auto playingConsole : m_visibleConsoles) {
+          if (playingConsole->isLinkable()) continue;
+          if (playingConsole->m_playbackExecutor.isRunning())
+            playingConsole->doButtonPressed(button);
+          playingConsole->setChecked(ePlay, false);
+          playingConsole->setChecked(eLoop, false);
+          playingConsole->setChecked(ePause, true);
+        }
+      }
+      return;
+    }
 
     m_isLinkedPlaying = false;
 
@@ -1586,7 +1667,7 @@ void FlipConsole::doButtonPressed(UINT button) {
     if (isChecked(eGreen) || isChecked(eGGreen))
       colorMask = colorMask | TRop::GChan;
     if (isChecked(eBlue) || isChecked(eGBlue))
-      colorMask                      = colorMask | TRop::BChan;
+      colorMask = colorMask | TRop::BChan;
     if (isChecked(eMatte)) colorMask = colorMask | TRop::MChan;
 
     if (colorMask == (TRop::RChan | TRop::GChan | TRop::BChan) ||

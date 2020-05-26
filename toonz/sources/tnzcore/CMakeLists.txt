@@ -34,7 +34,6 @@ set(HEADERS ${MOC_HEADERS}
     ../include/tdebugmessage.h
     ../include/texception.h
     ../include/texpression.h
-    ../include/tidentifiable.h
     ../include/tmathutil.h
     ../include/tnztypes.h
     ../include/tproperty.h
@@ -132,7 +131,6 @@ set(SOURCES
     ../common/tcore/tdebugmessage.cpp
     ../common/tcore/texception.cpp
     ../common/tcore/threadmessage.cpp
-    ../common/tcore/tidentifiable.cpp
     ../common/tcore/tmathutil.cpp
     ../common/tproperty.cpp
     ../common/tcore/trandom.cpp

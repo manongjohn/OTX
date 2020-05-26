@@ -114,7 +114,7 @@ ToolOptionsBox::ToolOptionsBox(QWidget *parent, bool isScrollable)
     toolContainer->setSizePolicy(QSizePolicy::MinimumExpanding,
                                  QSizePolicy::Fixed);
     toolContainer->setFixedHeight(24);
-
+    toolContainer->setObjectName("toolOptionsPanel");
     toolContainer->setLayout(m_layout);
   } else
     setLayout(m_layout);
@@ -458,8 +458,9 @@ void ToolOptionControlBuilder::visit(TPointerProperty *p) {
 GenericToolOptionsBox::GenericToolOptionsBox(QWidget *parent, TTool *tool,
                                              TPaletteHandle *pltHandle,
                                              int propertyGroupIdx,
-                                             ToolHandle *toolHandle)
-    : ToolOptionsBox(parent) {
+                                             ToolHandle *toolHandle,
+                                             bool scrollable)
+    : ToolOptionsBox(parent, scrollable) {
   setObjectName("toolOptionsPanel");
 
   ToolOptionControlBuilder builder(this, tool, pltHandle, toolHandle);
@@ -2385,6 +2386,8 @@ RGBPickerToolOptionsBox::RGBPickerToolOptionsBox(
       CommandManager::instance()->getAction("A_ToolOption_PickScreen");
 
   QPushButton *button = new QPushButton(tr("Pick Screen"));
+  int buttonWidth     = fontMetrics().width(button->text()) + 10;
+  button->setFixedWidth(buttonWidth);
   button->setFixedHeight(20);
   button->addAction(pickScreenAction);
   connect(button, SIGNAL(clicked()), pickScreenAction, SLOT(trigger()));
@@ -2400,7 +2403,8 @@ RGBPickerToolOptionsBox::RGBPickerToolOptionsBox(
 
   m_layout->addWidget(m_currentRGBLabel, 0);
   m_layout->addStretch(1);
-  m_layout->addWidget(button, 0);  // new in 6.4
+  m_layout->addWidget(button, 0);
+  m_layout->addSpacing(5);
 
   if (m_realTimePickMode) {
     connect(m_realTimePickMode, SIGNAL(toggled(bool)), m_currentRGBLabel,
@@ -2463,8 +2467,9 @@ StylePickerToolOptionsBox::StylePickerToolOptionsBox(
   ToolOptionCheckbox *organizePaletteCB =
       dynamic_cast<ToolOptionCheckbox *>(m_controls.value("Organize Palette"));
   m_layout->removeWidget(organizePaletteCB);
-  m_layout->addWidget(new ToolOptionsBarSeparator(this), 0);
+  // m_layout->addWidget(new ToolOptionsBarSeparator(this), 0);
   m_layout->addWidget(organizePaletteCB);
+  m_layout->addSpacing(5);
   organizePaletteCB->setToolTip(
       tr("With this option being activated, the picked style will be\nmoved to "
          "the end of the first page of the palette."));
@@ -2645,15 +2650,20 @@ ZoomToolOptionsBox::ZoomToolOptionsBox(QWidget *parent, TTool *tool,
   setFrameStyle(QFrame::StyledPanel);
   setFixedHeight(26);
 
-  QAction *resetZoomAction = CommandManager::instance()->getAction(VB_ZoomReset);
+  QAction *resetZoomAction =
+      CommandManager::instance()->getAction(VB_ZoomReset);
 
   QPushButton *button = new QPushButton(tr("Reset Zoom"));
+  int buttonWidth     = fontMetrics().width(button->text()) + 10;
+  button->setFixedWidth(buttonWidth);
   button->setFixedHeight(20);
   button->addAction(resetZoomAction);
+
   connect(button, SIGNAL(clicked()), resetZoomAction, SLOT(trigger()));
 
   m_layout->addStretch(1);
   m_layout->addWidget(button, 0);
+  m_layout->addSpacing(5);
 }
 
 //=============================================================================
@@ -2671,12 +2681,16 @@ RotateToolOptionsBox::RotateToolOptionsBox(QWidget *parent, TTool *tool,
       CommandManager::instance()->getAction(VB_RotateReset);
 
   QPushButton *button = new QPushButton(tr("Reset Rotation"));
+  int buttonWidth     = fontMetrics().width(button->text()) + 10;
+  button->setFixedWidth(buttonWidth);
   button->setFixedHeight(20);
   button->addAction(resetRotationAction);
+
   connect(button, SIGNAL(clicked()), resetRotationAction, SLOT(trigger()));
 
   m_layout->addStretch(1);
   m_layout->addWidget(button, 0);
+  m_layout->addSpacing(5);
 }
 
 //=============================================================================
@@ -2694,12 +2708,16 @@ HandToolOptionsBox::HandToolOptionsBox(QWidget *parent, TTool *tool,
       CommandManager::instance()->getAction(VB_PositionReset);
 
   QPushButton *button = new QPushButton(tr("Reset Position"));
+  int buttonWidth     = fontMetrics().width(button->text()) + 10;
+  button->setFixedWidth(buttonWidth);
   button->setFixedHeight(20);
   button->addAction(resetPositionAction);
+
   connect(button, SIGNAL(clicked()), resetPositionAction, SLOT(trigger()));
 
   m_layout->addStretch(1);
   m_layout->addWidget(button, 0);
+  m_layout->addSpacing(5);
 }
 
 //=============================================================================

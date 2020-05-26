@@ -604,6 +604,13 @@ bool LevelCreatePopup::apply() {
 void LevelCreatePopup::update() {
   updatePath();
   Preferences *pref = Preferences::instance();
+  if (pref->getUnits() == "pixel") {
+    m_widthFld->setMeasure("camera.lx");
+    m_heightFld->setMeasure("camera.ly");
+  } else {
+    m_widthFld->setMeasure("level.lx");
+    m_heightFld->setMeasure("level.ly");
+  }
   if (pref->isNewLevelSizeToCameraSizeEnabled()) {
     TCamera *currCamera =
         TApp::instance()->getCurrentScene()->getScene()->getCurrentCamera();

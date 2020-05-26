@@ -452,6 +452,13 @@ void tglDraw(const TVectorRenderData &rd, const TStroke *s, bool pushAttribs) {
       redColor->addRef();
       redColor->setMainColor(TPixel::Red);
       style = redColor;
+    } else if (rd.m_ink1CheckEnabled && s->getStyle() == 1) {
+      // Ink #1 Check.
+      // Could possibly merge with above.
+      static TSolidColorStyle *redColor = new TSolidColorStyle();
+      redColor->addRef();
+      redColor->setMainColor(TPixel::Red);
+      style = redColor;
     } else if (rd.m_tcheckEnabled) {
       static TSolidColorStyle *color = new TSolidColorStyle();
       color->addRef();
@@ -648,7 +655,7 @@ rdRegions.m_alphaChannel = rdRegions.m_antiAliasing = false;*/
     int currStrokeIndex = strokeIndex;
     if (!rd.m_isIcon && vim->isInsideGroup() > 0 &&
         ((drawEnteredGroup && !vim->isEnteredGroupStroke(strokeIndex)) ||
-         !drawEnteredGroup && vim->isEnteredGroupStroke(strokeIndex))) {
+         (!drawEnteredGroup && vim->isEnteredGroupStroke(strokeIndex)))) {
       while (strokeIndex < vim->getStrokeCount() &&
              vim->sameGroup(strokeIndex, currStrokeIndex))
         strokeIndex++;

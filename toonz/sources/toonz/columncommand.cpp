@@ -467,7 +467,7 @@ void cloneSubXsheets(TXsheet *xsh) {
 //  PasteColumnsUndo
 //-----------------------------------------------------------------------------
 
-class PasteColumnsUndo final : public TUndo {
+class PasteColumnsUndo : public TUndo {
   std::set<int> m_indices;
   StageObjectsData *m_data;
   QMap<TFxPort *, TFx *> m_columnLinks;
@@ -1260,9 +1260,9 @@ public:
        * -*/
       if (m_target == TARGET_UPPER && i < cc) continue;
 
-      bool negate = m_target == TARGET_CURRENT && cc != i ||
-                    m_target == TARGET_OTHER && cc == i ||
-                    m_target == TARGET_UPPER && cc == i;
+      bool negate = ((m_target == TARGET_CURRENT && cc != i) ||
+                     (m_target == TARGET_OTHER && cc == i) ||
+                     (m_target == TARGET_UPPER && cc == i));
 
       int cmd = m_cmd;
 
@@ -1349,3 +1349,23 @@ ColumnsStatusCommand
     c16(MI_LockSelectedColumns, CMD_LOCK, TARGET_SELECTED),
     c17(MI_UnlockSelectedColumns, CMD_UNLOCK, TARGET_SELECTED);
 }  // namespace
+
+//=============================================================================
+// ConvertToVectorUndo
+//-----------------------------------------------------------------------------
+
+// Same in functionality to PasteColumnsUndo; think of it perhaps like
+// pasting the newly created vector column.
+class ConvertToVectorUndo final : public PasteColumnsUndo {
+public:
+  ConvertToVectorUndo(std::set<int> indices) : PasteColumnsUndo(indices) {};
+
+  QString getHistoryString() override {
+    return QObject::tr("Convert to Vectors");
+  }
+};
+
+void ColumnCmd::addConvertToVectorUndo(std::set<int> &newColumnIndices)
+{
+    TUndoManager::manager()->add(new ConvertToVectorUndo(newColumnIndices));
+}

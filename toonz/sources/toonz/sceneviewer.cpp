@@ -302,6 +302,16 @@ void invalidateIcons() {
   s.m_paintIndex = mask & ToonzCheck::ePaint ? tc->getColorIndex() : -1;
   IconGenerator::instance()->setSettings(s);
 
+  // Force icons to refresh
+  TXshLevel *sl = TApp::instance()->getCurrentLevel()->getLevel();
+  if (sl) {
+    std::vector<TFrameId> fids;
+    sl->getFids(fids);
+
+    for (int i = 0; i < (int)fids.size(); i++)
+      IconGenerator::instance()->invalidate(sl, fids[i]);
+  }
+
   // Do not remove icons here as they will be re-used for updating icons in the
   // level strip
 
@@ -1139,7 +1149,7 @@ void SceneViewer::hideEvent(QHideEvent *) {
 
   disconnect(app, SIGNAL(tabletLeft()), this, SLOT(resetTabletStatus()));
 
-  if (!m_stopMotion == NULL) {
+  if (m_stopMotion) {
     disconnect(m_stopMotion, SIGNAL(newImageReady()), this,
                SLOT(onNewStopMotionImageReady()));
     disconnect(m_stopMotion, SIGNAL(liveViewStopped()), this,
@@ -1543,7 +1553,7 @@ void SceneViewer::drawPreview() {
   }
 
   if (!previewer->isFrameReady(row) ||
-      app->getCurrentFrame()->isPlaying() && previewer->isBusy()) {
+      (app->getCurrentFrame()->isPlaying() && previewer->isBusy())) {
     glColor3d(1, 0, 0);
 
     tglDrawRect(frameRect);
@@ -1577,8 +1587,8 @@ void SceneViewer::drawOverlay() {
   if (!m_drawCameraTest) {
     // draw grid & guides
     if (viewGuideToggle.getStatus() &&
-        (m_vRuler && m_vRuler->getGuideCount() ||
-         m_hRuler && m_hRuler->getGuideCount())) {
+        ((m_vRuler && m_vRuler->getGuideCount()) ||
+         (m_hRuler && m_hRuler->getGuideCount()))) {
       glPushMatrix();
       tglMultMatrix(getViewMatrix());
       ViewerDraw::drawGridAndGuides(
@@ -2320,17 +2330,27 @@ double SceneViewer::getDpiFactor() {
   // If the option "ActualPixelViewOnSceneEditingMode" is ON,
   // use  current level's DPI set in the level settings.
   else if (Preferences::instance()
-               ->isActualPixelViewOnSceneEditingModeEnabled() &&
-           !CleanupPreviewCheck::instance()->isEnabled() &&
-           !CameraTestCheck::instance()->isEnabled()) {
-    TXshSimpleLevel *sl;
-    sl = TApp::instance()->getCurrentLevel()->getSimpleLevel();
-    if (!sl) return Stage::inch / cameraDpi;
-    if (sl->getType() == PLI_XSHLEVEL) return Stage::inch / cameraDpi;
-    if (sl->getDpi() == TPointD()) return Stage::inch / cameraDpi;
-    // use default value for the argument of getDpi() (=TFrameId::NO_FRAME）
-    // so that the dpi of the first frame in the level will be returned.
-    return Stage::inch / sl->getDpi().x;
+               ->isActualPixelViewOnSceneEditingModeEnabled()) {
+    if (CleanupPreviewCheck::instance()->isEnabled() ||
+        CameraTestCheck::instance()->isEnabled()) {
+      double cleanupCameraDpi = TApp::instance()
+                                    ->getCurrentScene()
+                                    ->getScene()
+                                    ->getProperties()
+                                    ->getCleanupParameters()
+                                    ->m_camera.getDpi()
+                                    .x;
+      return Stage::inch / cleanupCameraDpi;
+    } else {
+      TXshSimpleLevel *sl;
+      sl = TApp::instance()->getCurrentLevel()->getSimpleLevel();
+      if (!sl) return Stage::inch / cameraDpi;
+      if (sl->getType() == PLI_XSHLEVEL) return Stage::inch / cameraDpi;
+      if (sl->getDpi() == TPointD()) return Stage::inch / cameraDpi;
+      // use default value for the argument of getDpi() (=TFrameId::NO_FRAME）
+      // so that the dpi of the first frame in the level will be returned.
+      return Stage::inch / sl->getDpi().x;
+    }
   }
   // When the scene editing mode without any option, use the camera dpi
   else {
@@ -2404,16 +2424,18 @@ void SceneViewer::zoomQt(const QPoint &center, double factor) {
       TAffine &viewAff = m_viewAff[i];
       double scale2    = fabs(viewAff.det());
       if ((scale2 < 100000 || factor < 1) &&
-          (scale2 > 0.001 * 0.05 || factor > 1))
-        if (i == m_viewMode)
+          (scale2 > 0.001 * 0.05 || factor > 1)) {
+        if (i == m_viewMode) {
           // viewAff = TTranslation(delta) * TScale(factor) *
           // TTranslation(-delta) * viewAff;
           setViewMatrix(TTranslation(delta) * TScale(factor) *
                             TTranslation(-delta) * viewAff,
                         i);
-        else
+        } else {
           // viewAff = TScale(factor) * viewAff;
           setViewMatrix(TScale(factor) * viewAff, i);
+        }
+      }
     }
   }
 
@@ -2580,6 +2602,47 @@ void SceneViewer::fitToCamera() {
 
 //-----------------------------------------------------------------------------
 
+void SceneViewer::fitToCameraOutline() {
+  TXsheet *xsh            = TApp::instance()->getCurrentXsheet()->getXsheet();
+  int frame               = TApp::instance()->getCurrentFrame()->getFrame();
+  TStageObjectId cameraId = xsh->getStageObjectTree()->getCurrentCameraId();
+  TStageObject *camera    = xsh->getStageObject(cameraId);
+  TAffine cameraPlacement = camera->getPlacement(frame);
+  double cameraZ          = camera->getZ(frame);
+  TAffine cameraAff =
+      getViewMatrix() * cameraPlacement * TScale((1000 + cameraZ) / 1000);
+
+  QRect viewRect    = rect();
+  TRectD cameraRect = ViewerDraw::getCameraRect();
+  TPointD P00       = cameraAff * cameraRect.getP00();
+  TPointD P10       = cameraAff * cameraRect.getP10();
+  TPointD P01       = cameraAff * cameraRect.getP01();
+  TPointD P11       = cameraAff * cameraRect.getP11();
+  TPointD p0        = TPointD(std::min({P00.x, P01.x, P10.x, P11.x}),
+                       std::min({P00.y, P01.y, P10.y, P11.y}));
+  TPointD p1 = TPointD(std::max({P00.x, P01.x, P10.x, P11.x}),
+                       std::max({P00.y, P01.y, P10.y, P11.y}));
+  cameraRect = TRectD(p0.x, p0.y, p1.x, p1.y);
+
+  // Pan
+  if (!is3DView()) {
+    TPointD cameraCenter = (cameraRect.getP00() + cameraRect.getP11()) * 0.5;
+    panQt(QPoint(-cameraCenter.x, cameraCenter.y));
+  }
+
+  double xratio = (double)viewRect.width() / cameraRect.getLx();
+  double yratio = (double)viewRect.height() / cameraRect.getLy();
+  double ratio  = std::min(xratio, yratio);
+  if (ratio == 0.0) return;
+
+  // Scale and center on the center of \a rect.
+  QPoint c = viewRect.center();
+  zoom(TPointD(c.x(), c.y()), ratio);
+  zoom(TPointD(c.x(), c.y()), 0.95);
+}
+
+//-----------------------------------------------------------------------------
+
 void SceneViewer::resetSceneViewer() {
   m_visualSettings.m_sceneProperties =
       TApp::instance()->getCurrentScene()->getScene()->getProperties();
@@ -2596,6 +2659,7 @@ void SceneViewer::resetSceneViewer() {
   m_phi3D       = 30;
   m_isFlippedX  = false;
   m_isFlippedY  = false;
+  fitToCameraOutline();
   emit onZoomChanged();
   emit onFlipHChanged(m_isFlippedX);
   emit onFlipVChanged(m_isFlippedY);
