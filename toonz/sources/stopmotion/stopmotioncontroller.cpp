@@ -183,7 +183,6 @@ StopMotionController::StopMotionController(QWidget *parent) : QWidget(parent) {
   m_tabBar->addSimpleTab(tr("Settings"));
   m_tabBar->addSimpleTab(tr("Options"));
   m_tabBar->addSimpleTab(tr("Light"));
-  m_tabBar->addSimpleTab(tr("Motion"));
   m_tabBarContainer    = new TabBarContainter(this);
   m_mainControlsPage   = new QFrame(this);
   m_cameraSettingsPage = new QFrame(this);
