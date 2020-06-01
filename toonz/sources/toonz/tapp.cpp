@@ -285,11 +285,7 @@ int TApp::getCurrentImageType() {
   if (getCurrentFrame()->isEditingScene()) {
     int row = getCurrentFrame()->getFrame();
     int col = getCurrentColumn()->getColumnIndex();
-    if (col < 0)
-#ifdef LINETEST
-      return TImage::RASTER;
-#else
-    {
+    if (col < 0) {
       int levelType = Preferences::instance()->getDefLevelType();
       return (levelType == PLI_XSHLEVEL)
                  ? TImage::VECTOR
@@ -298,7 +294,6 @@ int TApp::getCurrentImageType() {
                      ? TImage::TOONZ_RASTER
                      : TImage::RASTER;  // and OVL_XSHLEVEL level types
     }
-#endif
 
     TXsheet *xsh  = getCurrentXsheet()->getXsheet();
     TXshCell cell = xsh->getCell(row, col);
@@ -311,15 +306,6 @@ int TApp::getCurrentImageType() {
       } else /*-- Columnが空の場合 --*/
       {
         return TImage::NONE;
-#ifdef LINETEST
-        return TImage::RASTER;
-#else
-        int levelType = Preferences::instance()->getDefLevelType();
-        return (levelType == PLI_XSHLEVEL)
-                   ? TImage::VECTOR
-                   : (levelType == TZP_XSHLEVEL) ? TImage::TOONZ_RASTER
-                                                 : TImage::RASTER;
-#endif
       }
     }
 
