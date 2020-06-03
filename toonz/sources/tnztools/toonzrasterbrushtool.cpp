@@ -1135,7 +1135,7 @@ void ToonzRasterBrushTool::leftButtonDown(const TPointD &pos,
       m_tileSaver->save(m_rasterTrack->getLastRect());
       m_rasterTrack->generateLastPieceOfStroke(m_pencil.getValue());
 
-      m_smoothStroke.beginStroke(4*m_smooth.getValue());
+      m_smoothStroke.beginStroke(m_smooth.getValue());
       m_smoothStroke.points().clear();
       m_smoothStroke.addPoint(thickPoint);
     } else {
@@ -1155,7 +1155,7 @@ void ToonzRasterBrushTool::leftButtonDown(const TPointD &pos,
                                    m_styleId, drawOrder);
       m_lastRect = m_strokeRect;
 
-      m_smoothStroke.beginStroke(4*m_smooth.getValue());
+      m_smoothStroke.beginStroke(m_smooth.getValue());
       m_smoothStroke.points().clear();
       m_smoothStroke.addPoint(point);
     }

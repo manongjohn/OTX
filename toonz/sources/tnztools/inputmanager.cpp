@@ -757,7 +757,7 @@ void TInputManager::draw() {
   TToolViewer *viewer = getViewer();
 
   // paint not sent sub-tracks
-  if (debugInputManagerTracks || m_savePointsSent < (int)m_savePoints.size()) {
+  if (debugInputManagerTracks /* || m_savePointsSent < (int)m_savePoints.size() */) {
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     tglEnableBlending();
     tglEnableLineSmooth(true, 0.5);

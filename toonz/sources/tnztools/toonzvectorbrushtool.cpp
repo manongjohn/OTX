@@ -728,7 +728,7 @@ void ToonzVectorBrushTool::leftButtonDown(const TPointD &pos,
   if (m_pressure.getValue() && e.m_pressure == 1.0)
     thickness = m_thickness.getValue().first * 0.5;
   m_currThickness = thickness;
-  m_smoothStroke.beginStroke(4*m_smooth.getValue());
+  m_smoothStroke.beginStroke(m_smooth.getValue());
 
   if (m_foundFirstSnap) {
     addTrackPoint(TThickPoint(m_firstSnapPoint, thickness),

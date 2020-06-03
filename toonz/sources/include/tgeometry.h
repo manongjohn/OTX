@@ -634,14 +634,14 @@ TRectI  is empty if x0>x1 || y0>y1 */
   TPointT<T> getP11() const { return TPointT<T>(x1, y1); };
 
   //! Returns the union of two source rectangles.
-  //!The union is the smallest rectangle that contains both source rectangles.
+  //! The union is the smallest rectangle that contains both source rectangles.
   TRectT<T> operator+(const TRectT<T> &rect) const {  // unione
     if (isEmpty())
       return rect;
     else if (rect.isEmpty())
       return *this;
     else
-      return TRectT<T>(std::min((T)x0, (T)rect.x0), 
+      return TRectT<T>(std::min((T)x0, (T)rect.x0),
                        std::min((T)y0, (T)rect.y0),
                        std::max((T)x1, (T)rect.x1),
                        std::max((T)y1, (T)rect.y1));
@@ -653,8 +653,8 @@ TRectI  is empty if x0>x1 || y0>y1 */
     return *this = *this * rect;
   };
 
-  //!Returns the intersection of two existing rectangles.
-  //The intersection is the largest rectangle contained in both existing rectangles.
+  //! Returns the intersection of two existing rectangles.
+  //! The intersection is the largest rectangle contained in both existing rectangles.
   TRectT<T> operator*(const TRectT<T> &rect) const {  // intersezione
     if (isEmpty() || rect.isEmpty())
       return TRectT<T>();
@@ -735,7 +735,6 @@ template class DVAPI TRectT<double>;
 \relates TRectT
 Convert a TRectD into a TRect
 */
-
 inline TRect convert(const TRectD &r) {
   return TRect((int)(r.x0 + 0.5), (int)(r.y0 + 0.5), (int)(r.x1 + 0.5),
                (int)(r.y1 + 0.5));
@@ -752,8 +751,8 @@ inline TRectD convert(const TRect &r) { return TRectD(r.x0, r.y0, r.x1, r.y1); }
 \relates TPointT
 */
 inline TRectD boundingBox(const TPointD &p0, const TPointD &p1) {
-  return TRectD(std::min(p0.x, p1.x), std::min(p0.y, p1.y),  // bottom left
-                std::max(p0.x, p1.x), std::max(p0.y, p1.y));  // top right
+  return TRectD(std::min(p0.x, p1.x), std::min(p0.y, p1.y), // bottom left
+                std::max(p0.x, p1.x), std::max(p0.y, p1.y)); // top right
 }
 /*!
 \relates TRectT
@@ -800,8 +799,6 @@ inline void TRectT<int>::empty() {
   x0 = y0 = 0;
   x1 = y1 = -1;
 }
-
-// Is the adding of one here to account for the thickness?
 template <>
 inline int TRectT<int>::getLx() const {
   return x1 >= x0 ? x1 - x0 + 1 : 0;
@@ -894,9 +891,9 @@ extern DVVAR const TRectI infiniteRectI;
 //=============================================================================
 //! This is the base class for the affine transformations.
 /*!
- This class performs basic manipulations of affine transformations.
- An affine transformation is a linear transformation followed by a translation.
- 
+  This class performs basic manipulations of affine transformations.
+  An affine transformation is a linear transformation followed by a translation.
+
   [a11, a12, a13]
   [a21, a22, a23]
 
