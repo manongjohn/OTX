@@ -8,6 +8,8 @@
 
 // TnzBase includes
 #include "tbasefx.h"
+#include "tparamcontainer.h"
+#include "tparamset.h"
 
 // TnzLib includes
 #include "toonz/tstageobject.h"
@@ -116,6 +118,20 @@ bool isColumnSelectionTerminalFx(TFx *fx, TFxSet *terminalFxs,
   return false;
 }
 
+//------------------------------------------------------
+
+template <typename ParamCont>
+void setGrammerToParams(const ParamCont *cont,
+                        const TSyntax::Grammar *grammer) {
+  for (int p = 0; p != cont->getParamCount(); ++p) {
+    TParam &param = *cont->getParam(p);
+    if (TDoubleParam *dp = dynamic_cast<TDoubleParam *>(&param))
+      dp->setGrammar(grammer);
+    else if (TParamSet *paramSet = dynamic_cast<TParamSet *>(&param))
+      setGrammerToParams(paramSet, grammer);
+  }
+}
+
 }  // namespace
 
 //********************************************************************************
@@ -183,16 +199,27 @@ void TStageObjectDataElement::storeObject(const TStageObjectId &objId,
 
 TStageObjectId TStageObjectDataElement::restoreObject(TXsheet *xsh,
                                                       bool copyPosition) const {
-  int index = 2;  // Skip the table and camera 1 (I guess)
-
-  // Search the first unused common (pegbar) id
-  TStageObjectTree *tree = xsh->getStageObjectTree();
-  while (tree->getStageObject(TStageObjectId::PegbarId(index), false)) ++index;
-
   // Create the new object to be inserted
+  TStageObjectTree *tree = xsh->getStageObjectTree();
+  // first, try to maintain object id if it is available
+  int index = m_params->m_id.getIndex();
   TStageObject *newObj =
-      tree->getStageObject(TStageObjectId::PegbarId(index), true);
-  newObj->setParent(m_params->m_parentId);
+      tree->getStageObject(TStageObjectId::PegbarId(index), false);
+  if (!newObj)
+    newObj = tree->getStageObject(TStageObjectId::PegbarId(index), true);
+  // if the original id is occupied, then use the first unused id
+  else {
+    index = 0;
+    // Search the first unused common (pegbar) id
+    while (tree->getStageObject(TStageObjectId::PegbarId(index), false))
+      ++index;
+
+    newObj = tree->getStageObject(TStageObjectId::PegbarId(index), true);
+  }
+  // object-parental relationships will be restored in the function
+  // restoreObjects() so we do not set the parent here.
+  // newObj->setParent(m_params->m_parentId);
+
   newObj->assignParams(m_params);
 
   // If specified, copy the stored position in the viewer
@@ -315,7 +342,7 @@ TStageObjectId TColumnDataElement::restoreColumn(TXsheet *xsh, int index,
   TPointD dagPos = TConst::nowhere;
   if (column) {
     if (column->getFx())
-      dagPos            = column->getFx()->getAttributes()->getDagNodePos();
+      dagPos = column->getFx()->getAttributes()->getDagNodePos();
     if (doClone) column = column->clone();
     xsh->insertColumn(index, column);
   } else
@@ -412,15 +439,24 @@ void TCameraDataElement::storeCamera(const TStageObjectId &selectedObj,
 
 TStageObjectId TCameraDataElement::restoreCamera(TXsheet *xsh,
                                                  bool copyPosition) const {
+  // Create the new camera object
   TStageObjectTree *tree = xsh->getStageObjectTree();
-
-  // Search the first unused camera id in the xsheet
-  int index = 0;
-  while (tree->getStageObject(TStageObjectId::CameraId(index), false)) ++index;
-
-  // Create the new camera object and assign stored data
+  // first, try to maintain object id if it is available
+  int index = m_params->m_id.getIndex();
   TStageObject *newCamera =
-      tree->getStageObject(TStageObjectId::CameraId(index), true);
+      tree->getStageObject(TStageObjectId::CameraId(index), false);
+  if (!newCamera)
+    newCamera = tree->getStageObject(TStageObjectId::CameraId(index), true);
+  // if the original id is occupied, then use the first unused id
+  else {
+    // Search the first unused camera id in the xsheet
+    index = 0;
+    while (tree->getStageObject(TStageObjectId::CameraId(index), false))
+      ++index;
+
+    newCamera = tree->getStageObject(TStageObjectId::CameraId(index), true);
+  }
+  // assign stored data
   newCamera->assignParams(m_params);
   *(newCamera->getCamera()) = m_camera;
 
@@ -585,9 +621,8 @@ StageObjectsData *StageObjectsData::clone() const {
   }
 
   if (!fxTable.empty())
-    updateFxLinks(
-        fxTable);  // Applies the traced map pairings to every fx descendant
-                   // of each fx stored in the map.
+    updateFxLinks(fxTable);  // Applies the traced map pairings to every fx
+                             // descendant of each fx stored in the map.
 
   // WARNING: m_fxsTable is NOT COPIED / CLONED !!
 
@@ -966,25 +1001,17 @@ std::vector<TStageObjectId> StageObjectsData::restoreObjects(
     TStageObjectId pastedId       = idTable[id];
     TStageObjectId pastedParentId = parentId;
 
-    if (parentId.isColumn())  // Why discriminating for columns only ?
-    {
-      // Columns are redirected to table ids. If no redirected parent exists,
-      // store
-      // a void value that will be avoided later
-      QMap<TStageObjectId, TStageObjectId>::iterator it =
-          idTable.find(parentId);
-      pastedParentId =
-          (it == idTable.end()) ? TStageObjectId::NoneId : it.value();
-    }
+    // if the parent object is not restored, redirect to the table
+    QMap<TStageObjectId, TStageObjectId>::iterator it = idTable.find(parentId);
+    pastedParentId =
+        (it == idTable.end()) ? TStageObjectId::TableId : it.value();
 
-    if (pastedParentId != TStageObjectId::NoneId) {
-      xsh->setStageObjectParent(pastedId, pastedParentId);
-      TStageObject *pastedObj = xsh->getStageObject(pastedId);
+    xsh->setStageObjectParent(pastedId, pastedParentId);
+    TStageObject *pastedObj = xsh->getStageObject(pastedId);
 
-      // Shouldn't these be done outside ?
-      pastedObj->setHandle(element->m_params->m_handle);
-      pastedObj->setParentHandle(element->m_params->m_parentHandle);
-    }
+    // Shouldn't these be done outside ?
+    pastedObj->setHandle(element->m_params->m_handle);
+    pastedObj->setParentHandle(element->m_params->m_parentHandle);
   }
 
   // Iterate stored fxs
@@ -1154,6 +1181,23 @@ std::vector<TStageObjectId> StageObjectsData::restoreObjects(
 
       obj->setDagNodePos(oldPos + offset);
     }
+  }
+
+  // reset grammers for all parameters of pasted stage objects and fxs
+  // or they fails to refer to other parameters via expression
+  // if they are pasted in different xsheet
+  TSyntax::Grammar *grammer = xsh->getStageObjectTree()->getGrammar();
+  for (auto id : restoredIds) {
+    TStageObject *obj = xsh->getStageObject(id);
+    for (int c = 0; c != TStageObject::T_ChannelCount; ++c)
+      obj->getParam((TStageObject::Channel)c)->setGrammar(grammer);
+    if (const PlasticSkeletonDeformationP &sd =
+            obj->getPlasticSkeletonDeformation())
+      sd->setGrammar(grammer);
+  }
+  std::map<TFx *, TFx *>::const_iterator it;
+  for (it = fxTable.begin(); it != fxTable.end(); ++it) {
+    setGrammerToParams(it->second->getParams(), grammer);
   }
 
   return restoredIds;

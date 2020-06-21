@@ -2669,6 +2669,47 @@ void SceneViewer::fitToCamera() {
 
 //-----------------------------------------------------------------------------
 
+void SceneViewer::fitToCameraOutline() {
+  TXsheet *xsh            = TApp::instance()->getCurrentXsheet()->getXsheet();
+  int frame               = TApp::instance()->getCurrentFrame()->getFrame();
+  TStageObjectId cameraId = xsh->getStageObjectTree()->getCurrentCameraId();
+  TStageObject *camera    = xsh->getStageObject(cameraId);
+  TAffine cameraPlacement = camera->getPlacement(frame);
+  double cameraZ          = camera->getZ(frame);
+  TAffine cameraAff =
+      getViewMatrix() * cameraPlacement * TScale((1000 + cameraZ) / 1000);
+
+  QRect viewRect    = rect();
+  TRectD cameraRect = ViewerDraw::getCameraRect();
+  TPointD P00       = cameraAff * cameraRect.getP00();
+  TPointD P10       = cameraAff * cameraRect.getP10();
+  TPointD P01       = cameraAff * cameraRect.getP01();
+  TPointD P11       = cameraAff * cameraRect.getP11();
+  TPointD p0        = TPointD(std::min({P00.x, P01.x, P10.x, P11.x}),
+                       std::min({P00.y, P01.y, P10.y, P11.y}));
+  TPointD p1 = TPointD(std::max({P00.x, P01.x, P10.x, P11.x}),
+                       std::max({P00.y, P01.y, P10.y, P11.y}));
+  cameraRect = TRectD(p0.x, p0.y, p1.x, p1.y);
+
+  // Pan
+  if (!is3DView()) {
+    TPointD cameraCenter = (cameraRect.getP00() + cameraRect.getP11()) * 0.5;
+    panQt(QPoint(-cameraCenter.x, cameraCenter.y));
+  }
+
+  double xratio = (double)viewRect.width() / cameraRect.getLx();
+  double yratio = (double)viewRect.height() / cameraRect.getLy();
+  double ratio  = std::min(xratio, yratio);
+  if (ratio == 0.0) return;
+
+  // Scale and center on the center of \a rect.
+  QPoint c = viewRect.center();
+  zoom(TPointD(c.x(), c.y()), ratio);
+  zoom(TPointD(c.x(), c.y()), 0.95);
+}
+
+//-----------------------------------------------------------------------------
+
 void SceneViewer::resetSceneViewer() {
   m_visualSettings.m_sceneProperties =
       TApp::instance()->getCurrentScene()->getScene()->getProperties();
@@ -2685,6 +2726,7 @@ void SceneViewer::resetSceneViewer() {
   m_phi3D       = 30;
   m_isFlippedX  = false;
   m_isFlippedY  = false;
+  fitToCameraOutline();
   emit onZoomChanged();
   emit onFlipHChanged(m_isFlippedX);
   emit onFlipVChanged(m_isFlippedY);
