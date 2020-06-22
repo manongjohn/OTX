@@ -800,8 +800,7 @@ void TXshSimpleLevel::setFrame(const TFrameId &fid, const TImageP &img) {
 
   if (frameStatus == Normal) {
     // Only a normal frame can have these. Justified since:
-    //  a) PLIs have nothing to share with cleanup stuff
-    //  b) The latter is used only in LineTest - which does not have Cleanup
+    //  PLIs have nothing to share with cleanup stuff
 
     if (m_type == PLI_XSHLEVEL) {
       const std::string &imageId2 = rasterized(imageId);
@@ -920,7 +919,6 @@ void TXshSimpleLevel::loadData(TIStream &is) {
         if (is.getTagParam("isStopMotionLevel", v))
           isStopMotionLevel = std::stoi(v);
 
-
         m_properties->setDpiPolicy(dpiPolicy);
         m_properties->setDpi(TPointD(xdpi, ydpi));
         m_properties->setSubsampling(subsampling);
@@ -996,7 +994,7 @@ public:
 
   bool match(const TFrameId &fid) const {
     /*-- ↓SubSequent範囲内にある条件		↓全部ロードする場合 --*/
-    return m_fromFid <= fid && fid <= m_toFid || m_fromFid > m_toFid;
+    return ((m_fromFid <= fid && fid <= m_toFid) || m_fromFid > m_toFid);
   }
   bool isEnabled() const { return m_fromFid <= m_toFid; }
   void reset() {

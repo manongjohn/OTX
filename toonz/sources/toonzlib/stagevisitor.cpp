@@ -250,9 +250,25 @@ void Picker::onImage(const Stage::Player &player) {
     if (r) styleId   = r->getStyle();
     if (styleId != 0)
       picked = true;
-    else if (vi->getNearestStroke(point, w, strokeIndex, dist2) &&
-             dist2 < m_minDist2)
-      picked = true;
+    else if (vi->getNearestStroke(point, w, strokeIndex, dist2)) {
+      // based on TTool::Viewer::doPickGuideStroke
+
+      // m_minDist2 seems to be the pixel size to the power 4, so take the
+      // square root of the square root.
+      // Use abs() just in case m_minDist2 is negative, to avoid math errors.
+      double pixelSize = sqrt(sqrt(abs(m_minDist2)));
+      double maxDist   = 5 * pixelSize;
+      double maxDist2  = maxDist * maxDist;
+      double checkDist = maxDist2 * 4;
+
+      TStroke *stroke = vi->getStroke(strokeIndex);
+      TThickPoint thickPoint = stroke->getThickPoint(w);
+      double thickness = thickPoint.thick;
+      double len = thickness * pixelSize * sqrt(m_viewAff.det());
+      checkDist = std::max(checkDist, (len * len));
+      if (dist2 < checkDist)
+        picked = true;
+    }
   } else if (TRasterImageP ri = img) {
     TRaster32P ras = ri->getRaster();
     if (!ras) return;
@@ -701,7 +717,7 @@ void RasterPainter::drawRasterImages(QPainter &p, QPolygon cameraPol) {
   p.setClipRegion(QRegion(cameraPol));
   for (i = 0; i < (int)m_nodes.size(); i++) {
     if (m_nodes[i].m_onionMode != Node::eOnionSkinNone) continue;
-    p.resetMatrix();
+    p.resetTransform();
     TRasterP ras = m_nodes[i].m_raster;
     TAffine aff  = TTranslation(-rect.x0, -rect.y0) * flipY * m_nodes[i].m_aff;
     QMatrix matrix(aff.a11, aff.a21, aff.a12, aff.a22, aff.a13, aff.a23);
@@ -711,7 +727,7 @@ void RasterPainter::drawRasterImages(QPainter &p, QPolygon cameraPol) {
     p.drawImage(rect.getP00().x, rect.getP00().y, image);
   }
 
-  p.resetMatrix();
+  p.resetTransform();
   m_nodes.clear();
 }
 

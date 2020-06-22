@@ -109,7 +109,7 @@ protected:
   QHBoxLayout *m_layout;
 
 public:
-  ToolOptionsBox(QWidget *parent, bool isScrollable = false);
+  ToolOptionsBox(QWidget *parent, bool isScrollable = true);
   ~ToolOptionsBox();
 
   virtual void
@@ -172,7 +172,8 @@ private:
 class GenericToolOptionsBox : public ToolOptionsBox {
 public:
   GenericToolOptionsBox(QWidget *parent, TTool *tool, TPaletteHandle *pltHandle,
-                        int propertyGroupIdx = 0, ToolHandle *toolHandle = 0);
+                        int propertyGroupIdx = 0, ToolHandle *toolHandle = 0,
+                        bool scrollable = true);
 };
 
 //=============================================================================

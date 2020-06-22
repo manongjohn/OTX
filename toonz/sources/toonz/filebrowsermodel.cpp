@@ -29,10 +29,6 @@
 #include <Cocoa/Cocoa.h>
 #endif
 
-#ifdef LINETEST
-#include "tnzcamera.h"
-#endif
-
 namespace {
 TFilePath getMyDocumentsPath() {
 #ifdef _WIN32
@@ -411,7 +407,7 @@ QList<TFilePath> DvDirVersionControlNode::getMissingFiles() const {
   while (i != m_statusMap.constEnd()) {
     SVNStatus s = i.value();
     if (s.m_item == "missing" ||
-        s.m_item == "none" && s.m_repoStatus == "added") {
+        (s.m_item == "none" && s.m_repoStatus == "added")) {
       TFilePath path(getPath() + TFilePath(s.m_path.toStdWString()));
       std::string dots = path.getDots();
       if (dots != "") {
@@ -433,7 +429,7 @@ QStringList DvDirVersionControlNode::getMissingFiles(
   for (; i != m_statusMap.constEnd(); i++) {
     SVNStatus s = i.value();
     if (s.m_item == "missing" ||
-        s.m_item == "none" && s.m_repoStatus == "added") {
+        (s.m_item == "none" && s.m_repoStatus == "added")) {
       TFilePath path(s.m_path.toStdWString());
       if (!filter.exactMatch(
               QString::fromStdWString(path.withoutParentDir().getWideString())))
@@ -777,11 +773,6 @@ void DvDirModelProjectNode::makeCurrent() {
   TProjectManager *pm   = TProjectManager::instance();
   TFilePath projectPath = getProjectPath();
   if (!IoCmd::saveSceneIfNeeded(QObject::tr("Change project"))) return;
-
-#ifdef LINETEST
-  TnzCamera *camera = TnzCamera::instance();
-  if (camera->isCameraConnected()) camera->cameraDisconnect();
-#endif
 
   pm->setCurrentProjectPath(projectPath);
   IoCmd::newScene();
@@ -1289,9 +1280,9 @@ void DvDirModel::onFolderChanged(const TFilePath &path) { refreshFolder(path); }
 void DvDirModel::refresh(const QModelIndex &index) {
   if (!index.isValid()) return;
   DvDirModelNode *node = getNode(index);
-  if (!node) return;
+  if (!node || node->getChildCount() < 1) return;
   emit layoutAboutToBeChanged();
-  emit beginRemoveRows(index, 0, node->getChildCount());
+  emit beginRemoveRows(index, 0, node->getChildCount() - 1);
   node->refreshChildren();
   emit endRemoveRows();
   emit layoutChanged();
