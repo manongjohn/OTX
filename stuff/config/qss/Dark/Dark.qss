@@ -698,6 +698,43 @@ QListView {
   background-color: #262626;
 }
 /* -----------------------------------------------------------------------------
+   Tool Options - Override DvScroll Widget
+----------------------------------------------------------------------------- */
+#toolOptionsPanel QPushButton {
+  background-color: #565656;
+  border: 1 solid #303030;
+  border-radius: 2;
+  color: #f6f6f6;
+  margin: 0;
+  padding: 0;
+}
+#toolOptionsPanel QPushButton:hover {
+  background-color: #636363;
+  border-color: #303030;
+  color: #f6f6f6;
+}
+#toolOptionsPanel QPushButton:pressed {
+  background-color: #1e1e1e;
+  border-color: #191919;
+  color: #f6f6f6;
+}
+#toolOptionsPanel QPushButton:checked {
+  background-color: #1e1e1e;
+  border-color: #191919;
+  color: #f6f6f6;
+}
+#toolOptionsPanel QPushButton:checked:hover {
+  background-color: #232323;
+}
+#toolOptionsPanel QPushButton:checked:hover:pressed {
+  background: #1e1e1e;
+}
+#toolOptionsPanel QPushButton:disabled {
+  background-color: #3d3d3d;
+  border-color: #303030;
+  color: rgba(233, 233, 233, 0.4);
+}
+/* -----------------------------------------------------------------------------
    Push Button
 ----------------------------------------------------------------------------- */
 .Button,
@@ -1922,7 +1959,6 @@ XsheetViewer {
   qproperty-CurrentRowBgColor: #506082;
   qproperty-OnionSkinAreaBgColor: #262626;
   qproperty-EmptyColumnHeadColor: #444444;
-  qproperty-SelectedColumnTextColor: #E66464;
   qproperty-EmptyCellColor: #303030;
   qproperty-NotEmptyColumnColor: #383838;
   qproperty-SelectedEmptyCellColor: #545454;
@@ -2043,7 +2079,6 @@ XsheetViewer {
 }
 FunctionTreeView {
   qproperty-TextColor: #e9e9e9;
-  qproperty-CurrentTextColor: #E66464;
 }
 /* Function Editor Spreadsheet
 ----------------------------------------------------------------------------- */
@@ -2074,7 +2109,6 @@ SpreadsheetViewer {
   qproperty-SelectedSceneRangeEmptyColor: #5d5d5d;
   qproperty-TextColor: #e9e9e9;
   qproperty-ColumnHeaderBorderColor: #686868;
-  qproperty-SelectedColumnTextColor: #E66464;
 }
 #ExpressionField {
   background-color: #cecece;
