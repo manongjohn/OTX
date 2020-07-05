@@ -293,6 +293,7 @@
         <command>MI_OpenPalette</command>
         <command>MI_OpenStudioPalette</command>
         <command>MI_OpenColorModel</command>
+        <command>MI_OpenAdvancedColorSelector</command>
         <separator/>
         <command>MI_OpenComboViewer</command>
         <command>MI_OpenLevelView</command>
@@ -307,7 +308,6 @@
         <separator/>
         <command>MI_OpenFileBrowser</command>
         <command>MI_OpenFileBrowser2</command>
-	<command>MI_OpenAdvancedColorSelector</command>
         <separator/>
         <command>MI_OpenCleanupSettings</command>
         <command>MI_OpenTasks</command>

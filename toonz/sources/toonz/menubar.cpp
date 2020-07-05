@@ -1395,6 +1395,7 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   addMenuItem(windowsMenu, MI_OpenPalette);
   addMenuItem(windowsMenu, MI_OpenStudioPalette);
   addMenuItem(windowsMenu, MI_OpenColorModel);
+  addMenuItem(windowsMenu, MI_OpenAdvancedColorSelector);
   windowsMenu->addSeparator();
   addMenuItem(windowsMenu, MI_OpenComboViewer);
   addMenuItem(windowsMenu, MI_OpenLevelView);
@@ -1409,7 +1410,6 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   windowsMenu->addSeparator();
   addMenuItem(windowsMenu, MI_OpenFileBrowser);
   addMenuItem(windowsMenu, MI_OpenFileBrowser2);
-  addMenuItem(windowsMenu, MI_OpenAdvancedColorSelector);
   windowsMenu->addSeparator();
   addMenuItem(windowsMenu, MI_OpenCleanupSettings);
   addMenuItem(windowsMenu, MI_OpenTasks);
