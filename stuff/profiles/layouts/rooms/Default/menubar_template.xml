@@ -310,7 +310,6 @@
         <separator/>
         <command>MI_OpenFileBrowser</command>
         <command>MI_OpenFileBrowser2</command>
-	<command>MI_OpenAdvancedColorSelector</command>
         <separator/>
         <command>MI_OpenCleanupSettings</command>
         <command>MI_OpenTasks</command>
