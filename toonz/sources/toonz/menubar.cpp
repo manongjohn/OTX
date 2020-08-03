@@ -1136,6 +1136,7 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   addMenuItem(editMenu, MI_PasteAbove);
   // addMenuItem(editMenu, MI_PasteNew);
   addMenuItem(editMenu, MI_PasteInto);
+  addMenuItem(editMenu, MI_PasteDuplicate);
   addMenuItem(editMenu, MI_Insert);
   addMenuItem(editMenu, MI_InsertAbove);
   addMenuItem(editMenu, MI_Clear);
@@ -1421,8 +1422,8 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   addMenuItem(windowsMenu, MI_OpenStopMotionPanel);
   addMenuItem(windowsMenu, MI_StartupPopup);
   addMenuItem(windowsMenu, MI_OpenGuidedDrawingControls);
-  //windowsMenu->addSeparator();
-  //addMenuItem(windowsMenu, MI_OpenExport);
+  // windowsMenu->addSeparator();
+  // addMenuItem(windowsMenu, MI_OpenExport);
   windowsMenu->addSeparator();
   addMenuItem(windowsMenu, MI_MaximizePanel);
   addMenuItem(windowsMenu, MI_FullScreenWindow);
