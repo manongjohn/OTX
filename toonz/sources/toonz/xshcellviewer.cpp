@@ -330,46 +330,36 @@ bool isGlobalKeyFrameWithSameTypeDiffFromLinear(TStageObject *stageObject,
   TDoubleKeyframe::Type type =
       stageObject->getParam(TStageObject::T_Angle)->getKeyframeAt(frame).m_type;
   if (type == TDoubleKeyframe::Linear) return false;
-  if (type !=
-          stageObject->getParam(TStageObject::T_X)
-              ->getKeyframeAt(frame)
-              .m_type ||
-      type !=
-          stageObject->getParam(TStageObject::T_Y)
-              ->getKeyframeAt(frame)
-              .m_type ||
-      type !=
-          stageObject->getParam(TStageObject::T_Z)
-              ->getKeyframeAt(frame)
-              .m_type ||
-      type !=
-          stageObject->getParam(TStageObject::T_SO)
-              ->getKeyframeAt(frame)
-              .m_type ||
-      type !=
-          stageObject->getParam(TStageObject::T_ScaleX)
-              ->getKeyframeAt(frame)
-              .m_type ||
-      type !=
-          stageObject->getParam(TStageObject::T_ScaleY)
-              ->getKeyframeAt(frame)
-              .m_type ||
-      type !=
-          stageObject->getParam(TStageObject::T_Scale)
-              ->getKeyframeAt(frame)
-              .m_type ||
-      type !=
-          stageObject->getParam(TStageObject::T_Path)
-              ->getKeyframeAt(frame)
-              .m_type ||
-      type !=
-          stageObject->getParam(TStageObject::T_ShearX)
-              ->getKeyframeAt(frame)
-              .m_type ||
-      type !=
-          stageObject->getParam(TStageObject::T_ShearY)
-              ->getKeyframeAt(frame)
-              .m_type)
+  if (type != stageObject->getParam(TStageObject::T_X)
+                  ->getKeyframeAt(frame)
+                  .m_type ||
+      type != stageObject->getParam(TStageObject::T_Y)
+                  ->getKeyframeAt(frame)
+                  .m_type ||
+      type != stageObject->getParam(TStageObject::T_Z)
+                  ->getKeyframeAt(frame)
+                  .m_type ||
+      type != stageObject->getParam(TStageObject::T_SO)
+                  ->getKeyframeAt(frame)
+                  .m_type ||
+      type != stageObject->getParam(TStageObject::T_ScaleX)
+                  ->getKeyframeAt(frame)
+                  .m_type ||
+      type != stageObject->getParam(TStageObject::T_ScaleY)
+                  ->getKeyframeAt(frame)
+                  .m_type ||
+      type != stageObject->getParam(TStageObject::T_Scale)
+                  ->getKeyframeAt(frame)
+                  .m_type ||
+      type != stageObject->getParam(TStageObject::T_Path)
+                  ->getKeyframeAt(frame)
+                  .m_type ||
+      type != stageObject->getParam(TStageObject::T_ShearX)
+                  ->getKeyframeAt(frame)
+                  .m_type ||
+      type != stageObject->getParam(TStageObject::T_ShearY)
+                  ->getKeyframeAt(frame)
+                  .m_type)
     return false;
   return true;
 }
@@ -392,46 +382,36 @@ bool isGlobalKeyFrameWithSamePrevTypeDiffFromLinear(TStageObject *stageObject,
                                    ->getKeyframeAt(frame)
                                    .m_prevType;
   if (type == TDoubleKeyframe::Linear) return false;
-  if (type !=
-          stageObject->getParam(TStageObject::T_X)
-              ->getKeyframeAt(frame)
-              .m_prevType ||
-      type !=
-          stageObject->getParam(TStageObject::T_Y)
-              ->getKeyframeAt(frame)
-              .m_prevType ||
-      type !=
-          stageObject->getParam(TStageObject::T_Z)
-              ->getKeyframeAt(frame)
-              .m_prevType ||
-      type !=
-          stageObject->getParam(TStageObject::T_SO)
-              ->getKeyframeAt(frame)
-              .m_prevType ||
-      type !=
-          stageObject->getParam(TStageObject::T_ScaleX)
-              ->getKeyframeAt(frame)
-              .m_prevType ||
-      type !=
-          stageObject->getParam(TStageObject::T_ScaleY)
-              ->getKeyframeAt(frame)
-              .m_prevType ||
-      type !=
-          stageObject->getParam(TStageObject::T_Scale)
-              ->getKeyframeAt(frame)
-              .m_prevType ||
-      type !=
-          stageObject->getParam(TStageObject::T_Path)
-              ->getKeyframeAt(frame)
-              .m_prevType ||
-      type !=
-          stageObject->getParam(TStageObject::T_ShearX)
-              ->getKeyframeAt(frame)
-              .m_prevType ||
-      type !=
-          stageObject->getParam(TStageObject::T_ShearY)
-              ->getKeyframeAt(frame)
-              .m_prevType)
+  if (type != stageObject->getParam(TStageObject::T_X)
+                  ->getKeyframeAt(frame)
+                  .m_prevType ||
+      type != stageObject->getParam(TStageObject::T_Y)
+                  ->getKeyframeAt(frame)
+                  .m_prevType ||
+      type != stageObject->getParam(TStageObject::T_Z)
+                  ->getKeyframeAt(frame)
+                  .m_prevType ||
+      type != stageObject->getParam(TStageObject::T_SO)
+                  ->getKeyframeAt(frame)
+                  .m_prevType ||
+      type != stageObject->getParam(TStageObject::T_ScaleX)
+                  ->getKeyframeAt(frame)
+                  .m_prevType ||
+      type != stageObject->getParam(TStageObject::T_ScaleY)
+                  ->getKeyframeAt(frame)
+                  .m_prevType ||
+      type != stageObject->getParam(TStageObject::T_Scale)
+                  ->getKeyframeAt(frame)
+                  .m_prevType ||
+      type != stageObject->getParam(TStageObject::T_Path)
+                  ->getKeyframeAt(frame)
+                  .m_prevType ||
+      type != stageObject->getParam(TStageObject::T_ShearX)
+                  ->getKeyframeAt(frame)
+                  .m_prevType ||
+      type != stageObject->getParam(TStageObject::T_ShearY)
+                  ->getKeyframeAt(frame)
+                  .m_prevType)
     return false;
   return true;
 }
@@ -1500,7 +1480,6 @@ void CellArea::drawSoundCell(QPainter &p, int row, int col, bool isReference) {
                    o->rowToFrameAxis(offset);  // pixels since start of clip
 
   int trackWidth = trackBounds.length();
-  int lastMin, lastMax;
   DoublePair minmax;
   soundLevel->getValueAtPixel(o, soundPixel, minmax);
 
@@ -1508,8 +1487,6 @@ void CellArea::drawSoundCell(QPainter &p, int row, int col, bool isReference) {
   double pmax = minmax.second;
 
   int center = trackBounds.middle();
-  lastMin    = tcrop((int)pmin, -trackWidth / 2, 0) + center;
-  lastMax    = tcrop((int)pmax, 0, trackWidth / 2 - 1) + center;
 
   bool scrub = m_viewer->isScrubHighlighted(row, col);
 
@@ -1522,9 +1499,8 @@ void CellArea::drawSoundCell(QPainter &p, int row, int col, bool isReference) {
     pmin = minmax.first;
     pmax = minmax.second;
 
-    center = trackBounds.middle();
-    min    = tcrop((int)pmin, -trackWidth / 2, 0) + center;
-    max    = tcrop((int)pmax, 0, trackWidth / 2 - 1) + center;
+    min = tcrop((int)pmin, -trackWidth / 2, 0) + center;
+    max = tcrop((int)pmax, 0, trackWidth / 2 - 1) + center;
 
     if (scrub && i % 2) {
       p.setPen(m_viewer->getSoundColumnHlColor());
@@ -1542,14 +1518,9 @@ void CellArea::drawSoundCell(QPainter &p, int row, int col, bool isReference) {
     if (!o->isVerticalTimeline() || i != begin) {
       // "audio track" in the middle of the column
       p.setPen(m_viewer->getSoundColumnTrackColor());
-      QLine minLine = o->horizontalLine(i, NumberRange(lastMin, min));
-      p.drawLine(minLine);
-      QLine maxLine = o->horizontalLine(i, NumberRange(lastMax, max));
-      p.drawLine(maxLine);
+      QLine midLine = o->horizontalLine(i, NumberRange(min, max));
+      p.drawLine(midLine);
     }
-
-    lastMin = min;
-    lastMax = max;
   }
 
   // yellow clipped border
@@ -1835,10 +1806,10 @@ void CellArea::drawLevelCell(QPainter &p, int row, int col, bool isReference) {
   nameRect.adjust(0, 0, -frameAdj, 0);
 
   // draw text in red if the file does not exist
-  bool isRed                                  = false;
-  TXshSimpleLevel *sl                         = cell.getSimpleLevel();
+  bool isRed          = false;
+  TXshSimpleLevel *sl = cell.getSimpleLevel();
   if (sl && !sl->isFid(cell.m_frameId)) isRed = true;
-  TXshChildLevel *cl                          = cell.getChildLevel();
+  TXshChildLevel *cl = cell.getChildLevel();
   if (cl && cell.getFrameId().getNumber() - 1 >= cl->getFrameCount())
     isRed = true;
   QColor penColor =
@@ -1938,8 +1909,9 @@ void CellArea::drawSoundTextCell(QPainter &p, int row, int col) {
   bool isSelected                   = cellSelection->isCellSelected(row, col) ||
                     columnSelection->isColumnSelected(col);
 
-  if (row > 0) prevCell = xsh->getCell(row - 1, col);  // cell in previous frame
-                                                       // nothing to draw
+  if (row > 0)
+    prevCell = xsh->getCell(row - 1, col);  // cell in previous frame
+                                            // nothing to draw
 
   bool sameLevel = prevCell.m_level.getPointer() == cell.m_level.getPointer();
 
@@ -2045,7 +2017,7 @@ void CellArea::drawSoundTextCell(QPainter &p, int row, int col) {
 #ifdef _WIN32
     fontName = "Arial";
 #else
-    fontName          = "Helvetica";
+    fontName = "Helvetica";
 #endif
   }
   static QFont font(fontName, -1, QFont::Normal);
@@ -2077,7 +2049,7 @@ void CellArea::drawSoundTextCell(QPainter &p, int row, int col) {
 #if QT_VERSION >= 0x050500
   QString elidaName = elideText(text, metric, nameRect.width(), "~");
 #else
-  QString elidaName   = elideText(text, font, nameRect.width(), "~");
+  QString elidaName = elideText(text, font, nameRect.width(), "~");
 #endif
 
   if (!sameLevel || prevCell.m_frameId != cell.m_frameId)
@@ -2098,7 +2070,7 @@ void CellArea::drawPaletteCell(QPainter &p, int row, int col,
   bool isSelected               = cellSelection->isCellSelected(row, col);
 
   if (row > 0) prevCell = xsh->getCell(row - 1, col);
-  TXshCell nextCell     = xsh->getCell(row + 1, col);
+  TXshCell nextCell = xsh->getCell(row + 1, col);
 
   bool sameLevel = prevCell.m_level.getPointer() == cell.m_level.getPointer();
 
@@ -2109,8 +2081,8 @@ void CellArea::drawPaletteCell(QPainter &p, int row, int col,
   bool isAfterMarkers =
       distance > 0 && ((row - offset) % distance) == 0 && row != 0;
 
-  bool isRed                         = false;
-  TXshPaletteLevel *pl               = cell.getPaletteLevel();
+  bool isRed           = false;
+  TXshPaletteLevel *pl = cell.getPaletteLevel();
   if (pl && !pl->getPalette()) isRed = true;
 
   QPoint xy = m_viewer->positionToXY(CellPosition(row, col));
@@ -2242,7 +2214,7 @@ void CellArea::drawPaletteCell(QPainter &p, int row, int col,
 #ifdef _WIN32
       fontName = "Arial";
 #else
-      fontName        = "Helvetica";
+      fontName = "Helvetica";
 #endif
     }
     static QFont font(fontName, -1, QFont::Normal);
@@ -2801,10 +2773,9 @@ void CellArea::mousePressEvent(QMouseEvent *event) {
         setDragTool(XsheetGUI::DragTool::makeLevelMoverTool(m_viewer));
     } else {
       m_viewer->getKeyframeSelection()->selectNone();
-      if (isSoundColumn &&
-          o->rect(PredefinedRect::PREVIEW_TRACK)
-              .adjusted(0, 0, -frameAdj, 0)
-              .contains(mouseInCell))
+      if (isSoundColumn && o->rect(PredefinedRect::PREVIEW_TRACK)
+                               .adjusted(0, 0, -frameAdj, 0)
+                               .contains(mouseInCell))
         setDragTool(XsheetGUI::DragTool::makeSoundScrubTool(
             m_viewer, column->getSoundColumn()));
       else if (isSoundColumn &&
@@ -2939,10 +2910,9 @@ void CellArea::mouseMoveEvent(QMouseEvent *event) {
                       : QString::fromStdWString(levelName) + QString(" ") +
                             QString::fromStdString(frameNumber));
     }
-  } else if (isSoundColumn &&
-             o->rect(PredefinedRect::PREVIEW_TRACK)
-                 .adjusted(0, 0, -frameAdj, 0)
-                 .contains(mouseInCell))
+  } else if (isSoundColumn && o->rect(PredefinedRect::PREVIEW_TRACK)
+                                  .adjusted(0, 0, -frameAdj, 0)
+                                  .contains(mouseInCell))
     m_tooltip = tr("Click and drag to play");
   else if (m_levelExtenderRect.contains(pos))
     m_tooltip = tr("Click and drag to repeat selected cells");
@@ -2996,23 +2966,6 @@ void CellArea::mouseDoubleClickEvent(QMouseEvent *event) {
 
   TObjectHandle *oh = TApp::instance()->getCurrentObject();
   oh->setObjectId(m_viewer->getObjectId(col));
-
-  if (Preferences::instance()->isShowKeyframesOnXsheetCellAreaEnabled()) {
-    QPoint cellTopLeft   = m_viewer->positionToXY(CellPosition(row, col));
-    QPoint mouseInCell   = event->pos() - cellTopLeft;
-    TXsheet *xsh         = m_viewer->getXsheet();
-    TStageObject *pegbar = xsh->getStageObject(m_viewer->getObjectId(col));
-    int k0, k1;
-    bool isKeyframeFrame = pegbar && pegbar->getKeyframeRange(k0, k1) &&
-                           k0 <= row && row <= k1 + 1;
-    // If you are in the keyframe area, open a function editor
-    if (isKeyframeFrame && isKeyFrameArea(col, row, mouseInCell)) {
-      QAction *action =
-          CommandManager::instance()->getAction(MI_OpenFunctionEditor);
-      action->trigger();
-      return;
-    }
-  }
 
   if (col == -1) return;
 
@@ -3349,6 +3302,9 @@ void CellArea::createCellMenu(QMenu &menu, bool isCellSelected, TXshCell cell) {
     {
       pasteSpecialMenu->addAction(cmdManager->getAction(MI_PasteInto));
       pasteSpecialMenu->addAction(cmdManager->getAction(MI_PasteNumbers));
+      if (!soundTextCellsSelected) {
+        pasteSpecialMenu->addAction(cmdManager->getAction(MI_PasteDuplicate));
+      }
     }
     menu.addMenu(pasteSpecialMenu);
 

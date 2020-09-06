@@ -593,6 +593,10 @@ void TApp::onPaletteChanged() { m_currentScene->setDirtyFlag(true); }
 //-----------------------------------------------------------------------------
 
 void TApp::onLevelColorStyleSwitched() {
+  TXshLevel *sl = m_currentLevel->getLevel();
+  if (!sl || (sl->getType() != TZP_XSHLEVEL && sl->getType() != PLI_XSHLEVEL))
+    return;
+
   TPaletteHandle *ph = m_paletteController->getCurrentLevelPalette();
   assert(ph);
 
@@ -610,14 +614,12 @@ void TApp::onLevelColorStyleSwitched() {
 
       IconGenerator::instance()->setSettings(s);
 
-      TXshLevel *sl = m_currentLevel->getLevel();
-      if (!sl) return;
-
-      std::vector<TFrameId> fids;
-      sl->getFids(fids);
-
-      for (int i = 0; i < (int)fids.size(); i++)
-        IconGenerator::instance()->invalidate(sl, fids[i]);
+      if (sl->getType() == PLI_XSHLEVEL) {
+        std::vector<TFrameId> fids;
+        sl->getFids(fids);
+        for (int i = 0; i < (int)fids.size(); i++)
+          IconGenerator::instance()->invalidate(sl, fids[i]);
+      }
 
       m_currentLevel->notifyLevelViewChange();
     }
@@ -631,10 +633,23 @@ void TApp::onLevelColorStyleSwitched() {
 
 static void notifyPaletteChanged(TXshSimpleLevel *simpleLevel) {
   simpleLevel->onPaletteChanged();
+  // palette change can update icons only for ToonzVector / ToonzRaster types
+  if (simpleLevel->getType() != TZP_XSHLEVEL &&
+      simpleLevel->getType() != PLI_XSHLEVEL)
+    return;
   std::vector<TFrameId> fids;
   simpleLevel->getFids(fids);
-  for (int i = 0; i < (int)fids.size(); i++)
-    IconGenerator::instance()->invalidate(simpleLevel, fids[i]);
+  // ToonzRaster level does not need to re-generate icons along with palette
+  // changes since the icons are cached as color mapped images and the current
+  // palette is applied just before using it. So here we just emit the signal to
+  // update related panels.
+  if (simpleLevel->getType() == TZP_XSHLEVEL)
+    IconGenerator::instance()->notifyIconGenerated();
+  else {  // ToonzVecor needs to re-generate icons since it includes colors in
+          // the cache.
+    for (int i = 0; i < (int)fids.size(); i++)
+      IconGenerator::instance()->invalidate(simpleLevel, fids[i]);
+  }
 }
 
 //-----------------------------------------------------------------------------
