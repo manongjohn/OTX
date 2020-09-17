@@ -280,8 +280,8 @@ if(BUILD_ENV_MSVC)
     find_package(OpenCV 4.1 REQUIRED
         PATHS "C:/OpenCV/opencv/build" "C:/opencv/build" "C:/Tools/opencv/build"
     )
-elseif(BUILD_ENV_UNIXLIKE)
-    find_package(OpenCV 3.2 REQUIRED)
+#elseif(BUILD_ENV_UNIXLIKE)
+#    find_package(OpenCV 3.2 REQUIRED)
 else()
     find_package(OpenCV 4.1 REQUIRED)
 endif()
