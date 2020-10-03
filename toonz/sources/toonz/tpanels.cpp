@@ -419,7 +419,7 @@ public:
 //-----------------------------------------------------------------------------
 
 PaletteViewerPanel::PaletteViewerPanel(QWidget *parent)
-    : StyleShortcutSwitchablePanel(parent) {
+    : StyleShortcutSwitchablePanel(parent), m_isFrozen(false) {
   m_paletteHandle = new TPaletteHandle();
   connect(m_paletteHandle, SIGNAL(colorStyleSwitched()),
           SLOT(onColorStyleSwitched()));
@@ -461,19 +461,20 @@ int PaletteViewerPanel::getViewType() { return m_paletteViewer->getViewMode(); }
 void PaletteViewerPanel::reset() {
   m_paletteViewer->setPaletteHandle(
       TApp::instance()->getPaletteController()->getCurrentLevelPalette());
-  m_isCurrentButton->setPressed(true);
-  setActive(true);
+  m_freezeButton->setPressed(false);
+  setFrozen(false);
 }
 
 //-----------------------------------------------------------------------------
 
 void PaletteViewerPanel::initializeTitleBar() {
-  m_isCurrentButton = new TPanelTitleBarButton(
-      getTitleBar(), svgToPixmap(getIconThemePath("actions/18/switch.svg")));
-  getTitleBar()->add(QPoint(-54, 0), m_isCurrentButton);
-  m_isCurrentButton->setPressed(true);
-  connect(m_isCurrentButton, SIGNAL(toggled(bool)),
-          SLOT(onCurrentButtonToggled(bool)));
+  m_freezeButton = new TPanelTitleBarButton(
+      getTitleBar(), getIconThemePath("actions/20/pane_freeze.svg"));
+  m_freezeButton->setToolTip("Freeze");
+  getTitleBar()->add(QPoint(-54, 0), m_freezeButton);
+  m_freezeButton->setPressed(m_isFrozen);
+  connect(m_freezeButton, SIGNAL(toggled(bool)),
+          SLOT(onFreezeButtonToggled(bool)));
 }
 
 //-----------------------------------------------------------------------------
@@ -490,23 +491,23 @@ void PaletteViewerPanel::onPaletteSwitched() {
 
 //-----------------------------------------------------------------------------
 
-void PaletteViewerPanel::onCurrentButtonToggled(bool isCurrent) {
-  if (isActive() == isCurrent) return;
+void PaletteViewerPanel::onFreezeButtonToggled(bool frozen) {
+  if (isFrozen() == frozen) return;
 
   TApp *app          = TApp::instance();
   TPaletteHandle *ph = app->getPaletteController()->getCurrentLevelPalette();
   // Se sono sulla palette del livello corrente e le palette e' vuota non
   // consento di bloccare il pannello.
-  if (isActive() && !ph->getPalette()) {
-    m_isCurrentButton->setPressed(true);
+  if (!isFrozen() && !ph->getPalette()) {
+    m_freezeButton->setPressed(false);
     return;
   }
 
-  setActive(isCurrent);
-  m_paletteViewer->enableSaveAction(isCurrent);
+  setFrozen(frozen);
+  m_paletteViewer->enableSaveAction(!frozen);
 
   // Cambio il livello corrente
-  if (isCurrent) {
+  if (!frozen) {
     std::set<TXshSimpleLevel *> levels;
     TXsheet *xsheet = app->getCurrentXsheet()->getXsheet();
     int row, column;
@@ -549,14 +550,14 @@ void PaletteViewerPanel::onCurrentButtonToggled(bool isCurrent) {
 void PaletteViewerPanel::onSceneSwitched() {
   // Se e' il paletteHandle del livello corrente l'aggiornamento viene fatto
   // grazie all'aggiornamento del livello.
-  if (isActive()) return;
+  if (!isFrozen()) return;
 
   // Setto a zero la palette del "paletteHandle bloccato".
   m_paletteHandle->setPalette(0);
   // Sblocco il viewer nel caso in cui il e' bloccato.
-  if (!isActive()) {
-    setActive(true);
-    m_isCurrentButton->setPressed(true);
+  if (isFrozen()) {
+    setFrozen(false);
+    m_freezeButton->setPressed(false);
     m_paletteViewer->setPaletteHandle(
         TApp::instance()->getPaletteController()->getCurrentLevelPalette());
   }
@@ -858,8 +859,8 @@ public:
     panel->setWidget(toolbar);
     panel->setIsMaximizable(false);
     // panel->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
-    panel->setFixedWidth(40);  // 35
-    toolbar->setFixedWidth(30);
+    panel->setFixedWidth(44);  // 35
+    toolbar->setFixedWidth(34);
     panel->setWindowTitle(QString(""));
   }
 } toolbarFactory;
@@ -961,7 +962,7 @@ void FlipbookPanel::initializeTitleBar(TPanelTitleBar *titleBar) {
   // safe area button
   TPanelTitleBarButtonForSafeArea *safeAreaButton =
       new TPanelTitleBarButtonForSafeArea(
-          titleBar, getIconThemePath("actions/18/pane_safe.svg"));
+          titleBar, getIconThemePath("actions/20/pane_safe.svg"));
   safeAreaButton->setToolTip(tr("Safe Area (Right Click to Select)"));
   titleBar->add(QPoint(x, 0), safeAreaButton);
   ret = ret && connect(safeAreaButton, SIGNAL(toggled(bool)),
@@ -974,10 +975,10 @@ void FlipbookPanel::initializeTitleBar(TPanelTitleBar *titleBar) {
   safeAreaButton->setPressed(
       CommandManager::instance()->getAction(MI_SafeArea)->isChecked());
 
-  x += 33 + iconWidth;
+  x += 28 + iconWidth;
   // minimize button
   m_button = new TPanelTitleBarButton(
-      titleBar, getIconThemePath("actions/18/pane_minimize.svg"));
+      titleBar, getIconThemePath("actions/20/pane_minimize.svg"));
   m_button->setToolTip(tr("Minimize"));
   m_button->setPressed(false);
 

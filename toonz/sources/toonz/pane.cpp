@@ -46,7 +46,6 @@ TPanel::TPanel(QWidget *parent, Qt::WindowFlags flags,
     , m_panelType("")
     , m_isMaximizable(true)
     , m_isMaximized(false)
-    , m_isActive(true)
     , m_panelTitleBar(0)
     , m_multipleInstancesAllowed(true) {
   // setFeatures(QDockWidget::DockWidgetMovable |
@@ -78,15 +77,6 @@ TPanel::~TPanel() {
     if (SaveLoadQSettings *persistent =
             dynamic_cast<SaveLoadQSettings *>(widget()))
       persistent->save(settings);
-  }
-}
-
-//-----------------------------------------------------------------------------
-
-void TPanel::setActive(bool value) {
-  m_isActive = value;
-  if (m_panelTitleBar) {
-    m_panelTitleBar->setIsActive(m_isActive);
   }
 }
 
@@ -129,19 +119,13 @@ void TPanel::enterEvent(QEvent *event) {
   QWidget *w = qApp->activeWindow();
   if (w) {
     // grab the focus, unless a line-edit is focused currently
-    bool shouldSetFocus = true;
-
     QWidget *focusWidget = qApp->focusWidget();
-    if (focusWidget) {
-      QLineEdit *lineEdit = dynamic_cast<QLineEdit *>(focusWidget);
-      if (lineEdit) {
-        shouldSetFocus = false;
-      }
+    if (focusWidget && dynamic_cast<QLineEdit *>(focusWidget)) {
+      event->accept();
+      return;
     }
 
-    if (shouldSetFocus) {
-      widgetFocusOnEnter();
-    }
+    widgetFocusOnEnter();
 
     // Some panels (e.g. Viewer, StudioPalette, Palette, ColorModel) are
     // activated when mouse enters. Viewer is activatable only when being
@@ -157,7 +141,13 @@ void TPanel::enterEvent(QEvent *event) {
 //-----------------------------------------------------------------------------
 /*! clear focus when mouse leaves
  */
-void TPanel::leaveEvent(QEvent *event) { widgetClearFocusOnLeave(); }
+void TPanel::leaveEvent(QEvent *event) {
+  QWidget *focusWidget = qApp->focusWidget();
+  if (focusWidget && dynamic_cast<QLineEdit *>(focusWidget)) {
+    return;
+  }
+  widgetClearFocusOnLeave();
+}
 
 //-----------------------------------------------------------------------------
 /*! load and restore previous geometry and state of the floating panel.
@@ -401,16 +391,9 @@ void TPanelTitleBarButtonSet::select(TPanelTitleBarButton *button) {
 
 TPanelTitleBar::TPanelTitleBar(QWidget *parent,
                                TDockWidget::Orientation orientation)
-    : QFrame(parent), m_isActive(true), m_closeButtonHighlighted(false) {
+    : QFrame(parent), m_closeButtonHighlighted(false) {
   setMouseTracking(true);
   setFocusPolicy(Qt::NoFocus);
-}
-
-//-----------------------------------------------------------------------------
-
-void TPanelTitleBar::setIsActive(bool value) {
-  if (m_isActive == value) return;
-  m_isActive = value;
 }
 
 //-----------------------------------------------------------------------------
@@ -453,11 +436,11 @@ void TPanelTitleBar::paintEvent(QPaintEvent *) {
   if (dw->isFloating()) {
     QIcon paneCloseIcon = createQIcon("pane_close");
     const static QPixmap closeButtonPixmap(
-        paneCloseIcon.pixmap(18, 18, QIcon::Normal, QIcon::Off));
+        paneCloseIcon.pixmap(20, 18, QIcon::Normal, QIcon::Off));
     const static QPixmap closeButtonPixmapOver(
-        paneCloseIcon.pixmap(18, 18, QIcon::Active));
+        paneCloseIcon.pixmap(20, 18, QIcon::Active));
 
-    QPoint closeButtonPos(rect.right() - 18, rect.top());
+    QPoint closeButtonPos(rect.right() - 20, rect.top());
 
     if (m_closeButtonHighlighted)
       painter.drawPixmap(closeButtonPos, closeButtonPixmapOver);
@@ -477,7 +460,7 @@ void TPanelTitleBar::mousePressEvent(QMouseEvent *event) {
 
   if (dw->isFloating()) {
     QRect rect = this->rect();
-    QRect closeButtonRect(rect.right() - 18, rect.top() + 1, 18, 18);
+    QRect closeButtonRect(rect.right() - 20, rect.top() + 1, 20, 18);
     if (closeButtonRect.contains(pos) && dw->isFloating()) {
       event->accept();
       dw->hide();

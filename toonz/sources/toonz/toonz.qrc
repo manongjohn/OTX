@@ -72,6 +72,7 @@
 		<file>icons/dark/actions/16/saveas.svg</file>
 		<file>icons/dark/actions/16/saveall.svg</file>
 		<file>icons/dark/actions/16/gear.svg</file>
+		<file>icons/dark/actions/16/settings_reset.svg</file>
 		<file>icons/dark/actions/20/clear.svg</file>
 		<file>icons/dark/actions/16/undo.svg</file>
 		<file>icons/dark/actions/16/redo.svg</file>
@@ -99,7 +100,7 @@
 
 		<!-- Scan and Cleanup -->
 		<file>icons/dark/actions/20/preview_settings.svg</file>
-		<file>icons/dark/actions/18/preview.svg</file>
+		<file>icons/dark/actions/16/preview.svg</file>
 		<file>icons/dark/actions/20/save_previewed_frames.svg</file>
 		<file>icons/dark/actions/20/cleanup_settings.svg</file>
 		<file>icons/dark/actions/20/cleanup_preview.svg</file>
@@ -108,6 +109,7 @@
 		<file>icons/dark/actions/20/autocenter.svg</file>
 		<file>icons/dark/actions/20/camera_capture.svg</file>
 		<file>icons/dark/actions/16/subcamera.svg</file>
+		<file>icons/dark/actions/16/centerline.svg</file>
 
 		<!-- File Browser -->
 		<file>icons/dark/actions/16/my_computer.svg</file>
@@ -405,16 +407,16 @@
 		<file>icons/dark/actions/20/palettegizmo.svg</file>
 
 		<!-- Titlebars -->
-		<file>icons/dark/actions/18/pane_table.svg</file>
-		<file>icons/dark/actions/18/pane_safe.svg</file>
-		<file>icons/dark/actions/18/pane_grid.svg</file>
-		<file>icons/dark/actions/18/pane_cam.svg</file>
-		<file>icons/dark/actions/18/pane_freeze.svg</file>
-		<file>icons/dark/actions/18/pane_preview.svg</file>
-		<file>icons/dark/actions/18/pane_subpreview.svg</file>
-		<file>icons/dark/actions/18/pane_3d.svg</file>
-		<file>icons/dark/actions/18/pane_minimize.svg</file>
-		<file>icons/dark/actions/18/pane_close.svg</file>
+		<file>icons/dark/actions/20/pane_table.svg</file>
+		<file>icons/dark/actions/20/pane_safe.svg</file>
+		<file>icons/dark/actions/20/pane_grid.svg</file>
+		<file>icons/dark/actions/20/pane_cam.svg</file>
+		<file>icons/dark/actions/20/pane_freeze.svg</file>
+		<file>icons/dark/actions/20/pane_preview.svg</file>
+		<file>icons/dark/actions/20/pane_subpreview.svg</file>
+		<file>icons/dark/actions/20/pane_3d.svg</file>
+		<file>icons/dark/actions/20/pane_minimize.svg</file>
+		<file>icons/dark/actions/20/pane_close.svg</file>
 
 		<!-- Textstyle -->
 		<file>icons/dark/actions/16/bold.svg</file>
