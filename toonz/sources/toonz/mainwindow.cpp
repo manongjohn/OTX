@@ -2267,6 +2267,7 @@ void MainWindow::defineActions() {
   menuAct->setIcon(createQIcon("messagecenter"));
   menuAct = createMenuWindowsAction(MI_OpenColorModel, tr("&Color Model"), "");
   menuAct->setIcon(createQIcon("colormodel"));
+  createMenuWindowsAction(MI_OpenAdvancedColorSelector, tr("Advanced Color Selector"), "");
   menuAct =
       createMenuWindowsAction(MI_OpenStudioPalette, tr("&Studio Palette"), "");
   menuAct->setIcon(createQIcon("studiopalette"));
