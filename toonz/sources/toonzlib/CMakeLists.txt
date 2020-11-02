@@ -160,6 +160,8 @@ set(HEADERS
     ../include/toonz/vectorizerparameters.h
     ../include/toutputproperties.h
     ../include/toonz/preferencesitemids.h
+    ../include/toonz/txsheetcolumnchange.h
+    ../include/toonz/expressionreferencemonitor.h
 )
 
 set(SOURCES
@@ -333,7 +335,7 @@ qt5_wrap_cpp(SOURCES ${MOC_HEADERS})
 
 add_library(toonzlib SHARED ${HEADERS} ${SOURCES})
 if(BUILD_ENV_APPLE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-install_name,@rpath/libtoonzlib.dylib")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-install_name,@rpath/libtoonzlib.dylib")
     add_dependencies(toonzlib tnzcore tnzbase tnzext)
 endif()
 

@@ -495,6 +495,14 @@ void PreferencesPopup::beforeRoomChoiceChanged() {
 
 //-----------------------------------------------------------------------------
 
+void PreferencesPopup::onColorCalibrationChanged() {
+  LutManager::instance()->update();
+  TApp::instance()->getCurrentScene()->notifyPreferenceChanged(
+      "ColorCalibration");
+}
+
+//-----------------------------------------------------------------------------
+
 void PreferencesPopup::onDefLevelTypeChanged() {
   bool isRaster = m_pref->getIntValue(DefLevelType) != PLI_XSHLEVEL &&
                   !m_pref->getBoolValue(newLevelSizeToCameraSizeEnabled);
@@ -562,6 +570,13 @@ void PreferencesPopup::onShowKeyframesOnCellAreaChanged() {
 
 void PreferencesPopup::onShowXSheetToolbarClicked() {
   TApp::instance()->getCurrentScene()->notifyPreferenceChanged("XSheetToolbar");
+}
+
+//-----------------------------------------------------------------------------
+
+void PreferencesPopup::onModifyExpressionOnMovingReferencesChanged() {
+  TApp::instance()->getCurrentScene()->notifyPreferenceChanged(
+      "modifyExpressionOnMovingReferences");
 }
 
 //-----------------------------------------------------------------------------
@@ -704,6 +719,7 @@ void PreferencesPopup::onLutPathChanged() {
   FileField* lutPathFileField = getUI<FileField*>(colorCalibrationLutPaths);
   m_pref->setColorCalibrationLutPath(LutManager::instance()->getMonitorName(),
                                      lutPathFileField->getPath());
+  onColorCalibrationChanged();
 }
 
 //-----------------------------------------------------------------------------
@@ -1031,10 +1047,9 @@ QString PreferencesPopup::getUIString(PreferencesItemId id) {
       {CurrentLanguageName, tr("Language*:")},
       {interfaceFont, tr("Font*:")},
       {interfaceFontStyle, tr("Style*:")},
-      {colorCalibrationEnabled,
-       tr("Color Calibration using 3D Look-up Table*")},
+      {colorCalibrationEnabled, tr("Color Calibration using 3D Look-up Table")},
       {colorCalibrationLutPaths,
-       tr("3DLUT File for [%1]*:")
+       tr("3DLUT File for [%1]:")
            .arg(LutManager::instance()->getMonitorName())},
 
       // Visualization
@@ -1127,6 +1142,9 @@ QString PreferencesPopup::getUIString(PreferencesItemId id) {
       // Animation
       {keyframeType, tr("Default Interpolation:")},
       {animationStep, tr("Animation Step:")},
+      {modifyExpressionOnMovingReferences,
+       tr("[Experimental Feature] ") +
+           tr("Automatically Modify Expression On Moving Referenced Objects")},
 
       // Preview
       {blanksCount, tr("Blank Frames:")},
@@ -1516,6 +1534,8 @@ QWidget* PreferencesPopup::createInterfacePage() {
   m_onEditedFuncMap.insert(cameraUnits, &PreferencesPopup::onUnitChanged);
   m_preEditedFuncMap.insert(CurrentRoomChoice,
                             &PreferencesPopup::beforeRoomChoiceChanged);
+  m_onEditedFuncMap.insert(colorCalibrationEnabled,
+                           &PreferencesPopup::onColorCalibrationChanged);
 
   return widget;
 }
@@ -1785,9 +1805,15 @@ QWidget* PreferencesPopup::createAnimationPage() {
 
   insertUI(keyframeType, lay, getComboItemList(keyframeType));
   insertUI(animationStep, lay);
+  insertUI(modifyExpressionOnMovingReferences, lay);
 
   lay->setRowStretch(lay->rowCount(), 1);
   widget->setLayout(lay);
+
+  m_onEditedFuncMap.insert(
+      modifyExpressionOnMovingReferences,
+      &PreferencesPopup::onModifyExpressionOnMovingReferencesChanged);
+
   return widget;
 }
 

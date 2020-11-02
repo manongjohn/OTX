@@ -29,6 +29,8 @@ class ComboViewerPanel;
 class SceneViewerPanel;
 class FxSettings;
 class VectorGuidedDrawingPane;
+class FxSelection;
+class StageObjectSelection;
 
 //=========================================================
 // PaletteViewerPanel
@@ -57,12 +59,15 @@ public:
 protected:
   void initializeTitleBar();
   bool isActivatableOnEnter() override { return true; }
+  void showEvent(QShowEvent *) override;
+  void hideEvent(QHideEvent *) override;
 
 protected slots:
   void onColorStyleSwitched();
   void onPaletteSwitched();
   void onFreezeButtonToggled(bool isFrozen);
   void onSceneSwitched();
+  void onPreferenceChanged(const QString &prefName);
 };
 
 //=========================================================
@@ -98,6 +103,12 @@ class StyleEditorPanel final : public TPanel {
 
 public:
   StyleEditorPanel(QWidget *parent);
+
+protected:
+  void showEvent(QShowEvent *) override;
+  void hideEvent(QHideEvent *) override;
+protected slots:
+  void onPreferenceChanged(const QString &prefName);
 };
 
 //=========================================================
@@ -178,6 +189,8 @@ protected slots:
   void onExplodeChild(const QList<TFxP> &);
   void onExplodeChild(QList<TStageObjectId>);
   void onEditObject();
+  void onDeleteFxs(const FxSelection *);
+  void onDeleteStageObjects(const StageObjectSelection *);
 };
 
 //=========================================================

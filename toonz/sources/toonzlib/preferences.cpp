@@ -530,6 +530,8 @@ void Preferences::definePreferenceItems() {
   // Animation
   define(keyframeType, "keyframeType", QMetaType::Int, 2);  // Linear
   define(animationStep, "animationStep", QMetaType::Int, 1, 1, 500);
+  define(modifyExpressionOnMovingReferences,
+         "modifyExpressionOnMovingReferences", QMetaType::Bool, false);
 
   // Preview
   define(blanksCount, "blanksCount", QMetaType::Int, 0, 0, 1000);
@@ -1008,8 +1010,8 @@ void Preferences::setColorCalibrationLutPath(QString monitorName,
 
 QString Preferences::getColorCalibrationLutPath(QString &monitorName) const {
   PreferencesItem item = m_items.value(colorCalibrationLutPaths);
-  QMap<QString, QString> lutPathMap =
-      item.value.value<QMap<QString, QString>>();
+  QMap<QString, QVariant> lutPathMap =
+      item.value.value<QMap<QString, QVariant>>();
 
-  return lutPathMap.value(monitorName);
+  return lutPathMap.value(monitorName).toString();
 }

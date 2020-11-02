@@ -24,6 +24,9 @@
 #include "historypane.h"
 #include "cleanupsettingspane.h"
 #include "vectorguideddrawingpane.h"
+
+#include "expressionreferencemanager.h"
+
 #include "stopmotioncontroller.h"
 
 #include "tasksviewer.h"
@@ -34,6 +37,7 @@
 #include "menubarcommandids.h"
 #include "tapp.h"
 #include "mainwindow.h"
+#include "columncommand.h"
 
 // TnzTools includes
 #include "tools/tooloptions.h"
@@ -51,6 +55,8 @@
 #include "toonzqt/tmessageviewer.h"
 #include "toonzqt/scriptconsole.h"
 #include "toonzqt/fxsettings.h"
+#include "toonzqt/fxselection.h"
+#include "stageobjectselection.h"
 
 // TnzLib includes
 #include "toonz/palettecontroller.h"
@@ -71,6 +77,8 @@
 #include "toonz/preferences.h"
 #include "tw/stringtable.h"
 #include "toonz/toonzfolders.h"
+#include "toonz/fxcommand.h"
+#include "toonz/tstageobjectcmd.h"
 
 // TnzBase includes
 #include "trasterfx.h"
@@ -213,6 +221,38 @@ int SchematicScenePanel::getViewType() {
 
 //-----------------------------------------------------------------------------
 
+void SchematicScenePanel::onDeleteFxs(const FxSelection *selection) {
+  std::set<int> colIndices;
+  std::set<TFx *> fxs;
+  for (auto index : selection->getColumnIndexes()) colIndices.insert(index);
+  for (auto fx : selection->getFxs()) fxs.insert(fx.getPointer());
+
+  if (!ColumnCmd::checkExpressionReferences(colIndices, fxs)) return;
+
+  TApp *app = TApp::instance();
+  TFxCommand::deleteSelection(selection->getFxs().toStdList(),
+                              selection->getLinks().toStdList(),
+                              selection->getColumnIndexes().toStdList(),
+                              app->getCurrentXsheet(), app->getCurrentFx());
+}
+
+//-----------------------------------------------------------------------------
+
+void SchematicScenePanel::onDeleteStageObjects(
+    const StageObjectSelection *selection) {
+  if (!ExpressionReferenceManager::instance()->checkReferenceDeletion(
+          selection->getObjects()))
+    return;
+
+  TApp *app = TApp::instance();
+  TStageObjectCmd::deleteSelection(
+      selection->getObjects().toVector().toStdVector(),
+      selection->getLinks().toStdList(), selection->getSplines().toStdList(),
+      app->getCurrentXsheet(), app->getCurrentObject(), app->getCurrentFx());
+}
+
+//-----------------------------------------------------------------------------
+
 void SchematicScenePanel::showEvent(QShowEvent *e) {
   if (m_schematicViewer->isStageSchematicViewed())
     setWindowTitle(QObject::tr("Stage Schematic"));
@@ -228,8 +268,13 @@ void SchematicScenePanel::showEvent(QShowEvent *e) {
           SLOT(onCollapse(QList<TStageObjectId>)));
   connect(m_schematicViewer, SIGNAL(doExplodeChild(const QList<TFxP> &)), this,
           SLOT(onExplodeChild(const QList<TFxP> &)));
+  connect(m_schematicViewer, SIGNAL(doDeleteFxs(const FxSelection *)), this,
+          SLOT(onDeleteFxs(const FxSelection *)));
   connect(m_schematicViewer, SIGNAL(doExplodeChild(QList<TStageObjectId>)),
           this, SLOT(onExplodeChild(QList<TStageObjectId>)));
+  connect(m_schematicViewer,
+          SIGNAL(doDeleteStageObjects(const StageObjectSelection *)), this,
+          SLOT(onDeleteStageObjects(const StageObjectSelection *)));
   connect(m_schematicViewer, SIGNAL(editObject()), this, SLOT(onEditObject()));
   connect(app->getCurrentLevel(), SIGNAL(xshLevelChanged()), m_schematicViewer,
           SLOT(updateScenes()));
@@ -564,6 +609,28 @@ void PaletteViewerPanel::onSceneSwitched() {
   m_paletteViewer->updateView();
 }
 
+//-----------------------------------------------------------------------------
+
+void PaletteViewerPanel::showEvent(QShowEvent *) {
+  TSceneHandle *sceneHandle = TApp::instance()->getCurrentScene();
+  bool ret = connect(sceneHandle, SIGNAL(preferenceChanged(const QString &)),
+                     this, SLOT(onPreferenceChanged(const QString &)));
+  assert(ret);
+}
+
+//-----------------------------------------------------------------------------
+
+void PaletteViewerPanel::hideEvent(QHideEvent *) {
+  TSceneHandle *sceneHandle = TApp::instance()->getCurrentScene();
+  if (sceneHandle) sceneHandle->disconnect(this);
+}
+
+//-----------------------------------------------------------------------------
+
+void PaletteViewerPanel::onPreferenceChanged(const QString &prefName) {
+  if (prefName == "ColorCalibration") update();
+}
+
 //=============================================================================
 
 class PaletteViewerFactory final : public TPanelFactory {
@@ -829,6 +896,23 @@ StyleEditorPanel::StyleEditorPanel(QWidget *parent) : TPanel(parent) {
   resize(340, 630);
 }
 
+//-----------------------------------------------------------------------------
+void StyleEditorPanel::showEvent(QShowEvent *) {
+  TSceneHandle *sceneHandle = TApp::instance()->getCurrentScene();
+  bool ret = connect(sceneHandle, SIGNAL(preferenceChanged(const QString &)),
+                     this, SLOT(onPreferenceChanged(const QString &)));
+  onPreferenceChanged("ColorCalibration");
+  assert(ret);
+}
+//-----------------------------------------------------------------------------
+void StyleEditorPanel::hideEvent(QHideEvent *) {
+  TSceneHandle *sceneHandle = TApp::instance()->getCurrentScene();
+  if (sceneHandle) sceneHandle->disconnect(this);
+}
+//-----------------------------------------------------------------------------
+void StyleEditorPanel::onPreferenceChanged(const QString &prefName) {
+  if (prefName == "ColorCalibration") m_styleEditor->updateColorCalibration();
+}
 //-----------------------------------------------------------------------------
 
 class StyleEditorFactory final : public TPanelFactory {
