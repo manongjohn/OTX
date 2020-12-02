@@ -1,0 +1,89 @@
+name: OTX Build
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  Linux:
+    runs-on: ubuntu-16.04
+    strategy:
+      matrix:
+        compiler: [ clang ]
+        include:
+          - compiler: clang
+            cc: clang
+            cxx: clang++
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: bash ./ci-scripts/linux/otx-install.sh
+      - name: Build ffmpeg
+        run: bash ./ci-scripts/linux/otx-buildffmpeg.sh
+      - name: Build OpenCV
+        run: bash ./ci-scripts/linux/otx-buildopencv.sh
+      - name: Build OTX
+        run: bash ./ci-scripts/linux/otx-build.sh
+      - name: Create Package
+        run: bash ./ci-scripts/linux/otx-buildpkg.sh
+      - name: Get Current Date
+        id: get_current_date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: OTX-${{ steps.get_current_date.outputs.date }}
+          release_name: OTX-${{ steps.get_current_date.outputs.date }}
+          draft: false
+          prerelease: true
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./toonz/build/OpenToonz-OTX-linux.tar.gz
+          asset_name: OpenToonz-OTX-linux.tar.gz
+          asset_content_type: application/zip
+
+#  macOS:
+#    runs-on: macos-10.15
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Install Dependencies
+#        run: bash ./ci-scripts/osx/otx-install.sh
+#      - name: Build ffmpeg
+#        run: bash ./ci-scripts/osx/otx-buildffmpeg.sh
+#      - name: Build OpenCV
+#        run: bash ./ci-scripts/osx/otx-buildopencv.sh
+#      - name: Build OTX
+#        run: bash ./ci-scripts/osx/otx-build.sh
+#      - name: Create Package
+#        run: bash ./ci-scripts/osx/otx-buildpkg.sh
+#      - name: Get Current Date
+#        id: get_current_date
+#        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+#      - name: Create Release
+#        id: create_release
+#        uses: actions/create-release@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          tag_name: OTX-${{ steps.get_current_date.outputs.date }}
+#          release_name: OTX-${{ steps.get_current_date.outputs.date }}
+#          draft: false
+#          prerelease: true
+#      - name: Upload Release Asset
+#        id: upload-release-asset 
+#        uses: actions/upload-release-asset@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          upload_url: ${{ steps.create_release.outputs.upload_url }}
+#          asset_path: ./toonz/build/OpenToonz-OTX-osx.dmg
+#          asset_name: OpenToonz-OTX-osx.dmg
+#          asset_content_type: application/zip
