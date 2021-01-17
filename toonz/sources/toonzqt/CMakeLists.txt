@@ -202,7 +202,9 @@ set(SOURCES
 
 set(RESOURCES toonzqt.qrc)
 
-add_translation(toonzqt ${HEADERS} ${SOURCES})
+if(WITH_TRANSLATION)
+    add_translation(toonzqt ${HEADERS} ${SOURCES})
+endif()
 
 get_target_property(QW_LOC Qt5::Widgets INTERFACE_INCLUDE_DIRECTORIES)
 
@@ -219,7 +221,7 @@ qt5_wrap_cpp(SOURCES ${MOC_HEADERS} OPTIONS ${incs})
 
 add_library(toonzqt SHARED ${HEADERS} ${SOURCES} ${RESOURCES})
 if(BUILD_ENV_APPLE)
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-install_name,@rpath/libtoonzqt.dylib")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-install_name,@executable_path/libtoonzqt.dylib")
     add_dependencies(toonzqt tnzcore tnzbase tnzext toonzlib sound)
 endif()
 

@@ -258,14 +258,16 @@ elseif(BUILD_TARGET_UNIX)
     )
 endif()
 
-add_translation(tnzcore ${HEADERS} ${SOURCES})
+if(WITH_TRANSLATION)
+    add_translation(tnzcore ${HEADERS} ${SOURCES})
+endif()
 
 qt5_wrap_cpp(SOURCES ${MOC_HEADERS})
 
 add_library(tnzcore SHARED ${HEADERS} ${SOURCES})
 
 if(BUILD_ENV_APPLE)
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-install_name,@rpath/libtnzcore.dylib")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-install_name,@executable_path/libtnzcore.dylib")
 endif()
 
 add_definitions(

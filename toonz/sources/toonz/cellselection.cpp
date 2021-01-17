@@ -1238,6 +1238,8 @@ public:
   void redo() const override {
     insertLevelAndFrameIfNeeded();
 
+    IconGenerator::instance()->invalidate(m_level.getPointer(), m_frameId);
+
     TApp::instance()->getCurrentXsheet()->notifyXsheetChanged();
     notifyImageChanged();
   }
@@ -2007,11 +2009,11 @@ void TCellSelection::pasteDuplicateCells() {
           DVGui::warning(
               QObject::tr("Cannot duplicate frames in read only levels"));
           return;
-        }
-        else if (level->getSimpleLevel() && it->getFrameId() == TFrameId::NO_FRAME) {
-            DVGui::warning(
-                QObject::tr("Can only duplicate frames in image sequence levels."));
-            return;
+        } else if (level->getSimpleLevel() &&
+                   it->getFrameId() == TFrameId::NO_FRAME) {
+          DVGui::warning(QObject::tr(
+              "Can only duplicate frames in image sequence levels."));
+          return;
         }
       }
       it++;
@@ -2173,9 +2175,8 @@ void TCellSelection::pasteDuplicateCells() {
       return;
     }
     TKeyframeSelection selection;
-    if (isEmpty() &&
-        TApp::instance()->getCurrentObject()->getObjectId() ==
-            TStageObjectId::CameraId(xsh->getCameraColumnIndex()))
+    if (isEmpty() && TApp::instance()->getCurrentObject()->getObjectId() ==
+                         TStageObjectId::CameraId(xsh->getCameraColumnIndex()))
     // Se la selezione e' vuota e l'objectId e' quello della camera sono nella
     // colonna di camera quindi devo selezionare la row corrente e -1.
     {
@@ -2404,6 +2405,11 @@ void TCellSelection::createBlankDrawing(int row, int col, bool multiple) {
   }
 
   if (!toolHandle->getTool()->m_isFrameCreated) {
+    if (!isAutoCreateEnabled)
+      Preferences::instance()->setValue(EnableAutocreation, false, false);
+    if (!isCreationInHoldCellsEnabled)
+      Preferences::instance()->setValue(EnableCreationInHoldCells, false,
+                                        false);
     if (!multiple)
       DVGui::warning(QObject::tr(
           "Unable to replace the current drawing with a blank drawing"));
@@ -2418,6 +2424,8 @@ void TCellSelection::createBlankDrawing(int row, int col, bool multiple) {
   CreateBlankDrawingUndo *undo = new CreateBlankDrawingUndo(
       sl, frame, toolHandle->getTool()->m_isLevelCreated, palette);
   TUndoManager::manager()->add(undo);
+
+  IconGenerator::instance()->invalidate(sl, frame);
 
   // Reset back to what these were
   if (!isAutoCreateEnabled)
@@ -2545,6 +2553,11 @@ void TCellSelection::duplicateFrame(int row, int col, bool multiple) {
 
   bool frameCreated = toolHandle->getTool()->m_isFrameCreated;
   if (!frameCreated) {
+    if (!isAutoCreateEnabled)
+      Preferences::instance()->setValue(EnableAutocreation, false, false);
+    if (!isCreationInHoldCellsEnabled)
+      Preferences::instance()->setValue(EnableCreationInHoldCells, false,
+                                        false);
     if (!multiple)
       DVGui::warning(
           QObject::tr("Unable to replace the current or next drawing with a "
@@ -2865,8 +2878,7 @@ static void createNewDrawing(TXsheet *xsh, int row, int col,
   const Type *Var = dynamic_cast<const Type *>(Data)
 
 void TCellSelection::dPasteCells() {
-  if (isEmpty())  // Se la selezione delle celle e' vuota ritorno.
-    return;
+  if (isEmpty()) return;
   int r0, c0, r1, c1;
   getSelectedCells(r0, c0, r1, c1);
   TUndoManager::manager()->beginBlock();
@@ -2874,7 +2886,10 @@ void TCellSelection::dPasteCells() {
   QClipboard *clipboard     = QApplication::clipboard();
   const QMimeData *mimeData = clipboard->mimeData();
   if (DYNAMIC_CAST(TCellData, cellData, mimeData)) {
-    if (!cellData->canChange(xsh, c0)) return;
+    if (!cellData->canChange(xsh, c0)) {
+      TUndoManager::manager()->endBlock();
+      return;
+    }
     for (int c = 0; c < cellData->getColCount(); c++) {
       for (int r = 0; r < cellData->getRowCount(); r++) {
         TXshCell src = cellData->getCell(r, c);

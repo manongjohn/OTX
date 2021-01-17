@@ -203,7 +203,9 @@ void FullColorBrushTool::onActivate() {
         QString::fromStdString(FullcolorBrushPreset.getValue()).toStdWString();
     if (wpreset != CUSTOM_WSTR) {
       initPresets();
+      if (!m_preset.isValue(wpreset)) wpreset = CUSTOM_WSTR;
       m_preset.setValue(wpreset);
+      FullcolorBrushPreset = m_preset.getValueAsString();
       loadPreset();
     } else
       loadLastBrush();
@@ -304,7 +306,7 @@ void FullColorBrushTool::leftButtonDown(const TPointD &pos,
   if (!viewer) return;
 
   TRasterImageP ri = (TRasterImageP)getImage(true);
-  if (!ri) ri = (TRasterImageP)touchImage();
+  if (!ri) ri      = (TRasterImageP)touchImage();
 
   if (!ri) return;
 
@@ -580,12 +582,12 @@ void FullColorBrushTool::setWorkAndBackupImages() {
   TRasterP ras   = ri->getRaster();
   TDimension dim = ras->getSize();
 
-  if (!m_workRaster || m_workRaster->getLx() > dim.lx ||
-      m_workRaster->getLy() > dim.ly)
+  if (!m_workRaster || m_workRaster->getLx() != dim.lx ||
+      m_workRaster->getLy() != dim.ly)
     m_workRaster = TRaster32P(dim);
 
-  if (!m_backUpRas || m_backUpRas->getLx() > dim.lx ||
-      m_backUpRas->getLy() > dim.ly ||
+  if (!m_backUpRas || m_backUpRas->getLx() != dim.lx ||
+      m_backUpRas->getLy() != dim.ly ||
       m_backUpRas->getPixelSize() != ras->getPixelSize())
     m_backUpRas = ras->create(dim.lx, dim.ly);
 
@@ -707,6 +709,7 @@ void FullColorBrushTool::addPreset(QString name) {
 
   // Set the value to the specified one
   m_preset.setValue(preset.m_name);
+  FullcolorBrushPreset = m_preset.getValueAsString();
 }
 
 //------------------------------------------------------------------
@@ -720,6 +723,7 @@ void FullColorBrushTool::removePreset() {
 
   // No parameter change, and set the preset value to custom
   m_preset.setValue(CUSTOM_WSTR);
+  FullcolorBrushPreset = m_preset.getValueAsString();
 }
 
 //------------------------------------------------------------------

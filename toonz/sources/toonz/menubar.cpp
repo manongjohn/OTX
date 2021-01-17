@@ -1156,8 +1156,8 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   {
     addMenuItem(arrangeMenu, MI_BringToFront);
     addMenuItem(arrangeMenu, MI_BringForward);
-    addMenuItem(arrangeMenu, MI_SendBack);
     addMenuItem(arrangeMenu, MI_SendBackward);
+    addMenuItem(arrangeMenu, MI_SendBack);
   }
 
   // Menu' SCAN CLEANUP

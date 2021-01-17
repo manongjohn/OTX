@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 2.8.11)
 
 set(CMAKE_BUILD_TYPE_INIT Release)
 
@@ -102,6 +102,7 @@ endif()
 option(WITH_SYSTEM_LZO "Use the system LZO library instead of 'thirdpary'" ${_init_SYSTEM_LZO})
 option(WITH_SYSTEM_SUPERLU "Use the system SuperLU library instead of 'thirdpary'" ${_init_SYSTEM_SUPERLU})
 option(WITH_CANON "Build with Canon DSLR support - Requires Canon SDK" OFF)
+option(WITH_TRANSLATION "Generate translation projects as well" ON)
 
 # avoid using again
 option_defaults_clear()
@@ -198,6 +199,11 @@ elseif(BUILD_ENV_UNIXLIKE)
     endif()
     if(CMAKE_SYSTEM_NAME MATCHES "Linux")
         add_definitions(-DLINUX)
+    elseif(CMAKE_SYSTEM_NAME MATCHES "^.*BSD$|DragonFly")
+        set(BUILD_TARGET_BSD ON)
+        add_definitions(-D_BSD_SOURCE -DFREEBSD)
+        include_directories("/usr/local/include/")
+        message(STATUS "Configuring for BSD system")
     elseif(NOT BUILD_TARGET_WIN)
         message(WARNING "Support for generic Unix (Not Apple or Linux) isn't yet working!")
     endif()
@@ -394,7 +400,11 @@ elseif(BUILD_ENV_APPLE)
     if(GLEW-NOTFOUND)
         pkg_check_modules(GLEW REQUIRED glew)
     endif()
-    set(GLEW_LIB ${GLEW_LIBRARIES})
+    if (TARGET GLEW::GLEW)
+      set(GLEW_LIB GLEW::GLEW)
+    else()
+      set(GLEW_LIB ${GLEW_LIBRARIES})
+    endif()
 
     pkg_check_modules(LZ4_LIB REQUIRED liblz4)
 
@@ -442,7 +452,9 @@ elseif(BUILD_ENV_UNIXLIKE)
     endif()
     find_library(Z_LIB z)
 
-    find_package(TIFF REQUIRED)
+    if(NOT BUILD_TARGET_BSD)
+        find_package(TIFF REQUIRED)
+    endif()
     find_package(PNG REQUIRED)
     set(PNG_LIB ${PNG_LIBRARY})
     message("******* libpng:" ${PNG_LIB})
@@ -591,26 +603,28 @@ if(BUILD_ENV_MSVC AND MSVC_VERSION EQUAL 1800)
     add_compile_options("/wd4819")
 endif()
 
-# generate Qt translations and messages
-set(LANGUAGES japanese italian french spanish chinese german russian korean czech)
+if(WITH_TRANSLATION)
+    # generate Qt translations and messages
+    set(LANGUAGES japanese italian french spanish chinese german russian korean czech)
 
-function(add_translation module)
-    set(translation)
-    foreach(lang ${LANGUAGES})
-        set(name "${CMAKE_SOURCE_DIR}/translations/${lang}/${module}.ts")
-        list(APPEND translation ${name})
-        set_source_files_properties(${name} PROPERTIES
-            OUTPUT_LOCATION "${CMAKE_BINARY_DIR}/loc/${lang}"
+    function(add_translation module)
+        set(translation)
+        foreach(lang ${LANGUAGES})
+            set(name "${CMAKE_SOURCE_DIR}/translations/${lang}/${module}.ts")
+            list(APPEND translation ${name})
+            set_source_files_properties(${name} PROPERTIES
+                OUTPUT_LOCATION "${CMAKE_BINARY_DIR}/loc/${lang}"
+            )
+        endforeach()
+
+        qt5_create_translation(message ${translation} ${ARGN})
+
+        add_custom_target("translation_${module}" DEPENDS ${message})
+        set_target_properties("translation_${module}" PROPERTIES
+            EXCLUDE_FROM_DEFAULT_BUILD TRUE
         )
-    endforeach()
-
-    qt5_create_translation(message ${translation} ${ARGN})
-
-    add_custom_target("translation_${module}" DEPENDS ${message})
-    set_target_properties("translation_${module}" PROPERTIES
-        EXCLUDE_FROM_DEFAULT_BUILD TRUE
-    )
-endfunction()
+    endfunction()
+endif()
 
 set(CMAKE_C_FLAGS "${C_WARNINGS} ${CMAKE_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CXX_WARNINGS} ${CMAKE_CXX_FLAGS}")

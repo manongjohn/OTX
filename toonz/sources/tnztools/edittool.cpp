@@ -614,8 +614,10 @@ public:
 };
 
 bool hasVisibleChildColumn(const TStageObject *obj, const TXsheet *xsh) {
-  if (!obj->getId().isColumn()) return false;  // just in case
-  if (xsh->getColumn(obj->getId().getIndex())->isCamstandVisible()) return true;
+  if (!(obj->getId().isColumn())) return false;  // just in case
+  TXshColumn *column = xsh->getColumn(obj->getId().getIndex());
+  if (!column) return false;
+  if (column->isCamstandVisible()) return true;
   for (const auto child : obj->getChildren()) {
     if (hasVisibleChildColumn(child, xsh)) return true;
   }
@@ -1051,9 +1053,8 @@ void EditTool::onEditAllLeftButtonDown(TPointD &pos, const TMouseEvent &e) {
   m_what             = selectedDevice >= 0 ? selectedDevice : Translation;
 
   if (selectedDevice < 0 && m_autoSelect.getValue() != L"None") {
-    pos = getMatrix() * pos;
-    int columnIndex =
-        getViewer()->posToColumnIndex(e.m_pos, 5 * getPixelSize(), false);
+    pos             = getMatrix() * pos;
+    int columnIndex = getViewer()->posToColumnIndex(e.m_pos, 5.0, false);
     if (columnIndex >= 0) {
       TStageObjectId id      = TStageObjectId::ColumnId(columnIndex);
       int currentColumnIndex = getColumnIndex();

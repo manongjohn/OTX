@@ -1,5 +1,5 @@
 
-#ifdef LINUX
+#if defined(LINUX) || defined(FREEBSD)
 #define GL_GLEXT_PROTOTYPES
 #endif
 
@@ -830,6 +830,9 @@ void SceneViewer::setVisual(const ImagePainter::VisualSettings &settings) {
 //-----------------------------------------------------------------------------
 
 SceneViewer::~SceneViewer() {
+  // notify FilmStripFrames and safely disconnect with this
+  emit aboutToBeDestroyed();
+
   if (m_fbo) delete m_fbo;
 
   // release all the registered context (once when exit the software)
@@ -2074,11 +2077,13 @@ void SceneViewer::drawScene() {
       args.m_osm         = &osm;
       args.m_xsheetLevel = xsheetLevel;
       args.m_isPlaying   = frameHandle->isPlaying();
-      args.m_currentFrameId =
-          app->getCurrentXsheet()
-              ->getXsheet()
-              ->getCell(app->getCurrentFrame()->getFrame(), args.m_col)
-              .getFrameId();
+      if (app->getCurrentLevel() && app->getCurrentLevel()->getLevel() &&
+          !app->getCurrentLevel()->getLevel()->getSoundLevel())
+        args.m_currentFrameId =
+            app->getCurrentXsheet()
+                ->getXsheet()
+                ->getCell(app->getCurrentFrame()->getFrame(), args.m_col)
+                .getFrameId();
       args.m_isGuidedDrawingEnabled = useGuidedDrawing;
       args.m_guidedFrontStroke      = guidedFrontStroke;
       args.m_guidedBackStroke       = guidedBackStroke;
@@ -3044,8 +3049,9 @@ void SceneViewer::posToColumnIndexes(const TPointD &p,
   OnionSkinMask osm      = app->getCurrentOnionSkin()->getOnionSkinMask();
 
   TPointD pos = TPointD(p.x - width() / 2, p.y - height() / 2);
-  Stage::Picker picker(getViewMatrix(), pos, m_visualSettings);
-  picker.setDistance(distance);
+  Stage::Picker picker(getViewMatrix(), pos, m_visualSettings,
+                       getDevPixRatio());
+  picker.setMinimumDistance(distance);
 
   TXshSimpleLevel::m_rasterizePli = 0;
 
@@ -3083,8 +3089,9 @@ int SceneViewer::posToRow(const TPointD &p, double distance,
   OnionSkinMask osm   = app->getCurrentOnionSkin()->getOnionSkinMask();
 
   TPointD pos = TPointD(p.x - width() / 2, p.y - height() / 2);
-  Stage::Picker picker(getViewMatrix(), pos, m_visualSettings);
-  picker.setDistance(distance);
+  Stage::Picker picker(getViewMatrix(), pos, m_visualSettings,
+                       getDevPixRatio());
+  picker.setMinimumDistance(distance);
 
   if (app->getCurrentFrame()->isEditingLevel()) {
     Stage::visit(picker, app->getCurrentLevel()->getLevel(),
