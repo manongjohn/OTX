@@ -29,23 +29,19 @@ jobs:
       - name: Get Current Date
         id: get_current_date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: OTX-${{ steps.get_current_date.outputs.date }}
-          release_name: OTX-${{ steps.get_current_date.outputs.date }}
-          draft: false
-          prerelease: true
+      # Currently assume the release has been created already
+      - name: Get Release Tag Upload URL
+        id: get_release_tag_upload_url
+        run: |
+          url=$(curl -sL "Accept: application/vnd.github.v3+json" https://api.github.com/repos/manongjohn/OTX/releases/tags/OTX-${{ steps.get_current_date.outputs.date }} | jq -r '.upload_url')
+          echo "::set-output name=url::$url"
       - name: Upload Release Asset
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.get_release_tag_upload_url.outputs.url }}
           asset_path: ./toonz/build/OpenToonz-OTX-linux.tar.gz
           asset_name: OpenToonz-OTX-linux.tar.gz
           asset_content_type: application/zip
