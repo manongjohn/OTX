@@ -11,7 +11,9 @@
 #include "menubarcommandids.h"
 #include "ruler.h"
 #include "locatorpopup.h"
+#if defined(x64)
 #include "../stopmotion/stopmotion.h"
+#endif
 
 // TnzTools includes
 #include "tools/cursors.h"
@@ -781,7 +783,9 @@ SceneViewer::SceneViewer(ImageUtils::FullScreenWidget *parent)
     , m_isBusyOnTabletMove(false) {
   m_visualSettings.m_sceneProperties =
       TApp::instance()->getCurrentScene()->getScene()->getProperties();
+#if defined(x64)
   m_stopMotion = StopMotion::instance();
+#endif
 
   // Enables multiple key input.
   setAttribute(Qt::WA_KeyCompression);
@@ -1064,13 +1068,14 @@ void SceneViewer::showEvent(QShowEvent *) {
 
   ret = ret &&
         connect(app, SIGNAL(tabletLeft()), this, SLOT(resetTabletStatus()));
-
+#if defined(x64)
   if (m_stopMotion) {
     ret = ret && connect(m_stopMotion, SIGNAL(newLiveViewImageReady()), this,
                          SLOT(onNewStopMotionImageReady()));
     ret = ret && connect(m_stopMotion, SIGNAL(liveViewStopped()), this,
                          SLOT(onStopMotionLiveViewStopped()));
   }
+#endif
   assert(ret);
 
   if (m_hRuler && m_vRuler) {
@@ -1129,12 +1134,14 @@ void SceneViewer::hideEvent(QHideEvent *) {
 
   disconnect(app, SIGNAL(tabletLeft()), this, SLOT(resetTabletStatus()));
 
+#if defined(x64)
   if (m_stopMotion) {
     disconnect(m_stopMotion, SIGNAL(newImageReady()), this,
                SLOT(onNewStopMotionImageReady()));
     disconnect(m_stopMotion, SIGNAL(liveViewStopped()), this,
                SLOT(onStopMotionLiveViewStopped()));
   }
+#endif
 
   // hide locator
   if (m_locator && m_locator->isVisible()) m_locator->hide();
@@ -1156,6 +1163,7 @@ int SceneViewer::getHGuideCount() {
 double SceneViewer::getVGuide(int index) { return m_vRuler->getGuide(index); }
 double SceneViewer::getHGuide(int index) { return m_hRuler->getGuide(index); }
 
+#if defined(x64)
 //-----------------------------------------------------------------------------
 
 void SceneViewer::onNewStopMotionImageReady() {
@@ -1188,6 +1196,7 @@ void SceneViewer::onStopMotionLiveViewStopped() {
   onSceneChanged();
 }
 
+#endif  // x64
 //-----------------------------------------------------------------------------
 
 void SceneViewer::onPreferenceChanged(const QString &prefName) {
@@ -1231,6 +1240,8 @@ void SceneViewer::initializeGL() {
     resizeGL(width(), height());
     update();
   }
+  // re-computing the display list for the table
+  m_tableDLId = -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -2088,6 +2099,7 @@ void SceneViewer::drawScene() {
       args.m_guidedFrontStroke      = guidedFrontStroke;
       args.m_guidedBackStroke       = guidedBackStroke;
 
+#if defined(x64)
       if (m_stopMotion->m_alwaysUseLiveViewImages &&
           m_stopMotion->m_liveViewStatus > 0 &&
           frame != m_stopMotion->getXSheetFrameNumber() - 1 &&
@@ -2107,7 +2119,7 @@ void SceneViewer::drawScene() {
           //                      smPlayer);
         }
       }
-      if (//!m_stopMotion->m_drawBeneathLevels &&
+      if (  //! m_stopMotion->m_drawBeneathLevels &&
           m_stopMotion->m_liveViewStatus == 2 &&
           (  //! frameHandle->isPlaying() ||
               frame == m_stopMotion->getXSheetFrameNumber() - 1)) {
@@ -2142,6 +2154,7 @@ void SceneViewer::drawScene() {
           // painter.onRasterImage(m_stopMotionImage.getPointer(), smPlayer);
         }
       }
+#endif  // x64
       Stage::visit(painter, args);
     }
 

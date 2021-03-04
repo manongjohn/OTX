@@ -121,15 +121,28 @@ set(MOC_HEADERS
     xshtoolbar.h
 	xdtsimportpopup.h
 	expressionreferencemanager.h
-    ../stopmotion/stopmotion.h
-    ../stopmotion/stopmotioncontroller.h
-    ../stopmotion/webcam.h
-    ../stopmotion/jpgconverter.h
-    ../stopmotion/canon.h
-    ../stopmotion/stopmotionlight.h
-    cameracapturelevelcontrol.h
-    penciltestpopup.h
 )
+
+if(PLATFORM EQUAL 64)
+    set(MOC_HEADERS
+        ${MOC_HEADERS}
+        ../stopmotion/stopmotion.h
+        ../stopmotion/stopmotioncontroller.h
+        ../stopmotion/webcam.h
+        ../stopmotion/jpgconverter.h
+        ../stopmotion/canon.h
+        ../stopmotion/stopmotionserial.h
+        ../stopmotion/stopmotionlight.h
+        cameracapturelevelcontrol.h
+        penciltestpopup.h
+    )
+else()
+    set(MOC_HEADERS
+        ${MOC_HEADERS}
+        cameracapturelevelcontrol_qt.h
+        penciltestpopup_qt.h
+    )
+endif()
 
 set(HEADERS
     ${MOC_HEADERS}
@@ -351,15 +364,28 @@ set(SOURCES
     metnum.cpp
     ObjectTracker.cpp
     predict3d.cpp
-    ../stopmotion/stopmotion.cpp
-    ../stopmotion/stopmotioncontroller.cpp
-    ../stopmotion/webcam.cpp
-    ../stopmotion/jpgconverter.cpp
-    ../stopmotion/canon.cpp
-    ../stopmotion/stopmotionlight.cpp
-	cameracapturelevelcontrol.cpp
-    penciltestpopup.cpp
 )
+
+if(PLATFORM EQUAL 64)
+    set(SOURCES
+        ${SOURCES}
+        ../stopmotion/stopmotion.cpp
+        ../stopmotion/stopmotioncontroller.cpp
+        ../stopmotion/webcam.cpp
+        ../stopmotion/jpgconverter.cpp
+        ../stopmotion/canon.cpp
+        ../stopmotion/stopmotionserial.cpp
+        ../stopmotion/stopmotionlight.cpp
+        cameracapturelevelcontrol.cpp
+        penciltestpopup.cpp
+    )
+else()
+    set(SOURCES
+        ${SOURCES}
+        cameracapturelevelcontrol_qt.cpp
+        penciltestpopup_qt.cpp
+    )
+endif()
 
 if(WITH_TRANSLATION)
     add_translation(toonz ${HEADERS} ${SOURCES})
@@ -423,13 +449,11 @@ if (WITH_CANON)
 endif()
 
 if(BUILD_ENV_APPLE)
-    include_directories(
-       ../../sources/mousedragfilter
-       ${TURBOJPEG_INCLUDE_DIRS}
-    )
+    include_directories(../../sources/mousedragfilter)
+    if(PLATFORM EQUAL 64)
+        include_directories(${TURBOJPEG_INCLUDE_DIRS})
+    endif()
 endif()
-
-
 
 if(BUILD_TARGET_WIN)
     if(PLATFORM EQUAL 32)
@@ -442,19 +466,19 @@ endif()
 
 target_link_libraries(OpenToonz ColorWidgets-qt5)
 
-if(BUILD_ENV_MSVC AND WITH_CANON)
+if(BUILD_ENV_MSVC)
+    set(EXTRA_LIBS)
+    if(PLATFORM EQUAL 64)
+        set(EXTRA_LIBS ${EXTRA_LIBS} Qt5::SerialPort ${TURBOJPEG_LIB} ${OpenCV_LIBS})
+        if(WITH_CANON)
+            set(EXTRA_LIBS ${EXTRA_LIBS} ${CANON_LIB})
+        endif()
+    endif()
     target_link_libraries(OpenToonz
         Qt5::WinMain Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Svg Qt5::Xml
         Qt5::Script Qt5::Widgets Qt5::PrintSupport Qt5::Multimedia
         ${GL_LIB} ${GLUT_LIB} 
-        ${CANON_LIB} ${TURBOJPEG_LIB} ${OpenCV_LIBS} strmiids
-        tnzcore tnzbase toonzlib colorfx tnzext image sound toonzqt tnztools tnzstdfx tfarm
-    )
-elseif(BUILD_ENV_MSVC)
-    target_link_libraries(OpenToonz
-        Qt5::WinMain Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Svg Qt5::Xml
-        Qt5::Script Qt5::Widgets Qt5::PrintSupport Qt5::Multimedia
-        ${GL_LIB} ${GLUT_LIB} ${TURBOJPEG_LIB} ${OpenCV_LIBS} strmiids
+        ${EXTRA_LIBS} strmiids
         tnzcore tnzbase toonzlib colorfx tnzext image sound toonzqt tnztools tnzstdfx tfarm
     )
 elseif(BUILD_ENV_APPLE AND WITH_CANON)
@@ -481,14 +505,21 @@ elseif(BUILD_ENV_APPLE)
 
     # 変なところにライブラリ生成するカスども
     set(EXTRA_LIBS ${EXTRA_LIBS} "$<TARGET_FILE:tnzstdfx>" "$<TARGET_FILE:tfarm>")
+    set(X64ONLY_LIBS)
+    if(PLATFORM EQUAL 64)
+        set(X64ONLY_LIBS ${X64ONLY_LIBS} Qt5::SerialPort ${TURBOJPEG_LIB} ${OpenCV_LIBS})
+        if(WITH_CANON)
+            set(X64ONLY_LIBS ${X64ONLY_LIBS} ${CANON_LIB})
+        endif()
+    endif()
 
     add_dependencies(OpenToonz tnzcore tnzbase toonzlib colorfx tnzext image sound toonzqt tnztools tnzstdfx tfarm)
 
     target_link_libraries(OpenToonz
         Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Svg Qt5::Xml
         Qt5::Script Qt5::Widgets Qt5::PrintSupport Qt5::Multimedia Qt5::MultimediaWidgets
-        ${GL_LIB} ${GLUT_LIB} ${TURBOJPEG_LIB} ${OpenCV_LIBS}
-        ${COCOA_LIB} ${EXTRA_LIBS} mousedragfilter
+        ${GL_LIB} ${GLUT_LIB}
+        ${COCOA_LIB} ${EXTRA_LIBS} ${X64ONLY_LIBS} mousedragfilter
     )
 
 elseif(BUILD_ENV_UNIXLIKE)
@@ -498,6 +529,9 @@ elseif(BUILD_ENV_UNIXLIKE)
     set(EXTRA_LIBS ${EXTRA_LIBS} "$<TARGET_FILE:tnzstdfx>" "$<TARGET_FILE:tfarm>")
 
     set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES} ${OPENBLAS_LIB})
+    if(PLATFORM EQUAL 64)
+        set(EXTRA_LIBS ${EXTRA_LIBS} Qt5::SerialPort ${TURBOJPEG_LIB} ${OpenCV_LIBS})
+    endif()
 
     if(BUILD_TARGET_WIN)
         set(EXTRA_LIBS ${EXTRA_LIBS} Qt5::WinMain -lstrmiids -mwindows)

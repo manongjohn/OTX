@@ -207,6 +207,7 @@ StopMotion::StopMotion() {
 
   m_webcam = new Webcam();
   m_canon  = Canon::instance();
+  m_serial = new StopMotionSerial();
   m_light  = new StopMotionLight();
 
   m_alwaysLiveView = StopMotionAlwaysLiveView;
@@ -1000,6 +1001,7 @@ void StopMotion::setXSheetFrameNumber(int frameNumber) {
   TApp::instance()->getCurrentFrame()->setFrame(frameNumber - 1);
   loadLineUpImage();
   emit(xSheetFrameNumberChanged(m_xSheetFrameNumber));
+  m_serial->sendSerialData();
   TApp::instance()->getCurrentXsheet()->notifyXsheetChanged();
 }
 
@@ -1384,10 +1386,10 @@ void StopMotion::setLiveViewImage() {
         TDimension(m_liveViewImage->getLx(), m_liveViewImage->getLy());
     double minimumDpi = std::min(m_liveViewImageDimensions.lx / size.lx,
                                  m_liveViewImageDimensions.ly / size.ly);
-    m_liveViewDpi = TPointD(minimumDpi, minimumDpi);
+    m_liveViewDpi     = TPointD(minimumDpi, minimumDpi);
 
     if (!m_usingWebcam) {
-      minimumDpi = std::min(m_fullImageDimensions.lx / size.lx,
+      minimumDpi     = std::min(m_fullImageDimensions.lx / size.lx,
                             m_fullImageDimensions.ly / size.ly);
       m_fullImageDpi = TPointD(minimumDpi, minimumDpi);
     } else {
@@ -1976,7 +1978,7 @@ bool StopMotion::loadXmlFile() {
   while (!xmlReader.atEnd()) {
     if (xmlReader.isStartElement()) {
       if (xmlReader.name() == "Webcam") {
-        text                      = xmlReader.readElementText();
+        text = xmlReader.readElementText();
         if (text == "yes") webcam = true;
       }
       if (xmlReader.name() == "CameraName") {
@@ -2245,7 +2247,7 @@ void StopMotion::refreshFrameInfo() {
   int frameNumber        = m_frameNumber;
 
   TDimension stopMotionRes;
-  bool checkRes                    = true;
+  bool checkRes = true;
   if (m_usingWebcam) stopMotionRes = m_liveViewImageDimensions;
 #ifdef WITH_CANON
   else if (m_canon->m_useScaledImages ||

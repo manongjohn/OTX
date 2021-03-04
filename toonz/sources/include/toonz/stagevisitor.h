@@ -137,10 +137,12 @@ struct DVAPI VisitArgs {
   int m_isGuidedDrawingEnabled;
   int m_guidedFrontStroke;
   int m_guidedBackStroke;
+#if defined(x64)
   TRasterImageP m_liveViewImage = 0;
   TRasterImageP m_lineupImage   = 0;
   Stage::Player m_liveViewPlayer;
   Stage::Player m_lineupPlayer;
+#endif
 
 public:
   VisitArgs()

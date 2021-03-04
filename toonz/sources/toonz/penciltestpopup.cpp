@@ -1214,14 +1214,13 @@ void PencilTestSaveInFolderPopup::updateParentFolder() {
 
 PencilTestPopup::PencilTestPopup()
     // set the parent 0 in order to enable the popup behind the main window
-    : Dialog(0, false, false, "PencilTest"),
-      m_currentCamera(NULL),
-      m_captureWhiteBGCue(false),
-      m_captureCue(false),
-      m_useMjpg(CamCapUseMjpg != 0)
+    : Dialog(0, false, false, "PencilTest")
+    , m_currentCamera(NULL)
+    , m_captureWhiteBGCue(false)
+    , m_captureCue(false)
+    , m_useMjpg(CamCapUseMjpg != 0)
 #ifdef _WIN32
-          ,
-      m_useDirectShow(CamCapUseDirectShow != 0)
+    , m_useDirectShow(CamCapUseDirectShow != 0)
 #endif
 {
   setWindowTitle(tr("Camera Capture"));
@@ -1286,7 +1285,7 @@ PencilTestPopup::PencilTestPopup()
 #ifdef WIN32
   m_captureFilterSettingsBtn = new QPushButton(this);
 #else
-  m_captureFilterSettingsBtn = 0;
+  m_captureFilterSettingsBtn = nullptr;
 #endif
 
   QPushButton* subfolderButton = new QPushButton(tr("Subfolder"), this);
@@ -1345,13 +1344,12 @@ PencilTestPopup::PencilTestPopup()
   QCommonStyle style;
   m_captureButton->setIcon(style.standardIcon(QStyle::SP_DialogOkButton));
   m_captureButton->setIconSize(QSize(30, 30));
-
   if (m_captureFilterSettingsBtn) {
     m_captureFilterSettingsBtn->setObjectName("GearButton");
     m_captureFilterSettingsBtn->setFixedSize(24, 24);
     m_captureFilterSettingsBtn->setIconSize(QSize(16, 16));
-	m_captureFilterSettingsBtn->setIcon(createQIcon("gear"));
-	m_captureFilterSettingsBtn->setToolTip(tr("Options"));
+    m_captureFilterSettingsBtn->setIcon(createQIcon("gear"));
+    m_captureFilterSettingsBtn->setToolTip(tr("Options"));
     m_captureFilterSettingsBtn->setMenu(createOptionsMenu());
   }
 
@@ -2011,7 +2009,7 @@ int PencilTestPopup::translateIndex(int camIndex) {
   }
   // clean
   CLEAN_ATTRIBUTES()
-#endif
+#endif  // WIN32
   return camIndex;
 }
 
@@ -2455,9 +2453,8 @@ bool PencilTestPopup::importImage(QImage image) {
 
       /* if the loaded level does not match in pixel size, then return */
       sl = level->getSimpleLevel();
-      if (!sl ||
-          sl->getProperties()->getImageRes() !=
-              TDimension(image.width(), image.height())) {
+      if (!sl || sl->getProperties()->getImageRes() !=
+                     TDimension(image.width(), image.height())) {
         error(tr(
             "The captured image size does not match with the existing level."));
         return false;
@@ -2482,7 +2479,7 @@ bool PencilTestPopup::importImage(QImage image) {
     else {
       TXshLevel* level = scene->createNewLevel(OVL_XSHLEVEL, levelName,
                                                TDimension(), 0, levelFp);
-      sl = level->getSimpleLevel();
+      sl               = level->getSimpleLevel();
       sl->setPath(levelFp, true);
       sl->getProperties()->setDpiPolicy(LevelProperties::DP_CustomDpi);
       TPointD dpi;
@@ -2671,7 +2668,7 @@ void PencilTestPopup::refreshFrameInfo() {
 
   // frame existence
   TFilePath frameFp(actualLevelFp.withFrame(frameNumber));
-  bool frameExist            = false;
+  bool frameExist = false;
   if (levelExist) frameExist = TFileStatus(frameFp).doesExist();
 
   // reset acceptable camera size

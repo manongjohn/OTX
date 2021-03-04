@@ -27,7 +27,9 @@
 
 #include "expressionreferencemanager.h"
 
+#if defined(x64)
 #include "stopmotioncontroller.h"
+#endif
 
 #include "tasksviewer.h"
 #include "batchserversviewer.h"
@@ -1401,6 +1403,7 @@ OpenFloatingPanel openHistoryPanelCommand(MI_OpenHistoryPanel, "HistoryPanel",
                                           QObject::tr("History"));
 //=============================================================================
 
+#if defined(x64)
 //=============================================================================
 // StopMotion Controller
 //-----------------------------------------------------------------------------
@@ -1425,6 +1428,8 @@ OpenFloatingPanel openStopMotionPanelCommand(
     MI_OpenStopMotionPanel, "StopMotionController",
     QObject::tr("Stop Motion Controller"));
 //-----------------------------------------------------------------------------
+
+#endif  // x64
 
 //=============================================================================
 // FxSettings

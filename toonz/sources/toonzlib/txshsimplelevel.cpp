@@ -1461,8 +1461,9 @@ void TXshSimpleLevel::save(const TFilePath &fp, const TFilePath &oldFp,
 
   // backup
   if (Preferences::instance()->isBackupEnabled() && dOldPath == dDstPath &&
-      TSystem::doesExistFileOrLevel(dDstPath))
-    if (!getProperties()->isStopMotionLevel()) saveBackup(dDstPath);
+      TSystem::doesExistFileOrLevel(dDstPath) &&
+      !getProperties()->isStopMotionLevel())
+    saveBackup(dDstPath);
 
   if (isAreadOnlyLevel(dDstPath)) {
     if (m_editableRange.empty() &&

@@ -19,12 +19,8 @@ Building OpenToonz from source requires the following dependencies:
 ### Installing Dependencies on Debian / Ubuntu 16.04 (Xenial)
 
 ```
-$ sudo apt-get install build-essential git cmake freeglut3-dev libboost-all-dev libegl1-mesa-dev libfreetype6-dev libgles2-mesa-dev libglew-dev libglib2.0-dev libjpeg-dev libjpeg-turbo8-dev libjson-c-dev liblz4-dev liblzma-dev liblzo2-dev libpng-dev libsuperlu-dev libusb-1.0-0-dev pkg-config qt5-default qtbase5-dev libqt5svg5-dev qtscript5-dev qttools5-dev qttools5-dev-tools libqt5opengl5-dev qtmultimedia5-dev qtwayland5 libqt5multimedia5-plugins
-```
-
-Find a PPA respository for Qt 5.9 or later and install the following:
-```
-$ sudo apt-get install -y qt59multimedia qt59script qt59serialport qt59svg qt59tools
+$sudo apt-get install build-essential git cmake pkg-config libboost-all-dev qt5-default qtbase5-dev libqt5svg5-dev qtscript5-dev qttools5-dev qttools5-dev-tools libqt5opengl5-dev qtmultimedia5-dev libqt5multimedia5-plugins libqt5serialport5-dev libsuperlu-dev 
+liblz4-dev libusb-1.0-0-dev liblzo2-dev libpng-dev libjpeg-dev libglew-dev freeglut3-dev libfreetype6-dev libjson-c-dev qtwayland5 libmypaint-dev libopencv-dev libturbojpeg-dev
 ```
 
 Find a PPA repository for MyPaint 1.3 and install the following:
@@ -39,6 +35,7 @@ $ sudo apt-get install -y libopencv-dev
 
 Notes:
 * It's possible we also need `libgsl2` (or maybe `libopenblas-dev`)
+* We may also need `libegl1-mesa-dev libgles2-mesa-dev libglib2.0-dev liblzma-dev`
 * For Qt, MyPaint and OpenCV, you can alternatively build and install from source.
 
 ### Installing Dependencies on Fedora

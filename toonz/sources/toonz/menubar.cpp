@@ -1105,7 +1105,9 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   {
     addMenuItem(exportMenu, MI_SoundTrack);
     addMenuItem(exportMenu, MI_ExportXDTS);
+#if defined(x64)
     addMenuItem(exportMenu, MI_StopMotionExportImageSequence);
+#endif
   }
   fileMenu->addSeparator();
   addMenuItem(fileMenu, MI_PrintXsheet);
@@ -1419,7 +1421,9 @@ QMenuBar *StackedMenuBar::createFullMenuBar() {
   addMenuItem(windowsMenu, MI_OpenTMessage);
   addMenuItem(windowsMenu, MI_OpenHistoryPanel);
   addMenuItem(windowsMenu, MI_AudioRecording);
+#if defined(x64)
   addMenuItem(windowsMenu, MI_OpenStopMotionPanel);
+#endif
   addMenuItem(windowsMenu, MI_StartupPopup);
   addMenuItem(windowsMenu, MI_OpenGuidedDrawingControls);
   // windowsMenu->addSeparator();

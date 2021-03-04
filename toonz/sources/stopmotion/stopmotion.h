@@ -10,7 +10,9 @@
 #include "EDSDKTypes.h"
 #endif
 
+#if defined(x64)
 #include "turbojpeg.h"
+#endif
 
 // Toonz Includes
 #include "traster.h"
@@ -20,6 +22,7 @@
 #include "webcam.h"
 #include "jpgconverter.h"
 #include "canon.h"
+#include "stopmotionserial.h"
 #include "stopmotionlight.h"
 
 #include "toonz/txshsimplelevel.h"
@@ -77,6 +80,7 @@ public:
 
   Webcam* m_webcam;
   Canon* m_canon;
+  StopMotionSerial* m_serial;
   StopMotionLight* m_light;
 
   bool m_usingWebcam       = false;

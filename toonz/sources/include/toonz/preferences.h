@@ -342,6 +342,9 @@ public:
   bool useCtrlAltToResizeBrushEnabled() const {
     return getBoolValue(useCtrlAltToResizeBrush);
   }
+  int getTempToolSwitchTimer() const {
+    return getIntValue(tempToolSwitchTimer);
+  }
 
   // Xsheet  tab
   QString getXsheetLayoutPreference() const {
