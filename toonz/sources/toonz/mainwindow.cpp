@@ -53,6 +53,9 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QMessageBox>
+#ifdef _WIN32
+#include <QtPlatformHeaders/QWindowsWindowFunctions>
+#endif
 
 TEnv::IntVar ViewCameraToggleAction("ViewCameraToggleAction", 1);
 TEnv::IntVar ViewTableToggleAction("ViewTableToggleAction", 1);
@@ -1187,9 +1190,16 @@ void MainWindow::maximizePanel() {
 
 void MainWindow::fullScreenWindow() {
   if (isFullScreen())
-    setWindowState(Qt::WindowMaximized);
-  else
-    setWindowState(Qt::WindowFullScreen);
+    showNormal();
+  else {
+#if defined(_WIN32)
+    // http://doc.qt.io/qt-5/windows-issues.html#fullscreen-opengl-based-windows
+    this->winId();
+    QWindowsWindowFunctions::setHasBorderInFullScreen(this->windowHandle(),
+                                                      true);
+#endif
+    this->showFullScreen();
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1449,6 +1459,12 @@ QAction *MainWindow::createAction(const char *id, const char *name,
                                   const QString &defaultShortcut,
                                   CommandType type, const char *iconSVGName) {
   QAction *action = new DVAction(tr(name), this);
+
+#if !defined(_WIN32)
+  bool visible = Preferences::instance()->getBoolValue(showIconsInMenu);
+  action->setIconVisibleInMenu(visible);
+#endif
+
   // In Qt5.15.2 - Windows, QMenu stylesheet has alignment issue when one item
   // has icon and another has not one. (See
   // https://bugreports.qt.io/browse/QTBUG-90242 for details.) To avoid the
@@ -1464,7 +1480,7 @@ QAction *MainWindow::createAction(const char *id, const char *name,
 #endif
     // do nothing for other platforms
   } else
-    action->setIcon(createQIcon(iconSVGName));
+    action->setIcon(createQIcon(iconSVGName, false, true));
   addAction(action);
 #ifdef MACOSX
   // To prevent the wrong menu items (due to MacOS menu naming conventions),
@@ -2857,7 +2873,7 @@ void MainWindow::defineActions() {
   menuAct =
       createMiscAction(MI_RefreshTree, QT_TR_NOOP("Refresh Folder Tree"), "");
   menuAct->setIconText(tr("Refresh"));
-  menuAct->setIcon(createQIcon("refresh"));
+  menuAct->setIcon(createQIcon("refresh", false, true));
   createMiscAction("A_FxSchematicToggle",
                    QT_TR_NOOP("Toggle FX/Stage schematic"), "");
 

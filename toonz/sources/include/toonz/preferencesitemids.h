@@ -40,6 +40,7 @@ enum PreferencesItemId {
   interfaceFontStyle,
   colorCalibrationEnabled,
   colorCalibrationLutPaths,
+  showIconsInMenu,
 
   //----------
   // Visualization
@@ -177,6 +178,8 @@ enum PreferencesItemId {
   // TounchGestureControl // Touch Gesture is a checkable command and not in
   // preferences.ini
   winInkEnabled,
+  // This option will be shown & available only when WITH_WINTAB is defined
+  useQtNativeWinInk,
 
   //----------
   // Others (not appeared in the popup)

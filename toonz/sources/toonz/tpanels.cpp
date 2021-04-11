@@ -40,6 +40,7 @@
 #include "tapp.h"
 #include "mainwindow.h"
 #include "columncommand.h"
+#include "levelcommand.h"
 
 // TnzTools includes
 #include "tools/tooloptions.h"
@@ -256,6 +257,12 @@ void SchematicScenePanel::onDeleteStageObjects(
 
 //-----------------------------------------------------------------------------
 
+void SchematicScenePanel::onColumnPaste(const QList<TXshColumnP> &columns) {
+  LevelCmd::addMissingLevelsToCast(columns);
+}
+
+//-----------------------------------------------------------------------------
+
 void SchematicScenePanel::showEvent(QShowEvent *e) {
   if (m_schematicViewer->isStageSchematicViewed())
     setWindowTitle(QObject::tr("Stage Schematic"));
@@ -289,6 +296,8 @@ void SchematicScenePanel::showEvent(QShowEvent *e) {
           SLOT(updateSchematic()));
   connect(app->getCurrentScene(), SIGNAL(sceneSwitched()), m_schematicViewer,
           SLOT(onSceneSwitched()));
+  connect(m_schematicViewer, SIGNAL(columnPasted(const QList<TXshColumnP> &)),
+          this, SLOT(onColumnPaste(const QList<TXshColumnP> &)));
   m_schematicViewer->updateSchematic();
 }
 
@@ -318,6 +327,9 @@ void SchematicScenePanel::hideEvent(QHideEvent *e) {
              m_schematicViewer, SLOT(updateSchematic()));
   disconnect(app->getCurrentScene(), SIGNAL(sceneSwitched()), m_schematicViewer,
              SLOT(onSceneSwitched()));
+  disconnect(m_schematicViewer,
+             SIGNAL(columnPasted(const QList<TXshColumnP> &)), this,
+             SLOT(onColumnPaste(const QList<TXshColumnP> &)));
 }
 
 //=============================================================================
@@ -518,7 +530,7 @@ void PaletteViewerPanel::reset() {
 void PaletteViewerPanel::initializeTitleBar() {
   m_freezeButton = new TPanelTitleBarButton(
       getTitleBar(), getIconThemePath("actions/20/pane_freeze.svg"));
-  m_freezeButton->setToolTip("Freeze");
+  m_freezeButton->setToolTip(tr("Freeze"));
   getTitleBar()->add(QPoint(-54, 0), m_freezeButton);
   m_freezeButton->setPressed(m_isFrozen);
   connect(m_freezeButton, SIGNAL(toggled(bool)),

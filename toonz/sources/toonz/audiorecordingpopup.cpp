@@ -51,13 +51,11 @@
 #include <QPainter>
 #include <QElapsedTimer>
 
-//
 //=============================================================================
 
 AudioRecordingPopup::AudioRecordingPopup()
     : Dialog(TApp::instance()->getMainWindow(), false, true, "AudioRecording") {
   setWindowTitle(tr("Audio Recording"));
-
   m_isPlaying            = false;
   m_syncPlayback         = true;
   m_currentFrame         = 0;
@@ -175,7 +173,11 @@ AudioRecordingPopup::AudioRecordingPopup()
   m_probe->setSource(m_audioRecorder);
   QAudioEncoderSettings audioSettings;
   audioSettings.setCodec("audio/PCM");
-  audioSettings.setSampleRate(44100);
+  // setting the sample rate to some value (like 44100)
+  // may cause divide-by-zero crash in QAudioDeviceInfo::nearestFormat()
+  // so here we set the value to -1, as the documentation says;
+  // "A value of -1 indicates the encoder should make an optimal choice"
+  audioSettings.setSampleRate(-1);
   audioSettings.setChannelCount(1);
   audioSettings.setBitRate(16);
   audioSettings.setEncodingMode(QMultimedia::ConstantBitRateEncoding);
@@ -512,7 +514,7 @@ void AudioRecordingPopup::processBuffer(const QAudioBuffer &buffer) {
   qreal maxValue     = 0;
   qreal tempValue    = 0;
   for (int i = 0; i < buffer.frameCount(); ++i) {
-    tempValue                          = qAbs(qreal(data[i]));
+    tempValue = qAbs(qreal(data[i]));
     if (tempValue > maxValue) maxValue = tempValue;
   }
   maxValue /= SHRT_MAX;

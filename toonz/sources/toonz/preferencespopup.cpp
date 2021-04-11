@@ -1059,6 +1059,7 @@ QString PreferencesPopup::getUIString(PreferencesItemId id) {
       {colorCalibrationLutPaths,
        tr("3DLUT File for [%1]:")
            .arg(LutManager::instance()->getMonitorName())},
+      {showIconsInMenu, tr("Show Icons In Menu*")},
 
       // Visualization
       {show0ThickLines, tr("Show Lines with Thickness 0")},
@@ -1196,7 +1197,11 @@ QString PreferencesPopup::getUIString(PreferencesItemId id) {
       // Touch / Tablet Settings
       // TounchGestureControl // Touch Gesture is a checkable command and not in
       // preferences.ini
-      {winInkEnabled, tr("Enable Windows Ink Support* (EXPERIMENTAL)")}};
+      {winInkEnabled, tr("Enable Windows Ink Support* (EXPERIMENTAL)")},
+      {useQtNativeWinInk,
+       tr("Use Qt's Native Windows Ink Support*\n(CAUTION: This options is for "
+          "maintenance purpose. \n Do not activate this option or the tablet "
+          "won't work properly.)")}};
 
   return uiStringTable.value(id, QString());
 }
@@ -1508,6 +1513,7 @@ QWidget* PreferencesPopup::createInterfacePage() {
   insertUI(interfaceFontStyle, lay, buildFontStyleList());
   QGridLayout* colorCalibLay = insertGroupBoxUI(colorCalibrationEnabled, lay);
   { insertUI(colorCalibrationLutPaths, colorCalibLay); }
+  insertUI(showIconsInMenu, lay);
 
   lay->setRowStretch(lay->rowCount(), 1);
   insertFootNote(lay);
@@ -1967,6 +1973,9 @@ QWidget* PreferencesPopup::createTouchTabletPage() {
 
   lay->addWidget(enableTouchGestures, 0, 0, 1, 2);
   if (winInkAvailable) insertUI(winInkEnabled, lay);
+#ifdef WITH_WINTAB
+  insertUI(useQtNativeWinInk, lay);
+#endif
 
   lay->setRowStretch(lay->rowCount(), 1);
   if (winInkAvailable) insertFootNote(lay);

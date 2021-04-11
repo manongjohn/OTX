@@ -560,17 +560,17 @@
     <message>
         <location filename="../../tnztools/vectorerasertool.cpp" line="441"/>
         <source>Ease In</source>
-        <translation>Замедл. в конце</translation>
+        <translation>Замедление</translation>
     </message>
     <message>
         <location filename="../../tnztools/vectorerasertool.cpp" line="442"/>
         <source>Ease Out</source>
-        <translation>Замедл. в начале</translation>
+        <translation>Ускорение</translation>
     </message>
     <message>
         <location filename="../../tnztools/vectorerasertool.cpp" line="443"/>
         <source>Ease In/Out</source>
-        <translation>Замедл. в конце/ начале</translation>
+        <translation>Замедл. в начале/в конце</translation>
     </message>
     <message>
         <location filename="../../tnztools/rastererasertool.cpp" line="632"/>
@@ -702,44 +702,44 @@
 <context>
     <name>FullColorBrushTool</name>
     <message>
-        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="181"/>
-        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="186"/>
+        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="182"/>
+        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="187"/>
         <source>Size</source>
         <translation>Размер</translation>
     </message>
     <message>
-        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="182"/>
+        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="183"/>
         <source>Pressure</source>
         <translation>Нажим</translation>
     </message>
     <message>
-        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="183"/>
-        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="187"/>
+        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="184"/>
+        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="188"/>
         <source>Opacity</source>
         <translation>Непрозрачность</translation>
     </message>
     <message>
-        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="184"/>
+        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="185"/>
         <source>Hardness:</source>
         <translation>Жесткость:</translation>
     </message>
     <message>
-        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="185"/>
+        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="186"/>
         <source>Preset:</source>
         <translation>Предустановка:</translation>
     </message>
     <message>
-        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="188"/>
+        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="189"/>
         <source>Eraser</source>
         <translation>Ластик</translation>
     </message>
     <message>
-        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="189"/>
+        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="190"/>
         <source>Lock Alpha</source>
         <translation>Заблокировать альфа канал</translation>
     </message>
     <message>
-        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="654"/>
+        <location filename="../../tnztools/fullcolorbrushtool.cpp" line="661"/>
         <source>&lt;custom&gt;</source>
         <translation>&lt;пользовательская&gt;</translation>
     </message>
@@ -1388,13 +1388,13 @@ Do you want to proceed?</source>
     </message>
     <message>
         <location filename="../../tnztools/toonzvectorbrushtool.cpp" line="846"/>
-        <location filename="../../tnztools/geometrictool.cpp" line="1276"/>
+        <location filename="../../tnztools/geometrictool.cpp" line="1292"/>
         <source>Yes</source>
         <translation>Да</translation>
     </message>
     <message>
         <location filename="../../tnztools/toonzvectorbrushtool.cpp" line="846"/>
-        <location filename="../../tnztools/geometrictool.cpp" line="1276"/>
+        <location filename="../../tnztools/geometrictool.cpp" line="1292"/>
         <source>No</source>
         <translation>Нет</translation>
     </message>
@@ -2021,17 +2021,17 @@ moved to the end of the first page of the palette.</source>
     <message>
         <location filename="../../tnztools/toonzvectorbrushtool.cpp" line="598"/>
         <source>In</source>
-        <translation>Замедл. в начале</translation>
+        <translation>Замедление</translation>
     </message>
     <message>
         <location filename="../../tnztools/toonzvectorbrushtool.cpp" line="599"/>
         <source>Out</source>
-        <translation>Замедл. в конце</translation>
+        <translation>Ускорение</translation>
     </message>
     <message>
         <location filename="../../tnztools/toonzvectorbrushtool.cpp" line="600"/>
         <source>In&amp;Out</source>
-        <translation>В начале &amp;в конце</translation>
+        <translation>Медл. начало&amp;конец</translation>
     </message>
     <message>
         <location filename="../../tnztools/toonzvectorbrushtool.cpp" line="601"/>
@@ -2105,22 +2105,22 @@ moved to the end of the first page of the palette.</source>
 <context>
     <name>TypeTool</name>
     <message>
-        <location filename="../../tnztools/typetool.cpp" line="455"/>
+        <location filename="../../tnztools/typetool.cpp" line="456"/>
         <source>Font:</source>
         <translation>Шрифт:</translation>
     </message>
     <message>
-        <location filename="../../tnztools/typetool.cpp" line="456"/>
+        <location filename="../../tnztools/typetool.cpp" line="457"/>
         <source>Style:</source>
         <translation>Начертание:</translation>
     </message>
     <message>
-        <location filename="../../tnztools/typetool.cpp" line="457"/>
+        <location filename="../../tnztools/typetool.cpp" line="458"/>
         <source>Vertical Orientation</source>
         <translation>Вертикальная ориентация</translation>
     </message>
     <message>
-        <location filename="../../tnztools/typetool.cpp" line="458"/>
+        <location filename="../../tnztools/typetool.cpp" line="459"/>
         <source>Size:</source>
         <translation>Размер:</translation>
     </message>

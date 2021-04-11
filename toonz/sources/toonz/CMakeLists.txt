@@ -1,4 +1,4 @@
-set(VERSION 1.4)
+set(VERSION 1.5)
 
 set(MOC_HEADERS
     addfilmstripframespopup.h
@@ -185,6 +185,7 @@ set(HEADERS
     ../include/orientation.h
     ../include/saveloadqsettings.h
     xdtsio.h
+    levelcommand.h
 # Tracker file
     ObjectTracker.h
     dummyprocessor.h
@@ -446,6 +447,10 @@ include_directories(
 
 if (WITH_CANON)
     add_definitions(-DWITH_CANON)
+endif()
+
+if (WITH_WINTAB AND BUILD_TARGET_WIN AND (PLATFORM EQUAL 64))
+    add_definitions(-DWITH_WINTAB)
 endif()
 
 if(BUILD_ENV_APPLE)

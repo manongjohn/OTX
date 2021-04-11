@@ -109,9 +109,10 @@ void getDefaultLevelFormats(LevelFormatVector &lfv) {
     lfv[1].m_options.m_premultiply = true;
 
     // for all PNG files, set premultiply by default
-    lfv[2].m_name                  = Preferences::tr("PNG");
-    lfv[2].m_pathFormat            = QRegExp("..*\\.png", Qt::CaseInsensitive);
-    lfv[2].m_options.m_premultiply = true;
+    // UPDATE : from V1.5, PNG images are premultiplied on loading
+    // lfv[2].m_name                  = Preferences::tr("PNG");
+    // lfv[2].m_pathFormat            = QRegExp("..*\\.png",
+    // Qt::CaseInsensitive); lfv[2].m_options.m_premultiply = true;
   }
 }
 
@@ -193,6 +194,32 @@ void getValue(QSettings &settings,
     getValue(settings, lfv[lf]);
   }
   settings.endArray();
+
+  // from OT V1.5, PNG images are premultiplied on loading.
+  // Leaving the premultiply option will cause unwanted double operation.
+  // So, check the loaded options and modify it "silently".
+  bool changed                   = false;
+  LevelFormatVector::iterator it = lfv.begin();
+  while (it != lfv.end()) {
+    if ((*it).m_name == Preferences::tr("PNG") &&
+        (*it).m_pathFormat == QRegExp("..*\\.png", Qt::CaseInsensitive) &&
+        (*it).m_options.m_premultiply == true) {
+      LevelOptions defaultValue;
+      defaultValue.m_premultiply = true;
+      // if other parameters are the same as deafault, just erase the item
+      if ((*it).m_options == defaultValue) it = lfv.erase(it);
+      // if there are some adjustments by user, then disable only premultiply
+      // option
+      else {
+        (*it).m_options.m_premultiply = false;
+        ++it;
+      }
+      changed = true;
+    } else
+      ++it;
+  }
+  // overwrite the setting
+  if (changed) _setValue(settings, lfv);
 }
 
 }  // namespace
@@ -363,8 +390,9 @@ void Preferences::definePreferenceItems() {
   // (QTBUG-90242) Since the current OT is made to handle such issue, so we need
   // to apply an extra adjustment when it is run on the older versions (5.9.x)
   // of Qt
+  // Update: confirmed that the bug does not appear at least in Qt 5.12.8
   QString defaultAditionalSheet = "";
-#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
+#if QT_VERSION < QT_VERSION_CHECK(5, 12, 9)
   defaultAditionalSheet = "QMenu::Item{ padding: 3 28 3 28; }";
 #endif
 
@@ -411,6 +439,15 @@ void Preferences::definePreferenceItems() {
          false);
   define(colorCalibrationLutPaths, "colorCalibrationLutPaths",
          QMetaType::QVariantMap, QVariantMap());
+
+  // hide menu icons by default in macOS since the icon color may not match with
+  // the system color theme
+#ifdef Q_OS_MACOS
+  bool defIconsVisible = false;
+#else
+  bool defIconsVisible = true;
+#endif
+  define(showIconsInMenu, "showIconsInMenu", QMetaType::Bool, defIconsVisible);
 
   setCallBack(pixelsOnly, &Preferences::setPixelsOnly);
   setCallBack(linearUnits, &Preferences::setUnits);
@@ -601,6 +638,8 @@ void Preferences::definePreferenceItems() {
   // TounchGestureControl // Touch Gesture is a checkable command and not in
   // preferences.ini
   define(winInkEnabled, "winInkEnabled", QMetaType::Bool, false);
+  // This option will be shown & available only when WITH_WINTAB is defined
+  define(useQtNativeWinInk, "useQtNativeWinInk", QMetaType::Bool, false);
 
   // Others (not appeared in the popup)
   // Shortcut popup settings

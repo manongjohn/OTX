@@ -103,6 +103,7 @@ option(WITH_SYSTEM_LZO "Use the system LZO library instead of 'thirdpary'" ${_in
 option(WITH_SYSTEM_SUPERLU "Use the system SuperLU library instead of 'thirdpary'" ${_init_SYSTEM_SUPERLU})
 option(WITH_CANON "Build with Canon DSLR support - Requires Canon SDK" OFF)
 option(WITH_TRANSLATION "Generate translation projects as well" ON)
+option(WITH_WINTAB "(Windows only) Build with customized Qt with WinTab support. https://github.com/shun-iwasawa/qt5/releases/tag/v5.15.2_wintab" OFF)
 
 # avoid using again
 option_defaults_clear()
@@ -148,13 +149,13 @@ endif()
 message(STATUS "Thirdpary Library Search path:" ${THIRDPARTY_LIBS_HINTS})
 
 if(BUILD_ENV_MSVC)
-    set(QT_PATH "C:/Qt/5.9.2/msvc2015${PLATFORM2}" CACHE PATH "Qt installation directory")
+    set(QT_PATH "C:/Qt/5.15.2/msvc2019${PLATFORM2}" CACHE PATH "Qt installation directory")
     if(NOT EXISTS ${QT_PATH})
         message("Specify QT_PATH properly")
         return()
     endif()
     set(QT_LIB_PATH ${QT_PATH})
-    set(CMAKE_PREFIX_PATH "${QT_PATH}/lib/cmake/")
+    set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};${QT_PATH}/lib/cmake/")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4251")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251")
     add_definitions(
@@ -165,8 +166,10 @@ if(BUILD_ENV_MSVC)
 elseif(BUILD_ENV_APPLE)
     set(QT_PATH "~/Qt5.9.2/5.9.2/clang_${PLATFORM}/lib" CACHE PATH "Qt installation directory")
     set(QT_LIB_PATH "${QT_PATH}/")
-    set(CMAKE_PREFIX_PATH "${QT_LIB_PATH}cmake/")
-    message("CMAKE_PREFIX_PATH:" ${CMAKE_PREFIX_PATH})
+    set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};${QT_LIB_PATH}cmake/")
+    foreach(path ${CMAKE_PREFIX_PATH})
+      message("CMAKE_PREFIX_PATH: " ${path})
+    endforeach(path)
     add_definitions(
         -DMACOSX
         -Di386
