@@ -468,6 +468,9 @@ void Preferences::definePreferenceItems() {
          QMetaType::Int, 0);  // On Demand
   define(columnIconLoadingPolicy, "columnIconLoadingPolicy", QMetaType::Int,
          (int)LoadAtOnce);
+  define(autoRemoveUnusedLevels, "autoRemoveUnusedLevels", QMetaType::Bool,
+         false);
+
   //"levelFormats" need to be handle separately
 
   // Saving
@@ -531,9 +534,10 @@ void Preferences::definePreferenceItems() {
          QMetaType::Bool, false);
 
   // Tools
-  define(dropdownShortcutsCycleOptions, "dropdownShortcutsCycleOptions",
-         QMetaType::Int,
-         1);  // Cycle through the available options (changed from bool to int)
+  // define(dropdownShortcutsCycleOptions, "dropdownShortcutsCycleOptions",
+  //       QMetaType::Int,
+  //       1);  // Cycle through the available options (changed from bool to
+  //       int)
   define(FillOnlysavebox, "FillOnlysavebox", QMetaType::Bool, false);
   define(multiLayerStylePickerEnabled, "multiLayerStylePickerEnabled",
          QMetaType::Bool, false);

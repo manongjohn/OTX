@@ -530,6 +530,7 @@
 		<file>icons/dark/actions/16/tool_options.svg</file>
 		<file>icons/dark/actions/16/view_file.svg</file>
 		<file>icons/dark/actions/16/level_strip.svg</file>
+    <file>icons/dark/actions/17/syncscale.svg</file>
 		<file>icons/dark/misc/startup_OTX.png</file>
 
 		<!-- Keyframe -->

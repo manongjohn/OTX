@@ -57,6 +57,7 @@ enum PreferencesItemId {
   initialLoadTlvCachingBehavior,
   columnIconLoadingPolicy,
   levelFormats,  // need to be handle separately
+  autoRemoveUnusedLevels,
 
   //----------
   // Saving
@@ -100,7 +101,7 @@ enum PreferencesItemId {
 
   //----------
   // Tools
-  dropdownShortcutsCycleOptions,
+  // dropdownShortcutsCycleOptions, // removed
   FillOnlysavebox,
   multiLayerStylePickerEnabled,
   cursorBrushType,
